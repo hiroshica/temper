@@ -1,6 +1,7 @@
 #include "../common.h"
 #include "SDL_event.h"
 
+#define kLIMIT   (0x00001000)
 u32 sdl_to_config_map[] =
 {
 	SDLK_UP,
@@ -381,14 +382,14 @@ void get_gui_input(gui_input_struct *gui_input)
         break;
 
       case SDL_JOYAXISMOTION:
-      printf("%d\n",event.jaxis.value);
-        if(event.jaxis.value < -64 && event.jaxis.value > 64)
+        if((event.jaxis.value < -kLIMIT) || (event.jaxis.value > kLIMIT))
         {
           gui_action = 
             joy_axis_map_set_gui_action(event.jaxis.axis, event.jaxis.value);
           gui_actions[gui_action] = 1;
         }
-        
+        else{
+        }
         break;
 
       case SDL_JOYHATMOTION:
