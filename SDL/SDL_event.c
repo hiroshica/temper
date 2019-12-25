@@ -78,6 +78,7 @@ u32 key_map(u32 keys)
 
 u32 joy_button_map(u32 button)
 {
+  //printf("%d\n",button);
   return config.pad[button + 4];
 }
 
@@ -380,7 +381,8 @@ void get_gui_input(gui_input_struct *gui_input)
         break;
 
       case SDL_JOYAXISMOTION:
-        if(event.jaxis.value != 0)
+      printf("%d\n",event.jaxis.value);
+        if(event.jaxis.value < -64 && event.jaxis.value > 64)
         {
           gui_action = 
             joy_axis_map_set_gui_action(event.jaxis.axis, event.jaxis.value);

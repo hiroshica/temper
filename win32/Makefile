@@ -16,7 +16,7 @@ BIN       ?= temper.exe
 # Platform specific definitions 
 
 VPATH      += .. ../SDL
-CFLAGS     += -DWIN32_BUILD
+CFLAGS     += -DWIN32_BUILD -g
 INCLUDES   = -I${PREFIX}/include `sdl-config --cflags`
 LIBS       = -L${PREFIX}/lib `sdl-config --libs` -mconsole -lbz2 -lz        \
              -lvorbisfile -lvorbis -logg -lwsock32
@@ -33,7 +33,7 @@ LIBS       = -L${PREFIX}/lib `sdl-config --libs` -mconsole -lbz2 -lz        \
 
 all:	${OBJS}
 	${CC} ${OBJS} ${LIBS} -o ${BIN}  
-	${STRIP} ${BIN}
+	#${STRIP} ${BIN}
 
 clean:
 	rm -f *.o ${BIN} 

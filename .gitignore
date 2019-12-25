@@ -7,3 +7,5 @@ SDL/opk/temper
 SDL/temper.opk
 SDL/temper
 *.ipk
+.vscode
+
