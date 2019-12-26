@@ -35,8 +35,8 @@ LIBS       = -lSDL -lz -lm -lbz2 -pthread -Wl,--as-needed -Wl,--gc-sections -flt
 all:	${OBJS}
 	${CC} ${OBJS} ${LIBS} -o ${BIN}  
 	${STRIP} ${BIN}
-	mv temper ./opk/temper
-	sh pack.sh
+	mv ${BIN} ./opk/${BIN}
+	sh pack.sh ${BIN} 
 
 clean:
 	rm -f *.o ${BIN} 

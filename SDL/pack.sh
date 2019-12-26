@@ -1,1 +1,1 @@
-mksquashfs ./opk temper.opk -all-root -noappend -no-exports -no-xattrs
+mksquashfs ./opk $1.opk -all-root -noappend -no-exports -no-xattrs
