@@ -50,7 +50,11 @@ typedef signed long long int s64;
   #include "gp2x/gp2x_common.h"
 #endif
 
+#ifdef RG350_BUILD
+#define TEMPER_VERSION "1.30.0 RG350"
+#else
 #define TEMPER_VERSION "1.24.2 GCW"
+#endif
 #define CD_SWAP_OPTION
 #define FASTFORWARD_FRAMESKIP
 #define FASTFORWARD_FRAMESKIP_RATE 4

@@ -27,62 +27,62 @@ void delay_us(u32 delay)
 }
 
 config_struct config =
+  {
+    // u32 pad[16];
     {
-        // u32 pad[16];
-        {
-            CONFIG_BUTTON_UP, CONFIG_BUTTON_DOWN, CONFIG_BUTTON_LEFT,
-            CONFIG_BUTTON_RIGHT, CONFIG_BUTTON_I, CONFIG_BUTTON_II,
-            CONFIG_BUTTON_III, CONFIG_BUTTON_IV, CONFIG_BUTTON_V,
-            CONFIG_BUTTON_VI, CONFIG_BUTTON_RUN, CONFIG_BUTTON_SELECT,
-            CONFIG_BUTTON_NONE, CONFIG_BUTTON_NONE, CONFIG_BUTTON_NONE,
-            CONFIG_BUTTON_NONE},
-        0,               // u32 show_fps;
-        1,               // u32 enable_sound;
-        0,               // u32 fast_forward;
-        44100,           // u32 audio_output_frequency;
-        1,               // u32 patch_idle_loops;
-        SS_SNAPSHOT_OFF, // u32 snapshot_format;
-        0,               // u32 force_usa;
+      CONFIG_BUTTON_UP, CONFIG_BUTTON_DOWN, CONFIG_BUTTON_LEFT,
+      CONFIG_BUTTON_RIGHT, CONFIG_BUTTON_I, CONFIG_BUTTON_II,
+      CONFIG_BUTTON_III, CONFIG_BUTTON_IV, CONFIG_BUTTON_V,
+      CONFIG_BUTTON_VI, CONFIG_BUTTON_RUN, CONFIG_BUTTON_SELECT,
+      CONFIG_BUTTON_NONE, CONFIG_BUTTON_NONE, CONFIG_BUTTON_NONE,
+      CONFIG_BUTTON_NONE},
+    0,               // u32 show_fps;
+    1,               // u32 enable_sound;
+    0,               // u32 fast_forward;
+    44100,           // u32 audio_output_frequency;
+    1,               // u32 patch_idle_loops;
+    SS_SNAPSHOT_OFF, // u32 snapshot_format;
+    0,               // u32 force_usa;
 
-        300,               // u32 clock_speed; hurr mr pc is faster
-        0,                 // u32 gp2x_ram_timings;
-        100,               // u32 gp2x_gamma_percent;
-        0,                 // u32 six_button_pad;
-        CD_SYSTEM_TYPE_V3, // cd_system_type_enum cd_system_type;
-        1,                 // u32 bz2_savestates;
-        0,                 // u32 per_game_bram;
-        0,                 // u32 sound_double;
-        SCALE_1x,          // u32 scale_factor;
-        0,                 // u32 fast_cd_access;
-        0,                 // u32 fast_cd_load;
-        0,                 // u32 scale_width;
-        0,                 // u32 unlimit_sprites
-        0,                 // u32 compatibility_mode
+    300,               // u32 clock_speed; hurr mr pc is faster
+    0,                 // u32 gp2x_ram_timings;
+    100,               // u32 gp2x_gamma_percent;
+    0,                 // u32 six_button_pad;
+    CD_SYSTEM_TYPE_V3, // cd_system_type_enum cd_system_type;
+    1,                 // u32 bz2_savestates;
+    0,                 // u32 per_game_bram;
+    0,                 // u32 sound_double;
+    SCALE_1x,          // u32 scale_factor;
+    0,                 // u32 fast_cd_access;
+    0,                 // u32 fast_cd_load;
+    0,                 // u32 scale_width;
+    0,                 // u32 unlimit_sprites
+    0,                 // u32 compatibility_mode
 
-        "Temper User",     // char netplay_username[16];
-        NETPLAY_TYPE_NONE, // u32 netplay_type;
-        12345,             // u32 netplay_port;
-        0x7F000001,        // u32 netplay_ip;
-        3,                 // u32 netplay_server_frame_latency;
-};
+    "Temper User",     // char netplay_username[16];
+    NETPLAY_TYPE_NONE, // u32 netplay_type;
+    12345,             // u32 netplay_port;
+    0x7F000001,        // u32 netplay_ip;
+    3,                 // u32 netplay_server_frame_latency;
+  };
 
 void synchronize()
 {
   static u64 last_ticks = 0;
 
   if (last_ticks != 0)
-  {
-    u64 current_ticks;
-    s32 delay;
+    {
+      u64 current_ticks;
+      s32 delay;
 
-    // Point B, the beginning of the new frame.
-    get_ticks_us(&current_ticks);
+      // Point B, the beginning of the new frame.
+      get_ticks_us(&current_ticks);
 
-    delay = (15000 - (current_ticks - last_ticks));
+      delay = (15000 - (current_ticks - last_ticks));
 
-    if ((delay > 0) && (config.fast_forward == 0))
-      delay_us(delay);
-  }
+      if ((delay > 0) && (config.fast_forward == 0))
+	delay_us(delay);
+    }
 
   get_ticks_us(&last_ticks);
   platform_update();
@@ -94,29 +94,31 @@ void platform_initialize()
 {
   SDL_Init(SDL_INIT);
   SDL_ShowCursor(0);
+#if 0
   // ジョイスティックが存在するかチェックする
   if (SDL_NumJoysticks() > 0)
-  {
-    // ジョイスティックを開く
-    joy = SDL_JoystickOpen(0);
+    {
+      // ジョイスティックを開く
+      joy = SDL_JoystickOpen(0);
 
-    if (joy)
-    {
-      printf("ジョイスティック 0 を開いた\n");
-      printf("名前: %s\n", SDL_JoystickName(0));
-      printf("軸の数: %d\n", SDL_JoystickNumAxes(joy));
-      printf("ボタンの数: %d\n", SDL_JoystickNumButtons(joy));
-      printf("ボールの数: %d\n", SDL_JoystickNumBalls(joy));
+      if (joy)
+	{
+	  printf("ジョイスティック 0 を開いた\n");
+	  printf("名前: %s\n", SDL_JoystickName(0));
+	  printf("軸の数: %d\n", SDL_JoystickNumAxes(joy));
+	  printf("ボタンの数: %d\n", SDL_JoystickNumButtons(joy));
+	  printf("ボールの数: %d\n", SDL_JoystickNumBalls(joy));
+	}
+      else
+	{
+	  printf("ジョイスティック 0 を開けなかった\n");
+	}
     }
-    else
-    {
-      printf("ジョイスティック 0 を開けなかった\n");
-    }
-  }
+#endif
 }
 
 void platform_update(){
-  SDL_JoystickUpdate();
+  //SDL_JoystickUpdate();
 }
 
 void platform_quit()
@@ -124,11 +126,13 @@ void platform_quit()
 #ifndef PANDORA_BUILD
   show_profile_stats();
 #endif
+#if 0
   // 開いたなら閉じる
   if (joy != NULL)
-  {
-    SDL_JoystickClose(joy);
-  }
+    {
+      SDL_JoystickClose(joy);
+    }
+#endif
   SDL_Quit();
 }
 
