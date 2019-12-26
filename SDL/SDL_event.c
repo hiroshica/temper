@@ -322,26 +322,13 @@ gui_action_type key_map_gui_action(u32 key)
   return CURSOR_NONE;
 }
 
+s32 udvalue = 0;
+s32 lrvalue = 0;
 u32 joy_axis_map_set_gui_action(u32 axis, s32 value)
 {
-#if 0
-  if(axis & 1)
+  if ((axis & 1) && value != udvalue)
   {
-    if(value < 0) 
-      return CURSOR_UP;
-    else
-      return CURSOR_DOWN;
-  }
-  else
-  {
-    if(value < 0) 
-      return CURSOR_LEFT;
-    else
-      return CURSOR_RIGHT;
-  }
-#else
-  if (axis & 1)
-  {
+    udvalue = value;
     if (value > kLIMIT)
     {
       gui_actions[CURSOR_UP] = 1;
@@ -358,8 +345,9 @@ u32 joy_axis_map_set_gui_action(u32 axis, s32 value)
       gui_actions[CURSOR_DOWN] = 0;
     }
   }
-  else
+  else if (!(axis & 1) && value != lrvalue)
   {
+    lrvalue = value;
     if (value > kLIMIT)
     {
       gui_actions[CURSOR_LEFT] = 1;
@@ -376,7 +364,6 @@ u32 joy_axis_map_set_gui_action(u32 axis, s32 value)
       gui_actions[CURSOR_RIGHT] = 0;
     }
   }
-#endif
 }
 
 void get_gui_input(gui_input_struct *gui_input)
@@ -389,7 +376,6 @@ void get_gui_input(gui_input_struct *gui_input)
   static gui_action_type cursor_repeat = CURSOR_NONE;
 
   delay_us(100);
-  //msleep(16.666667);
 
   while (SDL_PollEvent(&event))
   {
