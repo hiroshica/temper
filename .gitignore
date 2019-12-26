@@ -3,9 +3,9 @@
 *.elf
 *.txt
 *.pce
-SDL/opk/temper
-SDL/temper.opk
-SDL/temper
 *.ipk
 .vscode
+temper
+temper*
+*.opk
 
