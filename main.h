@@ -162,7 +162,11 @@ void synchronize();
 void initialize_pce();
 void reset_pce();
 void quit();
+
+extern SDL_Joystick *joy;
+
 void platform_initialize();
+void platform_update();
 void platform_quit();
 
 void get_ticks_us(u64 *ticks_return);
@@ -186,6 +190,7 @@ void status_message_raw(char *message);
 void set_fast_ram_timings();
 void set_default_ram_timings();
 
+void msleep(float milisec);
 void delay_us(u32 us_count);
 
 #ifdef CONFIG_OPTIONS_GAMMA

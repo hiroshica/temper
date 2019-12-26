@@ -39,6 +39,7 @@ typedef signed long long int s64;
 
 #ifdef SDL_INIT
   #include <SDL/SDL.h>
+  #include <SDL/SDL_joystick.h>
 #endif
 
 #ifdef BZ_SUPPORT
