@@ -1,1 +1,1 @@
-mksquashfs ./opk $1.opk -all-root -noappend -no-exports -no-xattrs
+mksquashfs $1 $2.opk -all-root -noappend -no-exports -no-xattrs

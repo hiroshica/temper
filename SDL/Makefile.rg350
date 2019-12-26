@@ -13,7 +13,8 @@ OBJS      = main.o cpu.o memory.o irq.o io.o video.o timer.o psg.o disasm.o    \
 			bitwise.o block.o codebook.o floor0.o floor1.o framing.o \
 			info.o mapping0.o mdct.o registry.o res012.o sharedbook.o \
 			synthesis.o vorbisfile.o window.o
-BIN       ?= temper-RG350 
+BIN       ?= temper-RG350
+OPKPATH	  ?= ./opk
 
 # Platform specific definitions
 
@@ -35,8 +36,8 @@ LIBS       = -lSDL -lz -lm -lbz2 -pthread -Wl,--as-needed -Wl,--gc-sections -flt
 all:	${OBJS}
 	${CC} ${OBJS} ${LIBS} -o ${BIN}  
 	${STRIP} ${BIN}
-	mv ${BIN} ./opk/${BIN}
-	sh pack.sh ${BIN} 
+	mv ${BIN} $(OPKPATH)/${BIN}
+	sh pack.sh $(OPKPATH) ${BIN} 
 
 clean:
 	rm -f *.o ${BIN} 

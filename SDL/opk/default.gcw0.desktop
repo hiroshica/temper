@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
-Name=Temper
+Name=Temper-RG350
 Comment=PC-Engine emulator
-Exec=temper %f
+Exec=temper-RG350 %f
 Icon=icon
 Terminal=false
 Categories=emulators;
