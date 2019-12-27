@@ -40,8 +40,8 @@ void update_screen()
 {
   if (last_scale_factor != config.scale_factor)
   {
-    u32 width = 320;
-    u32 height = 240;
+  u32 width = RESOLUTION_WIDTH;
+  u32 height = RESOLUTION_HEIGHT;
 #ifdef WIN32_BUILD
     if (SCALE_FULLSCREEN != config.scale_factor)
     {
