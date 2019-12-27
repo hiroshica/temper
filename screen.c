@@ -112,6 +112,7 @@ void set_font_narrow()
 
 void copy_screen(u16 *dest)
 {
+#if 0
   u32 i;
   u32 pitch = get_screen_pitch();
   u16 *pixels = get_screen_ptr();
@@ -122,6 +123,43 @@ void copy_screen(u16 *dest)
     pixels += pitch;
     dest += 320;
   }
+#else
+  u32 pitch = get_screen_pitch();
+  u32 height = get_screen_height();
+  u16 *pixels = get_screen_ptr();
+
+  float scalex = (float)SCREEN_W / (float)pitch;
+  float scaley = (float)SCREEN_H / (float)height;
+  float sy = 0;
+  u32 dy = 0;
+  float sx = 0;
+  u32 dx = 0;
+  if (scalex < 1 || scaley < 1)
+  {
+    for (sy = 0, dy = 0; dy < height; sy += scaley, dy += 1)
+    {
+
+      for (sx = 0, dx = 0; dx < pitch; sx += scalex, dx += 1)
+      {
+        u16 *wdst = dest + (((u32)sy) * SCREEN_W) + ((u32)sx);
+        u16 *wsrc = pixels + (dy * pitch) + dx;
+        *wdst = *wsrc;
+      }
+    }
+  }
+  else
+  {
+    u32 i;
+    for (i = 0; i < 240; i++)
+    {
+      {
+        memcpy(dest, pixels, 320 * 2);
+        pixels += pitch;
+        dest += 320;
+      }
+    }
+  }
+#endif
 }
 
 void blit_screen(u16 *src)
