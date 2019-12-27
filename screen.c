@@ -136,25 +136,32 @@ void blit_screen(u16 *src)
   u32 dy = 0;
   float sx = 0;
   u32 dx = 0;
-  for (sy = 0, dy = 0; dy < height; sy += scaley, dy += 1)
+  if (scalex < 1 || scaley < 1)
   {
-
-    for (sx = 0,dx = 0; dx < pitch; sx += scalex, dx += 1)
+    for (sy = 0, dy = 0; dy < height; sy += scaley, dy += 1)
     {
-      u16 *wsrc = src + (((u32)sy) * SCREEN_W) + ((u32)sx);
-      u16 *wdst = pixels + (dy * pitch) + dx;
-      *wdst = *wsrc;
+
+      for (sx = 0, dx = 0; dx < pitch; sx += scalex, dx += 1)
+      {
+        u16 *wsrc = src + (((u32)sy) * SCREEN_W) + ((u32)sx);
+        u16 *wdst = pixels + (dy * pitch) + dx;
+        *wdst = *wsrc;
+      }
     }
   }
-#if 0
+  else
   {
-    memcpy(pixels, src, 320 * 2);
-    pixels += pitch;
-    src += 320;
+    u32 i;
+    for (i = 0; i < 240; i++)
+    {
+      {
+        memcpy(pixels, src, 320 * 2);
+        pixels += pitch;
+        src += 320;
+      }
+    }
   }
-#endif
 }
-
 // Pass it get_screen_ptr() to halve intensity on itself; should
 // work okay.
 
