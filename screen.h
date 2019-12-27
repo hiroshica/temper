@@ -1,11 +1,14 @@
-#ifndef SCREEN_H
-#define SCREEN_H
+#ifndef __SCREEN_H__
+#define __SCREEN_H__
 
 #define SCREEN_WIDTH_NARROW_CHARS ((320 / 6) - 1)
 #define SCREEN_WIDTH_WIDE_CHARS   ((320 / 8) - 1)
+#define SCREEN_W (320)
+#define SCREEN_H (240)
 
 void *get_screen_ptr();
 u32 get_screen_pitch();
+u32 get_screen_height();
 void update_screen();
 void set_screen_resolution(u32 width, u32 height);
 
