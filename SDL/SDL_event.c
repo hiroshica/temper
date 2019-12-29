@@ -1,30 +1,34 @@
 #include "../common.h"
 #include "SDL_event.h"
 
-
 #define kLIMIT (0x00001000)
 u32 sdl_to_config_map[][2] =
     {
-        { SDLK_UP, (u32)CONFIG_BUTTON_UP},
-        { SDLK_DOWN, (u32)CONFIG_BUTTON_DOWN},
-        { SDLK_LEFT, (u32)CONFIG_BUTTON_LEFT},
-        { SDLK_RIGHT, (u32)CONFIG_BUTTON_RIGHT},
-        { SDLK_LSHIFT, (u32)CONFIG_BUTTON_IV},
-        { SDLK_LALT, (u32)CONFIG_BUTTON_I},
-        { SDLK_SPACE, (u32)CONFIG_BUTTON_V},
-        { SDLK_LCTRL, (u32)CONFIG_BUTTON_II},
-        { SDLK_ESCAPE, (u32)CONFIG_BUTTON_SELECT},
-        { SDLK_RETURN, (u32)CONFIG_BUTTON_RUN},
-        { SDLK_TAB, (u32)CONFIG_BUTTON_III},
-        { SDLK_BACKSPACE, (u32)CONFIG_BUTTON_VI},
-        { SDLK_PAGEUP, (u32)CONFIG_BUTTON_SAVE_STATE},
-        { SDLK_PAGEDOWN, (u32)CONFIG_BUTTON_LOAD_STATE},
-        { SDLK_KP_DIVIDE, (u32)CONFIG_BUTTON_MENU},
-        { SDLK_KP_PERIOD, (u32)CONFIG_BUTTON_FAST_FORWARD},
-        { SDLK_HOME, (u32)CONFIG_BUTTON_MENU},
-        {(u32)-1,(u32)-1,},
-    };
-        
+
+      #if 0
+        {SDLK_UP, (u32)CONFIG_BUTTON_UP},
+        {SDLK_DOWN, (u32)CONFIG_BUTTON_DOWN},
+        {SDLK_LEFT, (u32)CONFIG_BUTTON_LEFT},
+        {SDLK_RIGHT, (u32)CONFIG_BUTTON_RIGHT},
+        {SDLK_LSHIFT, (u32)CONFIG_BUTTON_IV},
+        {SDLK_LALT, (u32)CONFIG_BUTTON_I},
+        {SDLK_SPACE, (u32)CONFIG_BUTTON_V},
+        {SDLK_LCTRL, (u32)CONFIG_BUTTON_II},
+        {SDLK_TAB, (u32)CONFIG_BUTTON_III},
+        {SDLK_BACKSPACE, (u32)CONFIG_BUTTON_VI},
+        {SDLK_PAGEUP, (u32)CONFIG_BUTTON_SAVE_STATE},
+        {SDLK_PAGEDOWN, (u32)CONFIG_BUTTON_LOAD_STATE},
+        {SDLK_KP_DIVIDE, (u32)CONFIG_BUTTON_MENU},
+        {SDLK_KP_PERIOD, (u32)CONFIG_BUTTON_FAST_FORWARD},
+        #endif
+        {SDLK_ESCAPE, (u32)CONFIG_BUTTON_SELECT},
+        {SDLK_RETURN, (u32)CONFIG_BUTTON_RUN},
+        {SDLK_HOME, (u32)CONFIG_BUTTON_MENU},
+        {
+            (u32)-1,
+            (u32)-1,
+        },
+};
 
 u32 key_map(u32 keys)
 {
@@ -77,6 +81,51 @@ u32 joy_hat_map(u32 hat_value)
   default:
     return HAT_STATUS_CENTER;
   }
+}
+
+
+/*
+ 0 = SQUARE
+ 1 = CROSS
+ 2 = CIRCLE
+ 3 = TRIANGLE
+ 4 = L1
+ 5 = R1
+ 6 = L2
+ 7 = R2
+ 8 = SHARE
+ 9 = OPTION
+10 = L3
+11 = R3
+12 = PS
+13 = touchpad
+*/
+u32 rg350_changemap[][2] = {
+  {(u32)304,(u32)0},
+  {(u32)308,(u32)1},
+  {(u32)306,(u32)2},
+  {(u32)32,(u32)3},
+  {(u32)9,(u32)4},
+  {(u32)8,(u32)5},
+  {(u32)280,(u32)6},
+  {(u32)281,(u32)7},
+  {(u32)27,(u32)8},
+  {(u32)13,(u32)9},
+  {(u32)267,(u32)10},
+  {(u32)266,(u32)11},
+  {(u32)278,(u32)12},
+  {(u32)-1,(u32)-1},
+};
+
+u32 change_rg350buttoon(u32 button)
+{
+  u32 i;
+  for(i = 0;rg350_changemap[i][0] != (u32)-1; i++ ){
+    if(rg350_changemap[i][0] == button){
+      return rg350_changemap[i][1];
+    }
+  }
+  return CONFIG_BUTTON_MENU;
 }
 
 u32 update_input(event_input_struct *event_input)
@@ -179,13 +228,25 @@ u32 update_input(event_input_struct *event_input)
       break;
 
     case SDL_JOYBUTTONDOWN:
-      //event_input->action_type = INPUT_ACTION_TYPE_PRESS;
-      //event_input->config_button_action = joy_button_map(event.jbutton.button);
+      event_input->action_type = INPUT_ACTION_TYPE_PRESS;
+      {
+        u32 button = event.jbutton.button;
+#ifdef RG350_BUILD
+        button = change_rg350buttoon(button);
+#endif
+        event_input->config_button_action = joy_button_map(button);
+      }
       break;
 
     case SDL_JOYBUTTONUP:
-      //event_input->action_type = INPUT_ACTION_TYPE_RELEASE;
-      //event_input->config_button_action = joy_button_map(event.jbutton.button);
+      event_input->action_type = INPUT_ACTION_TYPE_RELEASE;
+      {
+        u32 button = event.jbutton.button;
+#ifdef RG350_BUILD
+        button = change_rg350buttoon(button);
+#endif
+        event_input->config_button_action = joy_button_map(button);
+      }
       break;
 
     case SDL_JOYHATMOTION:
@@ -367,6 +428,7 @@ void get_gui_input(gui_input_struct *gui_input)
       break;
 
     case SDL_JOYBUTTONDOWN:
+      printf("%d",event.jbutton.button);
       gui_action = joy_map_gui_action(event.jbutton.button);
       gui_actions[gui_action] = 1;
       break;

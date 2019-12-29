@@ -105,9 +105,7 @@ void update_events(void)
         else
           button_status &= ~io_button;
       }
-      else
-  
-      if(config_button_action <= CONFIG_BUTTON_RAPID_VI)
+      else if(config_button_action <= CONFIG_BUTTON_RAPID_VI)
       {
         static u32 config_rapid_to_io_map[] =
         {

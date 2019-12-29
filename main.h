@@ -22,7 +22,7 @@ typedef enum
 typedef struct
 {
   // This should be stored in the config file.
-  u32 pad[16];
+  u32 pad[24];
 
   u32 show_fps;
   u32 enable_sound;
