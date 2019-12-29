@@ -1,96 +1,43 @@
 #include "../common.h"
 #include "SDL_event.h"
 
-/*
- 0 = SQUARE
- 1 = CROSS
- 2 = CIRCLE
- 3 = TRIANGLE
- 4 = L1
- 5 = R1
- 6 = L2
- 7 = R2
- 8 = SHARE
- 9 = OPTION
-10 = L3
-11 = R3
-12 = PS
-13 = touchpad
-*/
 
 #define kLIMIT (0x00001000)
-u32 sdl_to_config_map[] =
+u32 sdl_to_config_map[][2] =
     {
-        SDLK_UP,
-        SDLK_DOWN,
-        SDLK_LEFT,
-        SDLK_RIGHT,
-        SDLK_LCTRL,
-        SDLK_LALT,
-        SDLK_LSHIFT,
-        SDLK_SPACE,
-        SDLK_TAB,
-        SDLK_BACKSPACE,
-        SDLK_RETURN,
-        SDLK_ESCAPE};
+        { SDLK_UP, (u32)CONFIG_BUTTON_UP},
+        { SDLK_DOWN, (u32)CONFIG_BUTTON_DOWN},
+        { SDLK_LEFT, (u32)CONFIG_BUTTON_LEFT},
+        { SDLK_RIGHT, (u32)CONFIG_BUTTON_RIGHT},
+        { SDLK_LSHIFT, (u32)CONFIG_BUTTON_IV},
+        { SDLK_LALT, (u32)CONFIG_BUTTON_I},
+        { SDLK_SPACE, (u32)CONFIG_BUTTON_V},
+        { SDLK_LCTRL, (u32)CONFIG_BUTTON_II},
+        { SDLK_ESCAPE, (u32)CONFIG_BUTTON_SELECT},
+        { SDLK_RETURN, (u32)CONFIG_BUTTON_RUN},
+        { SDLK_TAB, (u32)CONFIG_BUTTON_III},
+        { SDLK_BACKSPACE, (u32)CONFIG_BUTTON_VI},
+        { SDLK_PAGEUP, (u32)CONFIG_BUTTON_SAVE_STATE},
+        { SDLK_PAGEDOWN, (u32)CONFIG_BUTTON_LOAD_STATE},
+        { SDLK_KP_DIVIDE, (u32)CONFIG_BUTTON_MENU},
+        { SDLK_KP_PERIOD, (u32)CONFIG_BUTTON_FAST_FORWARD},
+        { SDLK_HOME, (u32)CONFIG_BUTTON_MENU},
+        {(u32)-1,(u32)-1,},
+    };
+        
 
 u32 key_map(u32 keys)
 {
-  unsigned char i, chosen_key;
+  unsigned char i;
 
-  chosen_key = 12;
-
-  for (i = 0; i < 13; i++)
+  for (i = 0; sdl_to_config_map[i][0] != (u32)-1; i++)
   {
-    if (keys == sdl_to_config_map[i])
+    if (keys == sdl_to_config_map[i][0])
     {
-      chosen_key = config.pad[i];
-      break;
+      return sdl_to_config_map[i][1];
     }
   }
-
-  switch (chosen_key)
-  {
-  case 0:
-    return CONFIG_BUTTON_UP;
-
-  case 1:
-    return CONFIG_BUTTON_DOWN;
-
-  case 2:
-    return CONFIG_BUTTON_LEFT;
-
-  case 3:
-    return CONFIG_BUTTON_RIGHT;
-
-  case 4:
-    return CONFIG_BUTTON_I;
-
-  case 5:
-    return CONFIG_BUTTON_II;
-
-  case 6:
-    return CONFIG_BUTTON_III;
-
-  case 7:
-    return CONFIG_BUTTON_IV;
-
-  case 8:
-    return CONFIG_BUTTON_V;
-
-  case 9:
-    return CONFIG_BUTTON_VI;
-
-  case 10:
-    return CONFIG_BUTTON_RUN;
-
-  case 11:
-    return CONFIG_BUTTON_SELECT;
-
-  case 12:
-  default:
-    return CONFIG_BUTTON_NONE;
-  }
+  return CONFIG_BUTTON_NONE;
 }
 
 u32 joy_button_map(u32 button)
@@ -153,11 +100,15 @@ u32 update_input(event_input_struct *event_input)
     case SDL_KEYDOWN:
       event_input->action_type = INPUT_ACTION_TYPE_PRESS;
       event_input->key_letter = event.key.keysym.unicode;
-
+#ifdef RG350_BUILD
+      event_input->config_button_action = key_map(event.key.keysym.sym);
+#else
       switch (event.key.keysym.sym)
       {
 #ifdef RS97_BUILD
       case SDLK_END:
+#elif RG350_BUILD
+      case SDLK_HOME:
 #else
       case SDLK_ESCAPE:
 #endif
@@ -196,7 +147,6 @@ u32 update_input(event_input_struct *event_input)
       case SDLK_m:
         event_input->config_button_action = CONFIG_BUTTON_MENU;
         break;
-
       case SDLK_BACKSPACE:
         event_input->key_action = KEY_ACTION_NETPLAY_TALK_CURSOR_BACKSPACE;
         event_input->config_button_action = key_map(event.key.keysym.sym);
@@ -216,11 +166,11 @@ u32 update_input(event_input_struct *event_input)
         event_input->key_action = KEY_ACTION_NETPLAY_TALK_CURSOR_RIGHT;
         event_input->config_button_action = key_map(event.key.keysym.sym);
         break;
-
       default:
         event_input->config_button_action = key_map(event.key.keysym.sym);
         break;
       }
+#endif
       break;
 
     case SDL_KEYUP:
@@ -229,13 +179,13 @@ u32 update_input(event_input_struct *event_input)
       break;
 
     case SDL_JOYBUTTONDOWN:
-      event_input->action_type = INPUT_ACTION_TYPE_PRESS;
-      event_input->config_button_action = joy_button_map(event.jbutton.button);
+      //event_input->action_type = INPUT_ACTION_TYPE_PRESS;
+      //event_input->config_button_action = joy_button_map(event.jbutton.button);
       break;
 
     case SDL_JOYBUTTONUP:
-      event_input->action_type = INPUT_ACTION_TYPE_RELEASE;
-      event_input->config_button_action = joy_button_map(event.jbutton.button);
+      //event_input->action_type = INPUT_ACTION_TYPE_RELEASE;
+      //event_input->config_button_action = joy_button_map(event.jbutton.button);
       break;
 
     case SDL_JOYHATMOTION:

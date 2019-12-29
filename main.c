@@ -5,78 +5,77 @@ void setup_main_dirs()
   struct stat sb;
 
 #ifdef LETSGO_HOME
-	char save_path[MAX_PATH], bram_path[MAX_PATH], config_path[MAX_PATH], images_path[MAX_PATH], sys_path[MAX_PATH];
-	snprintf(config.main_path, MAX_PATH, "%s/.temper", getenv("HOME")); 
-	
-	snprintf(save_path, MAX_PATH, "%s/%s", config.main_path, "save_states"); 
-	snprintf(bram_path, MAX_PATH, "%s/%s", config.main_path, "bram"); 
-	snprintf(config_path, MAX_PATH, "%s/%s", config.main_path, "config"); 
-	snprintf(images_path, MAX_PATH, "%s/%s", config.main_path, "images"); 
-	snprintf(sys_path, MAX_PATH, "%s/%s", config.main_path, "syscards"); 
-	
-	if(stat(config.main_path, &sb))
-	{
-		printf("save_states directory doesn't exist, creating\n");
-		make_directory(config.main_path);
-	}
-	
-	if(stat(save_path, &sb))
-	{
-		printf("save_states directory doesn't exist, creating\n");
-		make_directory(save_path);
-	}
+  char save_path[MAX_PATH], bram_path[MAX_PATH], config_path[MAX_PATH], images_path[MAX_PATH], sys_path[MAX_PATH];
+  snprintf(config.main_path, MAX_PATH, "%s/.temper", getenv("HOME"));
 
-	if(stat(config_path, &sb))
-	{
-		printf("config directory doesn't exist, creating\n");
-		make_directory(config_path);
-	}
+  snprintf(save_path, MAX_PATH, "%s/%s", config.main_path, "save_states");
+  snprintf(bram_path, MAX_PATH, "%s/%s", config.main_path, "bram");
+  snprintf(config_path, MAX_PATH, "%s/%s", config.main_path, "config");
+  snprintf(images_path, MAX_PATH, "%s/%s", config.main_path, "images");
+  snprintf(sys_path, MAX_PATH, "%s/%s", config.main_path, "syscards");
 
-	if(stat(bram_path, &sb))
-	{
-		printf("bram directory doesn't exist, creating\n");
-		make_directory(bram_path);
-	}
+  if (stat(config.main_path, &sb))
+  {
+    printf("save_states directory doesn't exist, creating\n");
+    make_directory(config.main_path);
+  }
 
-	if(stat(images_path, &sb))
-	{
-		printf("images directory doesn't exist, creating\n");
-		make_directory(images_path);
-	}
-	
-	if(stat(sys_path, &sb))
-	{
-		printf("syscard directory doesn't exist, creating\n");
-		make_directory(sys_path);
-	}
+  if (stat(save_path, &sb))
+  {
+    printf("save_states directory doesn't exist, creating\n");
+    make_directory(save_path);
+  }
+
+  if (stat(config_path, &sb))
+  {
+    printf("config directory doesn't exist, creating\n");
+    make_directory(config_path);
+  }
+
+  if (stat(bram_path, &sb))
+  {
+    printf("bram directory doesn't exist, creating\n");
+    make_directory(bram_path);
+  }
+
+  if (stat(images_path, &sb))
+  {
+    printf("images directory doesn't exist, creating\n");
+    make_directory(images_path);
+  }
+
+  if (stat(sys_path, &sb))
+  {
+    printf("syscard directory doesn't exist, creating\n");
+    make_directory(sys_path);
+  }
 #else
-	getcwd(config.main_path, MAX_PATH);
-	
-	if(stat("save_states", &sb))
-	{
+  getcwd(config.main_path, MAX_PATH);
+
+  if (stat("save_states", &sb))
+  {
     printf("save_states directory doesn't exist, creating\n");
     make_directory("save_states");
-	}
+  }
 
-	if(stat("config", &sb))
-	{
+  if (stat("config", &sb))
+  {
     printf("config directory doesn't exist, creating\n");
     make_directory("config");
-	}
+  }
 
-	if(stat("bram", &sb))
-	{
+  if (stat("bram", &sb))
+  {
     printf("bram directory doesn't exist, creating\n");
     make_directory("bram");
-	}
+  }
 
-	if(stat("images", &sb))
-	{
+  if (stat("images", &sb))
+  {
     printf("images directory doesn't exist, creating\n");
     make_directory("images");
-	}
+  }
 #endif
-
 }
 
 const u32 benchmark_frame_interval = 1000;
@@ -90,84 +89,84 @@ void benchmark_step()
   static PspDebugProfilerRegs *profile_struct;
 #endif
 
-  switch(benchmark_number)
+  switch (benchmark_number)
   {
-    case 0:
+  case 0:
 #ifdef PSP_BUILD
-      profile_struct = sceKernelReferGlobalProfiler();
+    profile_struct = sceKernelReferGlobalProfiler();
 
-      memset(profile_struct, 0, sizeof(PspDebugProfilerRegs));
-      profile_struct->enable = 1;
+    memset(profile_struct, 0, sizeof(PspDebugProfilerRegs));
+    profile_struct->enable = 1;
 #endif
-      delay_us(1000 * 2500);
+    delay_us(1000 * 2500);
 
-      get_ticks_us(&benchmark_ms);
-      break;
+    get_ticks_us(&benchmark_ms);
+    break;
 
-    case 1:
+  case 1:
+  {
+    u64 new_ms;
+    u32 ms_delta;
+
+    get_ticks_us(&new_ms);
+    ms_delta = (new_ms - benchmark_ms) / 1000;
+
+    printf("benchmark took %d ms (%lf ms per frame)\n",
+           ms_delta, (double)ms_delta / benchmark_frame_interval);
+
+#ifdef PSP_BUILD
     {
-      u64 new_ms;
-      u32 ms_delta;
+      u32 total_stalled_cycles;
 
-      get_ticks_us(&new_ms);
-      ms_delta = (new_ms - benchmark_ms) / 1000;
+      profile_struct->enable = 0;
 
-      printf("benchmark took %d ms (%lf ms per frame)\n",
-       ms_delta, (double)ms_delta / benchmark_frame_interval);
+      total_stalled_cycles = profile_struct->internal +
+                             profile_struct->memory + profile_struct->copz +
+                             profile_struct->vfpu;
 
-#ifdef PSP_BUILD
-      {
-        u32 total_stalled_cycles;
+      printf("PSP profile results:\n"
+             "system cycles:    %d\n"
+             "cpu cycles:       %d\n"
+             "stalled cycles:   %d (%d) (%lf%%)\n"
+             "  internal:       %d (%lf%%)\n"
+             "  memory:         %d (%lf%%)\n"
+             "  copz:           %d (%lf%%)\n"
+             "  vfpu:           %d (%lf%%)\n"
+             "bus accesses:     %d\n"
+             "uncached load:    %d\n"
+             "uncached store:   %d\n"
+             "cached loads:     %d\n"
+             "cached stores:    %d\n"
+             "icache misses:    %d\n"
+             "dcache misses:    %d\n"
+             "dcache writeback: %d\n",
 
-        profile_struct->enable = 0;
-
-        total_stalled_cycles = profile_struct->internal +
-         profile_struct->memory + profile_struct->copz +
-         profile_struct->vfpu;
-
-        printf("PSP profile results:\n"
-         "system cycles:    %d\n"
-         "cpu cycles:       %d\n"
-         "stalled cycles:   %d (%d) (%lf%%)\n"
-         "  internal:       %d (%lf%%)\n"
-         "  memory:         %d (%lf%%)\n"
-         "  copz:           %d (%lf%%)\n"
-         "  vfpu:           %d (%lf%%)\n"
-         "bus accesses:     %d\n"
-         "uncached load:    %d\n"
-         "uncached store:   %d\n"
-         "cached loads:     %d\n"
-         "cached stores:    %d\n"
-         "icache misses:    %d\n"
-         "dcache misses:    %d\n"
-         "dcache writeback: %d\n",
-
-         profile_struct->systemck,
-         profile_struct->cpuck,
-         total_stalled_cycles,
-         profile_struct->sleep,
-         percent_of(total_stalled_cycles, profile_struct->cpuck),
-         profile_struct->internal,
-         percent_of(profile_struct->internal, total_stalled_cycles),
-         profile_struct->memory,
-         percent_of(profile_struct->memory, total_stalled_cycles),
-         profile_struct->copz,
-         percent_of(profile_struct->copz, total_stalled_cycles),
-         profile_struct->vfpu,
-         percent_of(profile_struct->vfpu, total_stalled_cycles),
-         profile_struct->bus_access,
-         profile_struct->uncached_load,
-         profile_struct->uncached_store,
-         profile_struct->cached_load,
-         profile_struct->cached_store,
-         profile_struct->i_miss,
-         profile_struct->d_miss,
-         profile_struct->d_writeback);
-      }
-#endif
-      quit();
-      break;
+             profile_struct->systemck,
+             profile_struct->cpuck,
+             total_stalled_cycles,
+             profile_struct->sleep,
+             percent_of(total_stalled_cycles, profile_struct->cpuck),
+             profile_struct->internal,
+             percent_of(profile_struct->internal, total_stalled_cycles),
+             profile_struct->memory,
+             percent_of(profile_struct->memory, total_stalled_cycles),
+             profile_struct->copz,
+             percent_of(profile_struct->copz, total_stalled_cycles),
+             profile_struct->vfpu,
+             percent_of(profile_struct->vfpu, total_stalled_cycles),
+             profile_struct->bus_access,
+             profile_struct->uncached_load,
+             profile_struct->uncached_store,
+             profile_struct->cached_load,
+             profile_struct->cached_store,
+             profile_struct->i_miss,
+             profile_struct->d_miss,
+             profile_struct->d_writeback);
     }
+#endif
+    quit();
+    break;
+  }
   }
 
   benchmark_number++;
@@ -181,102 +180,102 @@ u32 process_arguments(int argc, char *argv[])
   s32 option_index;
 
   static struct option long_options[] =
-  {
-    { "netplay-server", no_argument, NULL, 0 },
-    { "netplay-connect", required_argument, NULL, 0 },
-    { "netplay-port", required_argument, NULL, 0 },
-    { "netplay-latency", required_argument, NULL, 0 },
-    { "netplay-username", required_argument, NULL, 0 },
-    { "countdown-breakpoint", required_argument, NULL, 0 },
-    { "pc-breakpoint", required_argument, NULL, 0 },
-  };
+      {
+          {"netplay-server", no_argument, NULL, 0},
+          {"netplay-connect", required_argument, NULL, 0},
+          {"netplay-port", required_argument, NULL, 0},
+          {"netplay-latency", required_argument, NULL, 0},
+          {"netplay-username", required_argument, NULL, 0},
+          {"countdown-breakpoint", required_argument, NULL, 0},
+          {"pc-breakpoint", required_argument, NULL, 0},
+      };
 
   config.benchmark_mode = 0;
   config.fast_forward = 0;
   config.load_state_0 = 0;
   config.relaunch_shell_on_quit = 1;
 
-  while(1)
+  while (1)
   {
     current_option = getopt_long(argc, argv, "dbfsx",
-     long_options, &option_index);
+                                 long_options, &option_index);
 
-    if(current_option == -1)
+    if (current_option == -1)
       break;
 
     options_parsed++;
 
-    switch(current_option)
+    switch (current_option)
     {
+    case 0:
+      switch (option_index)
+      {
       case 0:
-        switch(option_index)
-        {
-          case 0:
-            printf("Selected netplay server.\n");
-            config.netplay_type = NETPLAY_TYPE_SERVER;
-            break;
-
-          case 1:
-            config.netplay_type = NETPLAY_TYPE_CLIENT;
-            config.netplay_ip = netplay_ip_string_value(optarg);
-            printf("Selected netplay client, connecting to IP %x.\n",
-             config.netplay_ip);
-            break;
-
-          case 2:
-            config.netplay_port = atoi(optarg);
-            printf("Selected netplay port %d.\n", config.netplay_port);
-            break;
-
-          case 3:
-            config.netplay_server_frame_latency = atoi(optarg);
-            printf("Selected netplay latency %d.\n",
-             config.netplay_server_frame_latency);
-            break;
-
-          case 4:
-            strncpy(config.netplay_username, optarg, 128);
-            printf("Setting netplay username to %s\n", config.netplay_username);
-            break;
-
-          case 5:
-            debug.breakpoint = strtol(optarg, NULL, 16) + 1;
-            debug.breakpoint_original = debug.breakpoint;
-            set_debug_mode(DEBUG_COUNTDOWN_BREAKPOINT);
-            break;
-
-          case 6:
-            debug.breakpoint = strtol(optarg, NULL, 16);
-            debug.breakpoint_original = debug.breakpoint;
-            set_debug_mode(DEBUG_PC_BREAKPOINT);
-            printf("Breakpoint set to PC %04x", debug.breakpoint);
-            break;
-
-          default:
-            break;
-        }
+        printf("Selected netplay server.\n");
+        config.netplay_type = NETPLAY_TYPE_SERVER;
         break;
 
-      case 'd':
-        set_debug_mode(DEBUG_STEP);
+      case 1:
+        config.netplay_type = NETPLAY_TYPE_CLIENT;
+        config.netplay_ip = netplay_ip_string_value(optarg);
+        printf("Selected netplay client, connecting to IP %x.\n",
+               config.netplay_ip);
         break;
 
-      case 'b':
-        config.benchmark_mode = 1;
+      case 2:
+        config.netplay_port = atoi(optarg);
+        printf("Selected netplay port %d.\n", config.netplay_port);
         break;
 
-      case 'f':
-        config.fast_forward = 1;
+      case 3:
+        config.netplay_server_frame_latency = atoi(optarg);
+        printf("Selected netplay latency %d.\n",
+               config.netplay_server_frame_latency);
         break;
 
-      case 's':
-        config.load_state_0 = 1;
+      case 4:
+        strncpy(config.netplay_username, optarg, 128);
+        printf("Setting netplay username to %s\n", config.netplay_username);
         break;
 
-      case 'x':
-        printf("Not relaunching shell on quit.\n");
-        config.relaunch_shell_on_quit = 0;
+      case 5:
+        debug.breakpoint = strtol(optarg, NULL, 16) + 1;
+        debug.breakpoint_original = debug.breakpoint;
+        set_debug_mode(DEBUG_COUNTDOWN_BREAKPOINT);
         break;
+
+      case 6:
+        debug.breakpoint = strtol(optarg, NULL, 16);
+        debug.breakpoint_original = debug.breakpoint;
+        set_debug_mode(DEBUG_PC_BREAKPOINT);
+        printf("Breakpoint set to PC %04x", debug.breakpoint);
+        break;
+
+      default:
+        break;
+      }
+      break;
+
+    case 'd':
+      set_debug_mode(DEBUG_STEP);
+      break;
+
+    case 'b':
+      config.benchmark_mode = 1;
+      break;
+
+    case 'f':
+      config.fast_forward = 1;
+      break;
+
+    case 's':
+      config.load_state_0 = 1;
+      break;
+
+    case 'x':
+      printf("Not relaunching shell on quit.\n");
+      config.relaunch_shell_on_quit = 0;
+      break;
     }
   }
 
@@ -288,12 +287,11 @@ int main(int argc, char *argv[])
   u32 command_line_options;
   u32 benchmark_frames = benchmark_frame_interval;
 
-
 #ifdef PSP_BUILD
   delay_us(2000000);
 
   scePowerSetClockFrequency(config.clock_speed, config.clock_speed,
-   config.clock_speed / 2);
+                            config.clock_speed / 2);
 #endif
 
   //config.use_opengl = 1;
@@ -318,16 +316,16 @@ int main(int argc, char *argv[])
   printf("Processing arguments\n");
   command_line_options = process_arguments(argc, argv);
 
-  if((argc > 1) && (argv[argc - 1][0] != '-'))
+  if ((argc > 1) && (argv[argc - 1][0] != '-'))
   {
     printf("Loading ROM %s\n", argv[argc - 1]);
-  
-	if (strstr(argv[1], ".bin") || strstr(argv[1], ".iso") )
-	{
-		return;
-	}
 
-    if(load_rom(argv[argc - 1]) == -1)
+    if (strstr(argv[1], ".bin") || strstr(argv[1], ".iso"))
+    {
+      return;
+    }
+
+    if (load_rom(argv[argc - 1]) == -1)
     {
       printf("Error: Could not load %s\n", argv[1]);
       return -1;
@@ -340,7 +338,7 @@ int main(int argc, char *argv[])
     menu(1);
   }
 
-  if(config.load_state_0)
+  if (config.load_state_0)
   {
     char state_name[MAX_PATH];
     sprintf(state_name, "%s_0.svs", config.rom_filename);
@@ -348,7 +346,7 @@ int main(int argc, char *argv[])
     load_state(state_name, NULL, 0);
   }
 
-  if(config.benchmark_mode)
+  if (config.benchmark_mode)
   {
     char state_name[MAX_PATH];
     sprintf(state_name, "%s_0.svs", config.rom_filename);
@@ -365,12 +363,12 @@ int main(int argc, char *argv[])
 
   printf("Running game.\n");
 
-  if(netplay.pause == 0)
+  if (netplay.pause == 0)
     audio_unpause();
 
-  while(1)
+  while (1)
   {
-    if(netplay.active && netplay.pause)
+    if (netplay.active && netplay.pause)
     {
       delay_us(10000);
       update_events();
@@ -381,13 +379,13 @@ int main(int argc, char *argv[])
     /*synchronize();*/
 
 #ifdef FASTFORWARD_FRAMESKIP
-    if(config.fast_forward && !config.benchmark_mode)
+    if (config.fast_forward && !config.benchmark_mode)
     {
       static u32 frameskip_counter = 0;
 
       update_frame(frameskip_counter == 0);
       frameskip_counter = (frameskip_counter + 1) %
-       FASTFORWARD_FRAMESKIP_RATE;
+                          FASTFORWARD_FRAMESKIP_RATE;
     }
     else
     {
@@ -405,10 +403,10 @@ int main(int argc, char *argv[])
 
     update_events();
 
-    if(config.benchmark_mode)
+    if (config.benchmark_mode)
     {
       benchmark_frames--;
-      if(benchmark_frames == 0)
+      if (benchmark_frames == 0)
       {
         benchmark_step();
         benchmark_frames = benchmark_frame_interval;
@@ -460,7 +458,7 @@ void save_state(char *file_name, u16 *snapshot)
 {
   char path[MAX_PATH];
   sprintf(path, "%s%csave_states%c%s", config.main_path, DIR_SEPARATOR_CHAR,
-   DIR_SEPARATOR_CHAR, file_name);
+          DIR_SEPARATOR_CHAR, file_name);
   u8 *savestate_buffer = malloc(SAVESTATE_MAX_SIZE);
   u32 snapshot_length = 0;
 
@@ -482,36 +480,36 @@ void save_state(char *file_name, u16 *snapshot)
 
   // Only save a snapshot if it's given a valid one.
 
-  if(snapshot != NULL)
+  if (snapshot != NULL)
   {
     savestate_header.extensions |= SS_EXT_SNAPSHOT;
     savestate_header.snapshot_format = SS_SNAPSHOT_FULL;
   }
 
-  if(config.cd_loaded)
+  if (config.cd_loaded)
   {
     savestate_header.extensions |= SS_EXT_CDROM_DATA;
 
-    if((config.cd_system_type == CD_SYSTEM_TYPE_V3) ||
-     (config.cd_system_type == CD_SYSTEM_TYPE_ACD))
+    if ((config.cd_system_type == CD_SYSTEM_TYPE_V3) ||
+        (config.cd_system_type == CD_SYSTEM_TYPE_ACD))
     {
       savestate_header.extensions |= SS_EXT_SUPER_CD_DATA;
     }
 
-    if(config.cd_system_type == CD_SYSTEM_TYPE_ACD)
+    if (config.cd_system_type == CD_SYSTEM_TYPE_ACD)
       savestate_header.extensions |= SS_EXT_ARCADE_CARD_DATA;
   }
 
-  if(memory.sf2_region != -1)
+  if (memory.sf2_region != -1)
     savestate_header.extensions |= SS_EXT_SF2_DATA;
 
-  if(config.six_button_pad)
+  if (config.six_button_pad)
     savestate_header.extensions |= SS_EXT_6BUTTON_DATA;
 
-  if(config.populous_loaded)
+  if (config.populous_loaded)
     savestate_header.extensions |= SS_EXT_POPULOUS_DATA;
 
-  if(config.bz2_savestates)
+  if (config.bz2_savestates)
     savestate_header.extensions |= SS_EXT_BZ2_COMPRESSED;
 
   file_write_mem_array(savestate_file, savestate_header.magic_string);
@@ -520,7 +518,7 @@ void save_state(char *file_name, u16 *snapshot)
   file_write_mem_variable(savestate_file, savestate_header.snapshot_format);
   file_write_mem_array(savestate_file, savestate_header.reserved);
 
-  if(savestate_header.extensions & SS_EXT_SNAPSHOT)
+  if (savestate_header.extensions & SS_EXT_SNAPSHOT)
   {
     snapshot_length = 320 * 240 * 2;
     file_write_mem(savestate_file, snapshot, snapshot_length);
@@ -534,29 +532,29 @@ void save_state(char *file_name, u16 *snapshot)
   psg_store_savestate(savestate_file);
   cpu_store_savestate(savestate_file);
 
-  if(config.cd_loaded)
+  if (config.cd_loaded)
   {
     cd_store_savestate(savestate_file);
     adpcm_store_savestate(savestate_file);
 
-    if(savestate_header.extensions & SS_EXT_SUPER_CD_DATA)
+    if (savestate_header.extensions & SS_EXT_SUPER_CD_DATA)
       file_write_mem_array(savestate_file, cd.ext_ram);
 
-    if(savestate_header.extensions & SS_EXT_ARCADE_CARD_DATA)
+    if (savestate_header.extensions & SS_EXT_ARCADE_CARD_DATA)
       arcade_card_store_savestate(savestate_file);
   }
 
-  if((savestate_header.extensions & SS_EXT_SF2_DATA))
+  if ((savestate_header.extensions & SS_EXT_SF2_DATA))
     file_write_mem_variable(savestate_file, memory.sf2_region);
 
-  if((savestate_header.extensions & SS_EXT_6BUTTON_DATA))
+  if ((savestate_header.extensions & SS_EXT_6BUTTON_DATA))
     file_write_mem_variable(savestate_file, io.six_button_toggle);
 
-  if((savestate_header.extensions & SS_EXT_POPULOUS_DATA))
+  if ((savestate_header.extensions & SS_EXT_POPULOUS_DATA))
     file_write_mem_array(savestate_file, memory.hucard_rom + (0x40 * 0x2000));
 
 #ifdef BZ_SUPPORT
-  if(savestate_header.extensions & SS_EXT_BZ2_COMPRESSED)
+  if (savestate_header.extensions & SS_EXT_BZ2_COMPRESSED)
   {
     int error_code;
     BZFILE *bz_savestate_file;
@@ -564,13 +562,11 @@ void save_state(char *file_name, u16 *snapshot)
 
     file_write_mem_save_fixed(savestate_file, extra_length);
     bz_savestate_file = BZ2_bzWriteOpen(&error_code, savestate_file->_file,
-     4, 0, 30);
+                                        4, 0, 30);
 
     printf("saving bz2 compressed portion of state at offset %x\n",
-     extra_length);
-    BZ2_bzWrite(&error_code, bz_savestate_file, savestate_file->buffer +
-     extra_length, (savestate_file->buffer_ptr - savestate_file->buffer) -
-     extra_length);
+           extra_length);
+    BZ2_bzWrite(&error_code, bz_savestate_file, savestate_file->buffer + extra_length, (savestate_file->buffer_ptr - savestate_file->buffer) - extra_length);
     BZ2_bzWriteClose(&error_code, bz_savestate_file, 0, NULL, NULL);
   }
   else
@@ -598,20 +594,20 @@ void load_state_date(char *path, char *state_date)
 }
 
 savestate_extension_enum load_state(char *file_name, u8 *in_memory_state,
- u32 in_memory_state_size)
+                                    u32 in_memory_state_size)
 {
   char path[MAX_PATH];
   sprintf(path, "%s%csave_states%c%s", config.main_path, DIR_SEPARATOR_CHAR,
-   DIR_SEPARATOR_CHAR, file_name);
+          DIR_SEPARATOR_CHAR, file_name);
   savestate_header_struct savestate_header;
   u8 *savestate_buffer = malloc(SAVESTATE_MAX_SIZE);
 
   u32 audio_pause_state = audio_pause();
 
   file_read_mem_open(savestate_file, path, savestate_buffer, in_memory_state,
-   in_memory_state_size);
+                     in_memory_state_size);
 
-  if(in_memory_state)
+  if (in_memory_state)
   {
     printf("loading state from memory.\n");
   }
@@ -621,7 +617,7 @@ savestate_extension_enum load_state(char *file_name, u8 *in_memory_state,
     netplay_send_savestate(file_name);
   }
 
-  if(file_read_mem_invalid(savestate_file))
+  if (file_read_mem_invalid(savestate_file))
   {
     printf("savestate %s does not exist\n", path);
     free(savestate_buffer);
@@ -641,7 +637,7 @@ savestate_extension_enum load_state(char *file_name, u8 *in_memory_state,
   file_read_mem_array(savestate_file, savestate_header.reserved);
 
   // First, the savestate string must match.
-  if(strncmp(savestate_header.magic_string, "TMSS", 4))
+  if (strncmp(savestate_header.magic_string, "TMSS", 4))
     goto invalid;
 
   // Right now this only supports savestate version 1. Later if more
@@ -649,7 +645,7 @@ savestate_extension_enum load_state(char *file_name, u8 *in_memory_state,
   // though.
 
   // If savestates change too much there can be a lower limit here too.
-  if(savestate_header.version > TEMPER_SAVESTATE_VERSION)
+  if (savestate_header.version > TEMPER_SAVESTATE_VERSION)
   {
     printf("Error: Savestate version not supported by Temper.\n");
     goto invalid;
@@ -658,16 +654,16 @@ savestate_extension_enum load_state(char *file_name, u8 *in_memory_state,
   config.savestate_version = savestate_header.version;
 
   // Does it have a snapshot? What do we care here? Skip it.
-  if(savestate_header.extensions & SS_EXT_SNAPSHOT)
+  if (savestate_header.extensions & SS_EXT_SNAPSHOT)
   {
     // Okay, must support these as they're added.
-    switch(savestate_header.snapshot_format)
+    switch (savestate_header.snapshot_format)
     {
-      default:
-      case SS_SNAPSHOT_FULL:
-        file_read_mem_load_null(savestate_file, 320 * 240 * 2);
-        file_read_mem_skip_forward(savestate_file, 320 * 240 * 2);
-        break;
+    default:
+    case SS_SNAPSHOT_FULL:
+      file_read_mem_load_null(savestate_file, 320 * 240 * 2);
+      file_read_mem_skip_forward(savestate_file, 320 * 240 * 2);
+      break;
     }
   }
 
@@ -675,24 +671,24 @@ savestate_extension_enum load_state(char *file_name, u8 *in_memory_state,
   // fields will dictate loading more, but this is the basic set.
 
 #ifdef BZ_SUPPORT
-  if(savestate_header.extensions & SS_EXT_BZ2_COMPRESSED)
+  if (savestate_header.extensions & SS_EXT_BZ2_COMPRESSED)
   {
     int error_code;
 
-    if(savestate_file->memory_file)
+    if (savestate_file->memory_file)
     {
       u32 read_length = SAVESTATE_MAX_SIZE;
       BZ2_bzBuffToBuffDecompress((char *)savestate_file->buffer, &read_length,
-       (char *)savestate_file->memory_file, savestate_file->memory_file_size, 
-       0, 0);
+                                 (char *)savestate_file->memory_file, savestate_file->memory_file_size,
+                                 0, 0);
       savestate_file->buffer_ptr = savestate_file->buffer;
     }
     else
     {
       BZFILE *bz_savestate_file = BZ2_bzReadOpen(&error_code,
-       savestate_file->_file, 0, 1, NULL, 0);
+                                                 savestate_file->_file, 0, 1, NULL, 0);
       BZ2_bzRead(&error_code, bz_savestate_file, savestate_file->buffer,
-       SAVESTATE_MAX_SIZE);
+                 SAVESTATE_MAX_SIZE);
       savestate_file->buffer_ptr = savestate_file->buffer;
       BZ2_bzReadClose(&error_code, bz_savestate_file);
     }
@@ -715,30 +711,30 @@ savestate_extension_enum load_state(char *file_name, u8 *in_memory_state,
   config.populous_loaded = 0;
   memory.sf2_region = -1;
 
-  if(savestate_header.extensions & SS_EXT_CDROM_DATA)
+  if (savestate_header.extensions & SS_EXT_CDROM_DATA)
   {
     config.cd_loaded = 1;
     cd_load_savestate(savestate_file);
     adpcm_load_savestate(savestate_file);
 
-    if(savestate_header.extensions & SS_EXT_SUPER_CD_DATA)
+    if (savestate_header.extensions & SS_EXT_SUPER_CD_DATA)
       file_read_mem_array(savestate_file, cd.ext_ram);
 
-    if(savestate_header.extensions & SS_EXT_ARCADE_CARD_DATA)
+    if (savestate_header.extensions & SS_EXT_ARCADE_CARD_DATA)
       arcade_card_load_savestate(savestate_file);
   }
 
-  if(savestate_header.extensions & SS_EXT_SF2_DATA)
+  if (savestate_header.extensions & SS_EXT_SF2_DATA)
   {
     u32 current_sf2_region;
     file_read_mem_variable(savestate_file, current_sf2_region);
     map_sf2(current_sf2_region);
   }
 
-  if(savestate_header.extensions & SS_EXT_6BUTTON_DATA)
+  if (savestate_header.extensions & SS_EXT_6BUTTON_DATA)
     file_read_mem_variable(savestate_file, io.six_button_toggle);
 
-  if(savestate_header.extensions & SS_EXT_POPULOUS_DATA)
+  if (savestate_header.extensions & SS_EXT_POPULOUS_DATA)
   {
     config.populous_loaded = 1;
     map_populous_ram();
@@ -752,7 +748,7 @@ savestate_extension_enum load_state(char *file_name, u8 *in_memory_state,
   audio_revert_pause_state(audio_pause_state);
   return savestate_header.extensions;
 
- invalid:
+invalid:
   file_read_mem_close(savestate_file);
 
   printf("An error occured while trying to load the savestate file.\n");
@@ -765,14 +761,14 @@ u8 *preload_state(char *file_name, u32 *_file_length, u32 trim_snapshot)
 {
   char path[MAX_PATH];
   sprintf(path, "%s%csave_states%c%s", config.main_path, DIR_SEPARATOR_CHAR,
-   DIR_SEPARATOR_CHAR, file_name);
+          DIR_SEPARATOR_CHAR, file_name);
   FILE *savestate_file = fopen(path, "rb");
   u8 *savestate_buffer;
   u32 savestate_length;
   savestate_header_struct savestate_header;
   u32 savestate_header_raw[SAVESTATE_HEADER_LENGTH / 4];
 
-  if(savestate_file == NULL)
+  if (savestate_file == NULL)
     return NULL;
 
   fseek(savestate_file, 0, SEEK_END);
@@ -788,7 +784,7 @@ u8 *preload_state(char *file_name, u32 *_file_length, u32 trim_snapshot)
   file_read_variable(savestate_file, savestate_header.snapshot_format);
   file_read_array(savestate_file, savestate_header.reserved);
 
-  if(trim_snapshot && (savestate_header.extensions & SS_EXT_SNAPSHOT))
+  if (trim_snapshot && (savestate_header.extensions & SS_EXT_SNAPSHOT))
   {
     // Clear snapshot flag from extensions field
     savestate_header_raw[2] &= ~SS_EXT_SNAPSHOT;
@@ -799,7 +795,7 @@ u8 *preload_state(char *file_name, u32 *_file_length, u32 trim_snapshot)
     memcpy(savestate_buffer, savestate_header_raw, SAVESTATE_HEADER_LENGTH);
     fseek(savestate_file, 320 * 240 * 2, SEEK_CUR);
     fread(savestate_buffer + SAVESTATE_HEADER_LENGTH, savestate_length, 1,
-     savestate_file);
+          savestate_file);
   }
   else
   {
@@ -807,7 +803,7 @@ u8 *preload_state(char *file_name, u32 *_file_length, u32 trim_snapshot)
 
     memcpy(savestate_buffer, savestate_header_raw, SAVESTATE_HEADER_LENGTH);
     fread(savestate_buffer + SAVESTATE_HEADER_LENGTH, savestate_length, 1,
-     savestate_file);
+          savestate_file);
   }
 
   *_file_length = savestate_length;
@@ -816,25 +812,24 @@ u8 *preload_state(char *file_name, u32 *_file_length, u32 trim_snapshot)
   return savestate_buffer;
 }
 
-
 savestate_extension_enum load_state_snapshot(char *file_name, u16 *buffer,
- char *state_date)
+                                             char *state_date)
 {
   char path[MAX_PATH];
   sprintf(path, "%s%csave_states%c%s", config.main_path, DIR_SEPARATOR_CHAR,
-   DIR_SEPARATOR_CHAR, file_name);
+          DIR_SEPARATOR_CHAR, file_name);
   savestate_header_struct savestate_header;
   u8 *savestate_buffer = malloc(SAVESTATE_HEADER_LENGTH + (320 * 240 * 2));
 
   file_read_mem_open(savestate_file, path, savestate_buffer, NULL, 0);
 
-  if(file_read_mem_invalid(savestate_file))
+  if (file_read_mem_invalid(savestate_file))
   {
     free(savestate_buffer);
     return SS_EXT_INVALID;
   }
 
-  if(state_date)
+  if (state_date)
     load_state_date(path, state_date);
 
   file_read_mem_load_fixed(savestate_file, SAVESTATE_HEADER_LENGTH);
@@ -846,34 +841,34 @@ savestate_extension_enum load_state_snapshot(char *file_name, u16 *buffer,
   file_read_mem_array(savestate_file, savestate_header.reserved);
 
   // First, the savestate string must match.
-  if(strncmp(savestate_header.magic_string, "TMSS", 4))
+  if (strncmp(savestate_header.magic_string, "TMSS", 4))
     goto invalid;
 
   // Right now this only supports savestate version 1. Later if more
   // are done it'll probably support those too! Version 0 is right out
   // though.
 
-  if(savestate_header.version > TEMPER_SAVESTATE_VERSION)
+  if (savestate_header.version > TEMPER_SAVESTATE_VERSION)
     goto invalid;
 
   // Does it have a snapshot? Load it.
-  if(savestate_header.extensions & SS_EXT_SNAPSHOT)
+  if (savestate_header.extensions & SS_EXT_SNAPSHOT)
   {
     // Okay, must support these as they're added.
-    switch(savestate_header.snapshot_format)
+    switch (savestate_header.snapshot_format)
     {
-      default:
-      case SS_SNAPSHOT_FULL:
-        file_read_mem_load_fixed(savestate_file, 320 * 240 * 2);
-        file_read_mem(savestate_file, buffer, 320 * 240 * 2);
-        break;
+    default:
+    case SS_SNAPSHOT_FULL:
+      file_read_mem_load_fixed(savestate_file, 320 * 240 * 2);
+      file_read_mem(savestate_file, buffer, 320 * 240 * 2);
+      break;
     }
   }
 
   free(savestate_buffer);
   return savestate_header.extensions;
 
- invalid:
+invalid:
   file_read_mem_close(savestate_file);
   free(savestate_buffer);
   return SS_EXT_INVALID;
@@ -891,7 +886,7 @@ savestate_extension_enum load_state_snapshot(char *file_name, u16 *buffer,
   file_##type##_variable(config_file, config.clock_speed);                    \
   file_##type##_variable(config_file, config.ram_timings);                    \
   file_##type##_variable(config_file, config.gamma_percent);                  \
-  if(version_gate >= 2)                                                       \
+  if (version_gate >= 2)                                                      \
   {                                                                           \
     file_##type##_variable(config_file, config.six_button_pad);               \
     file_##type##_variable(config_file, config.cd_system_type);               \
@@ -899,7 +894,7 @@ savestate_extension_enum load_state_snapshot(char *file_name, u16 *buffer,
     file_##type##_variable(config_file, config.per_game_bram);                \
   }                                                                           \
                                                                               \
-  if(version_gate >= 3)                                                       \
+  if (version_gate >= 3)                                                      \
   {                                                                           \
     file_##type##_variable(config_file, config.sound_double);                 \
     file_##type##_variable(config_file, config.scale_factor);                 \
@@ -908,20 +903,20 @@ savestate_extension_enum load_state_snapshot(char *file_name, u16 *buffer,
     file_##type##_variable(config_file, config.compatibility_mode);           \
   }                                                                           \
                                                                               \
-  if(version_gate >= 4)                                                       \
+  if (version_gate >= 4)                                                      \
   {                                                                           \
     file_##type##_array(config_file, config.netplay_username);                \
     file_##type##_variable(config_file, config.netplay_type);                 \
     file_##type##_variable(config_file, config.netplay_port);                 \
     file_##type##_variable(config_file, config.netplay_ip);                   \
     file_##type##_variable(config_file, config.netplay_server_frame_latency); \
-  }                                                                           \
+  }
 
 void save_config_file(char *file_name)
 {
   char path[MAX_PATH];
   sprintf(path, "%s%cconfig%c%s", config.main_path, DIR_SEPARATOR_CHAR,
-   DIR_SEPARATOR_CHAR, file_name);
+          DIR_SEPARATOR_CHAR, file_name);
   u8 *config_file_buffer = malloc(16384);
 
   printf("saving config to file named %s\n", path);
@@ -952,7 +947,7 @@ void save_directory_config_file(char *file_name)
 {
   char path[MAX_PATH];
   sprintf(path, "%s%cconfig%c%s", config.main_path, DIR_SEPARATOR_CHAR,
-   DIR_SEPARATOR_CHAR, file_name);
+          DIR_SEPARATOR_CHAR, file_name);
   u8 *config_file_buffer = malloc(16384);
 
   printf("saving directory config to file named %s\n", path);
@@ -983,7 +978,7 @@ s32 load_config_file(char *file_name)
 {
   char path[MAX_PATH];
   sprintf(path, "%s%cconfig%c%s", config.main_path, DIR_SEPARATOR_CHAR,
-   DIR_SEPARATOR_CHAR, file_name);
+          DIR_SEPARATOR_CHAR, file_name);
 
   u32 old_netplay_type = config.netplay_type;
 
@@ -1001,22 +996,57 @@ s32 load_config_file(char *file_name)
 
   u32 i;
 
+#ifdef WIN32_BUILD
   config_buttons_enum v1_to_v2_button_config[] =
-  {
-    CONFIG_BUTTON_UP, CONFIG_BUTTON_DOWN, CONFIG_BUTTON_LEFT,
-    CONFIG_BUTTON_RIGHT, CONFIG_BUTTON_I, CONFIG_BUTTON_II,
-    CONFIG_BUTTON_RUN, CONFIG_BUTTON_SELECT, CONFIG_BUTTON_RAPID_I,
-    CONFIG_BUTTON_RAPID_II, CONFIG_BUTTON_MENU, CONFIG_BUTTON_SAVE_STATE,
-    CONFIG_BUTTON_LOAD_STATE, CONFIG_BUTTON_VOLUME_DOWN,
-    CONFIG_BUTTON_VOLUME_UP, CONFIG_BUTTON_FAST_FORWARD, CONFIG_BUTTON_NONE
-  };
+      {
+          CONFIG_BUTTON_UP,
+          CONFIG_BUTTON_DOWN,
+          CONFIG_BUTTON_LEFT,
+          CONFIG_BUTTON_RIGHT,
+          CONFIG_BUTTON_IV,
+          CONFIG_BUTTON_V,
+          CONFIG_BUTTON_I,
+          CONFIG_BUTTON_II,
+          CONFIG_BUTTON_RUN,
+          CONFIG_BUTTON_SELECT,
+          CONFIG_BUTTON_III,
+          CONFIG_BUTTON_VI,
+          CONFIG_BUTTON_RAPID_I,
+          CONFIG_BUTTON_RAPID_II,
+          CONFIG_BUTTON_SAVE_STATE,
+          CONFIG_BUTTON_LOAD_STATE,
+          CONFIG_BUTTON_FAST_FORWARD,
+          CONFIG_BUTTON_MENU,
+      };
+#else
+  config_buttons_enum v1_to_v2_button_config[] =
+      {
+          CONFIG_BUTTON_UP,
+          CONFIG_BUTTON_DOWN,
+          CONFIG_BUTTON_LEFT,
+          CONFIG_BUTTON_RIGHT,
+          CONFIG_BUTTON_RUN,
+          CONFIG_BUTTON_SELECT,
+          CONFIG_BUTTON_I,
+          CONFIG_BUTTON_II,
+          CONFIG_BUTTON_RAPID_I,
+          CONFIG_BUTTON_RAPID_II,
+          CONFIG_BUTTON_MENU,
+          CONFIG_BUTTON_SAVE_STATE,
+          CONFIG_BUTTON_LOAD_STATE,
+          CONFIG_BUTTON_VOLUME_DOWN,
+          CONFIG_BUTTON_VOLUME_UP,
+          CONFIG_BUTTON_FAST_FORWARD,
+          CONFIG_BUTTON_NONE,
+      };
+#endif
 
   printf("loading config file %s\n", path);
 
   file_read_open(config_file, path);
   config_header_struct config_header;
 
-  if(file_read_invalid(config_file))
+  if (file_read_invalid(config_file))
   {
     printf("config file %s does not exist\n", path);
     return -1;
@@ -1027,21 +1057,23 @@ s32 load_config_file(char *file_name)
   file_read_array(config_file, config_header.reserved);
 
   // First, the magic string must match.
-  if(strncmp(config_header.magic_string, "TMCF", 4))
+  if (strncmp(config_header.magic_string, "TMCF", 4))
     goto invalid;
 
-  if(config_header.version > TEMPER_CONFIG_VERSION)
+  if (config_header.version > TEMPER_CONFIG_VERSION)
     goto invalid;
 
   config_file_action(read, config_header.version);
 
   // The key map was changed in v2.
-  if(config_header.version == 1)
+  if (config_header.version == 1)
   {
-    for(i = 0; i < 16; i++)
+    /*
+    for (i = 0; i < 16; i++)
     {
       config.pad[i] = v1_to_v2_button_config[config.pad[i]];
     }
+    */
   }
 
   // Others not allowed on the menu for now.
@@ -1049,9 +1081,9 @@ s32 load_config_file(char *file_name)
   file_read_close(config_file);
 
 #ifdef CONFIG_OPTIONS_RAM_TIMINGS
-  if(config.ram_timings != old_ram_timings)
+  if (config.ram_timings != old_ram_timings)
   {
-    if(config.ram_timings)
+    if (config.ram_timings)
       set_fast_ram_timings();
     else
       set_default_ram_timings();
@@ -1059,12 +1091,12 @@ s32 load_config_file(char *file_name)
 #endif
 
 #ifdef CONFIG_OPTIONS_CLOCK_SPEED
-  if(config.clock_speed != old_clock_speed)
+  if (config.clock_speed != old_clock_speed)
     set_clock_speed(config.clock_speed);
 #endif
 
 #ifdef CONFIG_OPTIONS_GAMMA
-  if(config.gamma_percent != old_gamma_percent)
+  if (config.gamma_percent != old_gamma_percent)
     set_gamma(config.gamma_percent);
 #endif
 
@@ -1072,7 +1104,7 @@ s32 load_config_file(char *file_name)
 
   return 0;
 
- invalid:
+invalid:
   printf("an error occured while trying to load the config file\n");
   file_read_close(config_file);
   return -1;
@@ -1082,14 +1114,14 @@ s32 load_directory_config_file(char *file_name)
 {
   char path[MAX_PATH];
   sprintf(path, "%s%cconfig%c%s", config.main_path, DIR_SEPARATOR_CHAR,
-   DIR_SEPARATOR_CHAR, file_name);
+          DIR_SEPARATOR_CHAR, file_name);
 
   printf("loading directory config file %s\n", path);
 
   file_read_open(config_file, path);
   config_header_struct config_header;
 
-  if(file_read_invalid(config_file))
+  if (file_read_invalid(config_file))
   {
     printf("directory config file %s does not exist\n", path);
     return -1;
@@ -1100,11 +1132,11 @@ s32 load_directory_config_file(char *file_name)
   file_read_array(config_file, config_header.reserved);
 
   // First, the magic string must match.
-  if(strncmp(config_header.magic_string, "TMC2", 4))
+  if (strncmp(config_header.magic_string, "TMC2", 4))
     goto invalid;
 
   // Current version is 1
-  if(config_header.version > TEMPER_CONFIG2_VERSION)
+  if (config_header.version > TEMPER_CONFIG2_VERSION)
     goto invalid;
 
   file_read_array(config_file, config.rom_directory);
@@ -1114,7 +1146,7 @@ s32 load_directory_config_file(char *file_name)
 
   return 0;
 
- invalid:
+invalid:
   printf("an error occured while trying to load the directory config file\n");
   file_read_close(config_file);
   return -1;
@@ -1142,13 +1174,13 @@ s32 save_screenshot(u16 *snapshot)
   {
     sprintf(image_filename, "%s_%d.bmp", config.rom_filename, shot_number);
     shot_number++;
-  } while(!stat(image_filename, &sb));
+  } while (!stat(image_filename, &sb));
 
   printf("saving image file %s\n", image_filename);
 
   file_write_mem_open(bmp_file, image_filename, screenshot_buffer);
 
-  if(file_write_mem_invalid(bmp_file))
+  if (file_write_mem_invalid(bmp_file))
   {
     printf("could not create image file %s\n", image_filename);
     chdir(current_dir);
@@ -1201,15 +1233,15 @@ s32 save_screenshot(u16 *snapshot)
 
   file_write_mem_array(bmp_file, bmp_header);
 
-  for(y = 0; y < 240; y++)
+  for (y = 0; y < 240; y++)
   {
     bmp_offset = snapshot + ((239 - y) * 320);
 
-    for(x = 0; x < 320; x++)
+    for (x = 0; x < 320; x++)
     {
       current_pixel = bmp_offset[x];
       current_pixel = (current_pixel & 0x1F) |
-       ((current_pixel >> 1) & ((0x1F << 5) | (0x1F << 10)));
+                      ((current_pixel >> 1) & ((0x1F << 5) | (0x1F << 10)));
       file_write_mem_variable(bmp_file, current_pixel);
     }
   }
@@ -1239,10 +1271,10 @@ void quit()
 
 void status_message_raw(char *message)
 {
-  if(config.status_message_lines == STATUS_MESSAGE_LINES)
+  if (config.status_message_lines == STATUS_MESSAGE_LINES)
   {
     u32 i;
-    for(i = 0; i < STATUS_MESSAGE_LINES - 1; i++)
+    for (i = 0; i < STATUS_MESSAGE_LINES - 1; i++)
     {
       strncpy(config.status_message[i], config.status_message[i + 1], 128);
     }
@@ -1253,7 +1285,6 @@ void status_message_raw(char *message)
   }
   strncpy(config.status_message[config.status_message_lines - 1], message, 128);
 
-  config.status_message_counter += 
-   (STATUS_MESSAGE_DURATION * strlen(message)) / 5;
+  config.status_message_counter +=
+      (STATUS_MESSAGE_DURATION * strlen(message)) / 5;
 }
-
