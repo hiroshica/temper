@@ -1,6 +1,23 @@
 #include "../common.h"
 #include "SDL_event.h"
 
+/*
+ 0 = SQUARE
+ 1 = CROSS
+ 2 = CIRCLE
+ 3 = TRIANGLE
+ 4 = L1
+ 5 = R1
+ 6 = L2
+ 7 = R2
+ 8 = SHARE
+ 9 = OPTION
+10 = L3
+11 = R3
+12 = PS
+13 = touchpad
+*/
+
 #define kLIMIT (0x00001000)
 u32 sdl_to_config_map[] =
     {

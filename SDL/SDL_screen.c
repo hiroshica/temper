@@ -2,7 +2,7 @@
 #include "SDL_screen.h"
 
 #ifdef SDL_OPENGL_BLIT
-#include "SDL_opengl.h"
+  #include "SDL_opengl.h"
 #endif
 
 SDL_Surface *screen = NULL;
@@ -24,36 +24,25 @@ void bind_texture(void)
   glBindTexture(GL_TEXTURE_2D, texture_handle);
   glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, pixel_buffer_objects[pbo_index]);
   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 320, 240, GL_RGBA,
-                  GL_UNSIGNED_SHORT_1_5_5_5_REV, 0);
+   GL_UNSIGNED_SHORT_1_5_5_5_REV, 0);
 
   glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB,
-                  pixel_buffer_objects[pbo_next_index]);
+    pixel_buffer_objects[pbo_next_index]);
   glBufferDataARB(GL_PIXEL_UNPACK_BUFFER_ARB, 320 * 240 * 2, 0,
-                  GL_STREAM_DRAW_ARB);
+   GL_STREAM_DRAW_ARB);
   pbo_pixels =
-      (GLubyte *)glMapBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+   (GLubyte*)glMapBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, GL_WRITE_ONLY_ARB);
 }
 
 #endif
 
 void update_screen()
 {
-  if (last_scale_factor != config.scale_factor)
-  {
-  u32 width = RESOLUTION_WIDTH;
-  u32 height = RESOLUTION_HEIGHT;
-#ifdef WIN32_BUILD
-    if (SCALE_FULLSCREEN != config.scale_factor)
-    {
-      width *= config.scale_factor;
-      height *= config.scale_factor;
-    }
-#endif
-    set_screen_resolution(width, height);
-  }
+  if(last_scale_factor != config.scale_factor)
+    set_screen_resolution(320, 240);
 
 #ifdef SDL_OPENGL_BLIT
-  if (config.use_opengl)
+  if(config.use_opengl)
   {
     glUnmapBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB);
     glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
@@ -83,19 +72,19 @@ void update_screen()
   else
 #endif
   {
-    SDL_Flip(screen);
+	SDL_Flip(screen);
   }
 }
 
 void set_screen_resolution(u32 width, u32 height)
 {
 #ifdef SDL_OPENGL_BLIT
-  if (config.use_opengl)
+  if(config.use_opengl)
   {
     screen = SDL_SetVideoMode(width, height, 16, SDL_OPENGL);
 
     glShadeModel(GL_FLAT);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4); 
 
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
@@ -114,7 +103,7 @@ void set_screen_resolution(u32 width, u32 height)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 320, 240, 0,
-                 GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, (GLvoid *)pbo_buffer);
+     GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, (GLvoid *)pbo_buffer);
     glBindTexture(GL_TEXTURE_2D, 0);
 
     glGenBuffers(2, pixel_buffer_objects);
@@ -132,51 +121,49 @@ void set_screen_resolution(u32 width, u32 height)
   {
     u16 *old_pixels = NULL;
 
-    if (screen != NULL)
+    if(screen != NULL)
     {
       old_pixels = malloc(320 * 240 * 2);
       copy_screen(old_pixels);
       SDL_FreeSurface(screen);
     }
 
-    switch (config.scale_factor)
+    switch(config.scale_factor)
     {
-    case SCALE_FULLSCREEN:
-      screen = SDL_SetVideoMode(width, height, 16, SDL_FULLSCREEN
+      #ifndef WIN32_BUILD
+      case SCALE_FULLSCREEN:
+        screen = SDL_SetVideoMode(width, height, 16, SDL_FULLSCREEN
 #ifdef SDL_TRIPLEBUF
-                                                       | SDL_HWSURFACE | SDL_TRIPLEBUF
+        | SDL_HWSURFACE | SDL_TRIPLEBUF
 #endif
-      );
-      real_screen_pixels = screen->pixels;
+         );
+        real_screen_pixels = screen->pixels;
 
-      if (old_pixels != NULL)
-        blit_screen(old_pixels);
-
-      break;
-
-    default:
-      screen = SDL_SetVideoMode(width, height, 16,
-#ifdef SDL_TRIPLEBUF
-                                SDL_HWSURFACE | SDL_TRIPLEBUF
-#else
-                                0
-#endif
-      );
-
-      {
-        if (old_pixels != NULL)
-        {
+        if(old_pixels != NULL)
           blit_screen(old_pixels);
-        }
-      }
-      break;
+        break;
+#endif
+
+      default:
+        screen = SDL_SetVideoMode(width, height, 16, 
+#ifdef SDL_TRIPLEBUF
+		SDL_HWSURFACE | SDL_TRIPLEBUF
+#else
+	0
+#endif
+		);
+  
+        if(old_pixels != NULL)
+          blit_screen(old_pixels);
+	break;
     }
 
-    if (old_pixels != NULL)
+    if(old_pixels != NULL)
       free(old_pixels);
 
     last_scale_factor = config.scale_factor;
   }
+
 
   SDL_WM_SetCaption("Temper PC-Engine Emulator", "Temper");
 }
@@ -184,7 +171,7 @@ void set_screen_resolution(u32 width, u32 height)
 void *get_screen_ptr()
 {
 #ifdef SDL_OPENGL_BLIT
-  if (config.use_opengl)
+  if(config.use_opengl)
     return pbo_pixels;
 #endif
 
@@ -193,17 +180,11 @@ void *get_screen_ptr()
 
 u32 get_screen_pitch()
 {
-  if (config.use_opengl)
+  if(config.use_opengl)
     return 320;
 
   return (screen->pitch / 2);
 }
-u32 get_screen_height(){
-  if (config.use_opengl)
-    return 240;
-  return screen->h;
-}
-
 
 void clear_screen()
 {
@@ -211,7 +192,7 @@ void clear_screen()
   u32 pitch = get_screen_pitch();
   u16 *pixels = get_screen_ptr();
 
-  for (i = 0; i < 240; i++)
+  for(i = 0; i < 240; i++)
   {
     memset(pixels, 0, 320 * 2);
     pixels += pitch;
@@ -221,7 +202,7 @@ void clear_screen()
 void clear_line_edges(u32 line_number, u32 color, u32 edge, u32 middle)
 {
   u32 *dest = (u32 *)((u16 *)get_screen_ptr() +
-                      (line_number * get_screen_pitch()));
+   (line_number * get_screen_pitch()));
   u32 i;
 
   color |= (color << 16);
@@ -229,7 +210,7 @@ void clear_line_edges(u32 line_number, u32 color, u32 edge, u32 middle)
   edge /= 2;
   middle /= 2;
 
-  for (i = 0; i < edge; i++)
+  for(i = 0; i < edge; i++)
   {
     *dest = color;
     dest++;
@@ -237,7 +218,7 @@ void clear_line_edges(u32 line_number, u32 color, u32 edge, u32 middle)
 
   dest += middle;
 
-  for (i = 0; i < edge; i++)
+  for(i = 0; i < edge; i++)
   {
     *dest = color;
     dest++;
@@ -255,3 +236,4 @@ void set_multi_buffer_mode()
 void clear_all_buffers()
 {
 }
+
