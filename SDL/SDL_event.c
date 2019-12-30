@@ -6,6 +6,7 @@ extern u32 nowDebugKey;
 #define kLIMIT (0x00001000)
 u32 sdl_to_config_map[][2] =
     {
+#if 0
         {SDLK_UP, (u32)CONFIG_BUTTON_UP},
         {SDLK_DOWN, (u32)CONFIG_BUTTON_DOWN},
         {SDLK_LEFT, (u32)CONFIG_BUTTON_LEFT},
@@ -23,6 +24,30 @@ u32 sdl_to_config_map[][2] =
         {SDLK_ESCAPE, (u32)CONFIG_BUTTON_SELECT},
         {SDLK_RETURN, (u32)CONFIG_BUTTON_RUN},
         {SDLK_HOME, (u32)CONFIG_BUTTON_MENU},
+#else
+        {SDLK_UP, (u32)0},
+        {SDLK_DOWN, (u32)1},
+        {SDLK_LEFT, (u32)2},
+        {SDLK_RIGHT, (u32)3},
+
+        {SDLK_LSHIFT, (u32)4},
+        {SDLK_LALT, (u32)5},
+        {SDLK_SPACE, (u32)7},
+        {SDLK_LCTRL, (u32)6},
+
+        {SDLK_TAB, (u32)10},
+        {SDLK_BACKSPACE, (u32)11},
+
+        {SDLK_PAGEUP, (u32)12},
+        {SDLK_PAGEDOWN, (u32)13},
+
+        {SDLK_KP_DIVIDE, (u32)14},
+        {SDLK_KP_PERIOD, (u32)15},
+
+        {SDLK_ESCAPE, (u32)9},
+        {SDLK_RETURN, (u32)8},
+        {SDLK_HOME, (u32)4+12},
+#endif
         {
             (u32)-1,
             (u32)-1,
@@ -37,7 +62,7 @@ u32 key_map(u32 keys)
   {
     if (keys == sdl_to_config_map[i][0])
     {
-      return sdl_to_config_map[i][1];
+      return config.pad[sdl_to_config_map[i][1]];
     }
   }
   return CONFIG_BUTTON_NONE;
@@ -45,7 +70,6 @@ u32 key_map(u32 keys)
 
 u32 joy_button_map(u32 button)
 {
-  //printf("%d\n",button);
   return config.pad[button + 4];
 }
 

@@ -112,7 +112,7 @@ void update_events(void)
 
         u32 rapid_fire_io_button =
             config_rapid_to_io_map[config_button_action - CONFIG_BUTTON_RAPID_I];
-#if 0  
+#if 1  
         if(event_input.action_type == INPUT_ACTION_TYPE_RELEASE)
           rapid_fire_mask &= ~rapid_fire_io_button;
         else
