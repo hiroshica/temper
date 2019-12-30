@@ -428,14 +428,12 @@ void get_gui_input(gui_input_struct *gui_input)
 
     case SDL_JOYBUTTONDOWN:
       nowDebugKey = event.jbutton.button;
-      //gui_action = joy_map_gui_action(event.jbutton.button);
-      //gui_actions[gui_action] = 1;
-      gui_input->action_type = CURSOR_NONE;
+      gui_action = joy_map_gui_action(event.jbutton.button);
+      gui_actions[gui_action] = 1;
       break;
 
     case SDL_JOYBUTTONUP:
       gui_actions[joy_map_gui_action(event.jbutton.button)] = 0;
-      gui_input->action_type = CURSOR_NONE;
       break;
 
     case SDL_JOYAXISMOTION:
