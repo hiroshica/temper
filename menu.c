@@ -91,6 +91,9 @@ const u32 cursor_page_rate = FILE_LIST_ROWS;
 #define SEEK_TICKS_THRESHOLD (500 * 1000)
 #define SEEK_MAX_CHARACTERS  6
 
+u32 wkRESOLUTION_WIDTH = RESOLUTION_WIDTH;
+u32 nowDebugKey = -1;
+
 s32 load_file(char **wildcards, char *result, u16 *screen_bg)
 {
   DIR *current_dir;
@@ -260,9 +263,18 @@ s32 load_file(char **wildcards, char *result, u16 *screen_bg)
     while(repeat)
     {
       print_string_bg(current_dir_short, make_color16(0x1F, 0x3F, 0x1F),
-       screen_bg, 6, 4, RESOLUTION_WIDTH);
+       screen_bg, 6, 4, wkRESOLUTION_WIDTH);
       print_string_bg(control_config_exit_string,
-       make_color16(0x1F, 0x3F, 0x1F), screen_bg, 20, 228, RESOLUTION_WIDTH);
+       make_color16(0x1F, 0x3F, 0x1F), screen_bg, 20, 240-16, wkRESOLUTION_WIDTH);
+       if(nowDebugKey == (u32)-1)
+       {
+         print_string_bg("no input", make_color16(0x1F, 0x3F, 0x1F), screen_bg, 20, 240-8, wkRESOLUTION_WIDTH);
+       }
+       else{
+         char sbuf[256];
+         sprintf(sbuf, "now key %d", nowDebugKey);
+        print_string_bg(sbuf, make_color16(0x1F, 0x3F, 0x1F), screen_bg, 20, 240-8, wkRESOLUTION_WIDTH);
+       }
 
       for(i = 0, current_file_number = i + current_file_scroll_value;
        i < FILE_LIST_ROWS; i++, current_file_number++)
@@ -282,12 +294,12 @@ s32 load_file(char **wildcards, char *result, u16 *screen_bg)
           {
             print_string(name_buffer_ptr, make_color16(0x1F, 0x3F, 0x1F),
              make_color16(0x0, 0x0, 0x17), FILE_LIST_POSITION, (i * 10) + 20,
-             RESOLUTION_WIDTH);
+             wkRESOLUTION_WIDTH);
           }
           else
           {
             print_string_bg(name_buffer_ptr, make_color16(0x1F, 0x3F, 0x1F),
-             screen_bg, FILE_LIST_POSITION, (i * 10) + 20, RESOLUTION_WIDTH);
+             screen_bg, FILE_LIST_POSITION, (i * 10) + 20, wkRESOLUTION_WIDTH);
           }
         }
       }
@@ -310,12 +322,12 @@ s32 load_file(char **wildcards, char *result, u16 *screen_bg)
           {
             print_string(name_buffer_ptr, make_color16(0x1F, 0x3F, 0x1F),
              make_color16(0x0, 0x0, 0x17), DIR_LIST_POSITION, (i * 10) + 20,
-             RESOLUTION_WIDTH);
+             wkRESOLUTION_WIDTH);
           }
           else
           {
             print_string_bg(name_buffer_ptr, make_color16(0x1F, 0x3F, 0x1F),
-             screen_bg, DIR_LIST_POSITION, (i * 10) + 20, RESOLUTION_WIDTH);
+             screen_bg, DIR_LIST_POSITION, (i * 10) + 20, wkRESOLUTION_WIDTH);
           }
         }
       }
@@ -521,13 +533,13 @@ void draw_menu_option_string(menu_state_struct *menu_state,
   {
     print_string(display_str, make_color16(0x1F, 0x3F, 0x1F),
      make_color16(0x0, 0x0, 0x17), column_start, menu_option->line_number * 8,
-     RESOLUTION_WIDTH);
+     wkRESOLUTION_WIDTH);
   }
   else
   {
     print_string_bg(display_str, make_color16(0x1F, 0x3F, 0x1F),
      menu_state->current_bg, column_start, menu_option->line_number * 8,
-     RESOLUTION_WIDTH);
+     wkRESOLUTION_WIDTH);
   }
 }
 
@@ -598,7 +610,7 @@ void draw_input_str(menu_state_struct *menu_state,
     spacer_str[space_length] = 0;
 
     print_string(spacer_str, make_color16(0x1F, 0x3F, 0x1F),
-     make_color16(0x0, 0x00, 0x17), draw_offset, y_offset, RESOLUTION_WIDTH);
+     make_color16(0x0, 0x00, 0x17), draw_offset, y_offset, wkRESOLUTION_WIDTH);
 
     draw_offset += space_length * 8;
 
@@ -606,13 +618,13 @@ void draw_input_str(menu_state_struct *menu_state,
     selected_char[1] = 0;
 
     print_string((char *)input->segment_values, make_color16(0x1F, 0x3F, 0x1F),
-     make_color16(0x0, 0x10, 0x1A), draw_offset, y_offset, RESOLUTION_WIDTH);
+     make_color16(0x0, 0x10, 0x1A), draw_offset, y_offset, wkRESOLUTION_WIDTH);
 
     if(highlight_current)
     {
       print_string((char *)selected_char, make_color16(0x1F, 0x3F, 0x1F),
        make_color16(0x0, 0x30, 0x0), draw_offset +
-       (input->segment_position * 8), y_offset, RESOLUTION_WIDTH);
+       (input->segment_position * 8), y_offset, wkRESOLUTION_WIDTH);
     }
   }
   else
@@ -621,7 +633,7 @@ void draw_input_str(menu_state_struct *menu_state,
 
     print_string_bg((char *)input->segment_values,
      make_color16(0x1F, 0x3F, 0x1F), menu_state->current_bg, draw_offset,
-     y_offset, RESOLUTION_WIDTH);
+     y_offset, wkRESOLUTION_WIDTH);
   }
 }
 
@@ -676,14 +688,14 @@ void draw_multi_input_int(menu_state_struct *menu_state,
         print_string(separator_str, make_color16(0x1F, 0x3F, 0x1F),
          make_color16(0x0, 0x0, 0x17), menu_state->current_menu->column_start +
          (display_input_offset * 8),  menu_option->line_number * 8,
-         RESOLUTION_WIDTH);
+         wkRESOLUTION_WIDTH);
       }
       else
       {
         print_string_bg(separator_str, make_color16(0x1F, 0x3F, 0x1F),
          menu_state->current_bg, menu_state->current_menu->column_start +
          (display_input_offset * 8),  menu_option->line_number * 8,
-         RESOLUTION_WIDTH);
+         wkRESOLUTION_WIDTH);
       }
       display_input_offset++;
     }
@@ -1263,28 +1275,28 @@ void draw_menu_main(menu_state_struct *menu_state, menu_struct *menu)
 {
   print_string_bg("Temper version " TEMPER_VERSION,
    make_color16(0x1F, 0x3F, 0x1F), menu_state->current_bg, 70,
-   menu_line(4), RESOLUTION_WIDTH);
+   menu_line(4), wkRESOLUTION_WIDTH);
 }
 
 void draw_menu_options(menu_state_struct *menu_state, menu_struct *menu)
 {
   print_string_bg("Configure Options", make_color16(0x1F, 0x3F, 0x1F),
    menu_state->current_bg, menu->column_start, menu_line(6),
-   RESOLUTION_WIDTH);
+   wkRESOLUTION_WIDTH);
 }
 
 void draw_menu_pad(menu_state_struct *menu_state, menu_struct *menu)
 {
   print_string_bg(control_config_string, make_color16(0x1F, 0x3F, 0x1F),
    menu_state->current_bg, menu->column_start, menu_line(4),
-   RESOLUTION_WIDTH);
+   wkRESOLUTION_WIDTH);
 }
 
 void draw_menu_netplay(menu_state_struct *menu_state, menu_struct *menu)
 {
   print_string_bg("Configure Netplay", make_color16(0x1F, 0x3F, 0x1F),
    menu_state->current_bg, menu->column_start, menu_line(8),
-   RESOLUTION_WIDTH);
+   wkRESOLUTION_WIDTH);
 }
 
 
@@ -1835,7 +1847,7 @@ void menu(u32 start_file_dialog)
 
     set_font_narrow();
     print_string_bg(menu_state.bg_info_string, make_color16(0x14, 0x33, 0x16),
-     menu_state.current_bg, 16, menu_line(2), RESOLUTION_WIDTH);
+     menu_state.current_bg, 16, menu_line(2), wkRESOLUTION_WIDTH);
     set_font_wide();
 
     draw_menu(&menu_state, current_menu);

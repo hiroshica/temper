@@ -1,11 +1,11 @@
 #include "../common.h"
 #include "SDL_event.h"
 
+extern u32 nowDebugKey;
+
 #define kLIMIT (0x00001000)
 u32 sdl_to_config_map[][2] =
     {
-
-      #if 0
         {SDLK_UP, (u32)CONFIG_BUTTON_UP},
         {SDLK_DOWN, (u32)CONFIG_BUTTON_DOWN},
         {SDLK_LEFT, (u32)CONFIG_BUTTON_LEFT},
@@ -20,7 +20,6 @@ u32 sdl_to_config_map[][2] =
         {SDLK_PAGEDOWN, (u32)CONFIG_BUTTON_LOAD_STATE},
         {SDLK_KP_DIVIDE, (u32)CONFIG_BUTTON_MENU},
         {SDLK_KP_PERIOD, (u32)CONFIG_BUTTON_FAST_FORWARD},
-        #endif
         {SDLK_ESCAPE, (u32)CONFIG_BUTTON_SELECT},
         {SDLK_RETURN, (u32)CONFIG_BUTTON_RUN},
         {SDLK_HOME, (u32)CONFIG_BUTTON_MENU},
@@ -428,13 +427,15 @@ void get_gui_input(gui_input_struct *gui_input)
       break;
 
     case SDL_JOYBUTTONDOWN:
-      printf("%d",event.jbutton.button);
-      gui_action = joy_map_gui_action(event.jbutton.button);
-      gui_actions[gui_action] = 1;
+      nowDebugKey = event.jbutton.button;
+      //gui_action = joy_map_gui_action(event.jbutton.button);
+      //gui_actions[gui_action] = 1;
+      gui_input->action_type = CURSOR_NONE;
       break;
 
     case SDL_JOYBUTTONUP:
       gui_actions[joy_map_gui_action(event.jbutton.button)] = 0;
+      gui_input->action_type = CURSOR_NONE;
       break;
 
     case SDL_JOYAXISMOTION:
