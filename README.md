@@ -1,4 +1,8 @@
-Temper for GCW0
+Temper for RG350 
+===============
+update:
+2019-12-29    win32版をそこそこ動くように修正
+2019-12-30    RG350でキー入力をすべてのキーに対応。連射機能が正しく動作するように修正
 ===============
 
 Temper was originally a PC-Engine emulator by Exophase,
