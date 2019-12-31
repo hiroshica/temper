@@ -42,7 +42,7 @@ void update_screen()
   {
     u32 width = 320;
     u32 height = 240;
-#ifdef WIN32_BUILD
+#if WIN32_BUILD|LINUX_X86_BUILD
     if (SCALE_FULLSCREEN != config.scale_factor)
     {
       width *= config.scale_factor;
