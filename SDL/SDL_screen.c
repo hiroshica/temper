@@ -45,8 +45,8 @@ void update_screen()
 #if WIN32_BUILD|LINUX_X86_BUILD
     if (SCALE_FULLSCREEN != config.scale_factor)
     {
-      width *= config.scale_factor;
-      height *= config.scale_factor;
+      //width *= config.scale_factor;
+      //height *= config.scale_factor;
     }
 #endif
     set_screen_resolution(width, height);

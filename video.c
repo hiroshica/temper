@@ -906,8 +906,8 @@ void initialize_video()
 #ifdef WIN32_BUILD
   if (0 != config.scale_factor)
   {
-    width *= config.scale_factor;
-    height *= config.scale_factor;
+    //width *= config.scale_factor;
+    //height *= config.scale_factor;
   }
 #endif
   set_screen_resolution(width, height);
