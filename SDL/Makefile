@@ -16,9 +16,12 @@ BIN       ?= temper
 # Platform specific definitions 
 
 VPATH      += .. ../SDL ../linux
-CFLAGS     += -DLINUX_X86_BUILD -O2 -g3 -Wall
+CFLAGS     += -DLINUX_X86_BUILD -g3
 INCLUDES   = -I${PREFIX}/include `sdl-config --cflags`
 LIBS       = -L${PREFIX}/lib `sdl-config --libs` -lz -lm -pthread
+ifndef $(DEBUG)
+CFLAGS     +=  -O2 -Wall 
+endif
 
 # Compilation:
 
