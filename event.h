@@ -87,7 +87,8 @@ typedef enum
 
 typedef enum
 {
-  INPUT_ACTION_TYPE_PRESS,
+  INPUT_ACTION_TYPE_NONE = -1,
+  INPUT_ACTION_TYPE_PRESS = 0,
   INPUT_ACTION_TYPE_RELEASE,
   INPUT_ACTION_TYPE_REPEAT
 } input_action_type_enum;

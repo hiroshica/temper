@@ -21,6 +21,7 @@ u32 config_to_io_map[] =
 
 typedef struct tRapidStatus
 {
+  u32 m_Status;
   u32 m_Active;
   s32 m_frameCount;
   u32 m_bottunStatus; // IO_BUTTON_?? work.
@@ -35,6 +36,7 @@ void init_events(void)
   u32 iI;
   for (iI = 0; iI < CONFIG_BUTTON_MAX; ++iI)
   {
+    m_RapidStatus[iI].m_Status = INPUT_ACTION_TYPE_RELEASE;
     m_RapidStatus[iI].m_Active = 0;
     m_RapidStatus[iI].m_frameCount = 0;
   }
@@ -120,10 +122,30 @@ void update_events(void)
       if (config_button_action <= CONFIG_BUTTON_SELECT)
       {
         u32 io_button = config_to_io_map[config_button_action];
-        if (event_input.action_type == INPUT_ACTION_TYPE_RELEASE)
-          button_status |= io_button;
+        m_RapidStatus[config_button_action].m_Status = event_input.action_type;
+        if (!m_RapidSelect)
+        {
+          if (!m_RapidStatus[config_button_action].m_Active)
+          {
+            if (event_input.action_type == INPUT_ACTION_TYPE_RELEASE)
+            {
+              button_status |= io_button;
+            }
+            else
+            {
+              button_status &= ~io_button;
+            }
+          }
+        }
         else
-          button_status &= ~io_button;
+        {
+          if (event_input.action_type == INPUT_ACTION_TYPE_PRESS)
+          {
+            m_RapidStatus[config_button_action].m_Active ^= 1;
+            m_RapidStatus[config_button_action].m_bottunStatus = io_button;
+            m_RapidStatus[config_button_action].m_frameCount = 0;
+          }
+        }
       }
 #if 0      
       else if (config_button_action <= CONFIG_BUTTON_RAPID_VI)
@@ -275,13 +297,31 @@ void update_events(void)
       }
     }
   }
-
+#if 0
   if (rapid_fire_state)
     button_status &= ~rapid_fire_mask;
   else
     button_status |= rapid_fire_mask;
 
   rapid_fire_state ^= 1;
+#endif
+  u32 iI;
+  for (iI = 0; iI < CONFIG_BUTTON_MAX; ++iI)
+  {
+    if (m_RapidStatus[iI].m_Active && m_RapidStatus[iI].m_Status == INPUT_ACTION_TYPE_PRESS)
+    {
+      m_RapidStatus[iI].m_frameCount++;
+      if (m_RapidStatus[iI].m_frameCount == 1)
+      {
+        button_status &= ~m_RapidStatus[iI].m_bottunStatus;
+      }
+      else
+      {
+        button_status |= m_RapidStatus[iI].m_bottunStatus;
+        m_RapidStatus[iI].m_frameCount = 0;
+      }
+    }
+  }
 
   if (netplay.active)
   {
