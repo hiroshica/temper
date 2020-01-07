@@ -28,13 +28,14 @@ typedef struct tRapidStatus
 
 } RapidStatus;
 
+#define MAX_HARD_KEY (24)
 static u32 m_RapidSelect = 0;
-static RapidStatus m_RapidStatus[CONFIG_BUTTON_MAX];
+static RapidStatus m_RapidStatus[MAX_HARD_KEY];
 
 void init_events(void)
 {
   u32 iI;
-  for (iI = 0; iI < CONFIG_BUTTON_MAX; ++iI)
+  for (iI = 0; iI < MAX_HARD_KEY; ++iI)
   {
     m_RapidStatus[iI].m_Status = INPUT_ACTION_TYPE_RELEASE;
     m_RapidStatus[iI].m_Active = 0;
@@ -122,10 +123,11 @@ void update_events(void)
       if (config_button_action <= CONFIG_BUTTON_SELECT)
       {
         u32 io_button = config_to_io_map[config_button_action];
-        m_RapidStatus[config_button_action].m_Status = event_input.action_type;
+        u32 index = event_input.hard_key_index; // config_button_action;
+        m_RapidStatus[index].m_Status = event_input.action_type;
         if (!m_RapidSelect)
         {
-          if (!m_RapidStatus[config_button_action].m_Active)
+          if (!m_RapidStatus[index].m_Active)
           {
             if (event_input.action_type == INPUT_ACTION_TYPE_RELEASE)
             {
@@ -141,9 +143,9 @@ void update_events(void)
         {
           if (event_input.action_type == INPUT_ACTION_TYPE_PRESS)
           {
-            m_RapidStatus[config_button_action].m_Active ^= 1;
-            m_RapidStatus[config_button_action].m_bottunStatus = io_button;
-            m_RapidStatus[config_button_action].m_frameCount = 0;
+            m_RapidStatus[index].m_Active ^= 1;
+            m_RapidStatus[index].m_bottunStatus = io_button;
+            m_RapidStatus[index].m_frameCount = 0;
           }
         }
       }

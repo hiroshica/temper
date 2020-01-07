@@ -32,8 +32,8 @@ u32 sdl_to_config_map[][2] =
 
    {SDLK_LSHIFT, (u32)4},
    {SDLK_LALT, (u32)5},
-   {SDLK_SPACE, (u32)7},
-   {SDLK_LCTRL, (u32)6},
+   {SDLK_SPACE, (u32)6},
+   {SDLK_LCTRL, (u32)7},
 
    {SDLK_TAB, (u32)10},
    {SDLK_BACKSPACE, (u32)11},
@@ -54,7 +54,7 @@ u32 sdl_to_config_map[][2] =
    },
   };
 
-u32 key_map(u32 keys)
+u32 key_map(u32 keys, u32 *hard)
 {
   unsigned char i;
 
@@ -62,7 +62,8 @@ u32 key_map(u32 keys)
     {
       if (keys == sdl_to_config_map[i][0])
 	{
-	  return config.pad[sdl_to_config_map[i][1]];
+		*hard = sdl_to_config_map[i][1];
+	  return config.pad[*hard];
 	}
     }
   return CONFIG_BUTTON_NONE;
@@ -173,7 +174,7 @@ u32 update_input(event_input_struct *event_input)
 	  event_input->action_type = INPUT_ACTION_TYPE_PRESS;
 	  event_input->key_letter = event.key.keysym.unicode;
 #ifdef RG350_BUILD
-	  event_input->config_button_action = key_map(event.key.keysym.sym);
+	  event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
 #else
 	  switch (event.key.keysym.sym)
 	    {
@@ -221,25 +222,25 @@ u32 update_input(event_input_struct *event_input)
 	      break;
 	    case SDLK_BACKSPACE:
 	      event_input->key_action = KEY_ACTION_NETPLAY_TALK_CURSOR_BACKSPACE;
-	      event_input->config_button_action = key_map(event.key.keysym.sym);
+		  event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
 	      break;
 
 	    case SDLK_RETURN:
 	      event_input->key_action = KEY_ACTION_NETPLAY_TALK_CURSOR_ENTER;
-	      event_input->config_button_action = key_map(event.key.keysym.sym);
+		  event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
 	      break;
 
 	    case SDLK_LEFT:
 	      event_input->key_action = KEY_ACTION_NETPLAY_TALK_CURSOR_LEFT;
-	      event_input->config_button_action = key_map(event.key.keysym.sym);
+		  event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
 	      break;
 
 	    case SDLK_RIGHT:
 	      event_input->key_action = KEY_ACTION_NETPLAY_TALK_CURSOR_RIGHT;
-	      event_input->config_button_action = key_map(event.key.keysym.sym);
+		  event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
 	      break;
 	    default:
-	      event_input->config_button_action = key_map(event.key.keysym.sym);
+		  event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
 	      break;
 	    }
 #endif
@@ -247,7 +248,7 @@ u32 update_input(event_input_struct *event_input)
 
 	case SDL_KEYUP:
 	  event_input->action_type = INPUT_ACTION_TYPE_RELEASE;
-	  event_input->config_button_action = key_map(event.key.keysym.sym);
+	  event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
 	  break;
 
 #ifndef RG350_BUILD

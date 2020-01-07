@@ -114,6 +114,7 @@ typedef struct
   u32 key_action;
   u32 key_letter;
   u32 hat_status;
+  u32 hard_key_index;
 } event_input_struct;
 
 typedef struct
