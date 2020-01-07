@@ -1680,11 +1680,12 @@ menu_struct *create_menu_pad(menu_state_struct *menu_state,
   static char *button_strings[] =
   {
     "          Up", "        Down", "        Left", "       Right",
-    "           I", "          II", "         III", "          IV",
-    "           V", "          VI", "         Run", "      Select",
-    "     Rapid I", "    Rapid II", "   Rapid III", "    Rapid IV",
-    "     Rapid V", "    Rapid VI", "        Menu", "  Save state",
+    "           I", "          II", "         III", "          IV", "           V", "          VI",
+    "         Run", "      Select",
+    //"     Rapid I", "    Rapid II", "   Rapid III", "    Rapid IV", "     Rapid V", "    Rapid VI",
+    "        Menu", "  Save state",
     "  Load state", " Volume down", "   Volume up", "Fast forward",
+    "Rapid Select",
     "        None"
   };
 

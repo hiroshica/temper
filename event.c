@@ -19,6 +19,28 @@ u32 config_to_io_map[] =
         IO_BUTTON_RUN,
         IO_BUTTON_SELECT};
 
+typedef struct tRapidStatus
+{
+  u32 m_Active;
+  s32 m_frameCount;
+  u32 m_bottunStatus; // IO_BUTTON_?? work.
+
+} RapidStatus;
+
+static u32 m_RapidSelect = 0;
+static RapidStatus m_RapidStatus[CONFIG_BUTTON_MAX];
+
+void init_events(void)
+{
+  u32 iI;
+  for (iI = 0; iI < CONFIG_BUTTON_MAX; ++iI)
+  {
+    m_RapidStatus[iI].m_Active = 0;
+    m_RapidStatus[iI].m_frameCount = 0;
+  }
+  m_RapidSelect = 0;
+}
+
 void update_events(void)
 {
   event_input_struct event_input;
@@ -103,29 +125,36 @@ void update_events(void)
         else
           button_status &= ~io_button;
       }
+#if 0      
       else if (config_button_action <= CONFIG_BUTTON_RAPID_VI)
       {
-        static u32 config_rapid_to_io_map[] =
-            {
-                IO_BUTTON_I, IO_BUTTON_II, IO_BUTTON_III,
-                IO_BUTTON_IV, IO_BUTTON_V, IO_BUTTON_VI};
+        static u32 config_rapid_to_io_map[] = {
+            IO_BUTTON_I, IO_BUTTON_II, IO_BUTTON_III,
+            IO_BUTTON_IV, IO_BUTTON_V, IO_BUTTON_VI};
 
-        u32 rapid_fire_io_button =
-            config_rapid_to_io_map[config_button_action - CONFIG_BUTTON_RAPID_I];
-#if 1  
-        if(event_input.action_type == INPUT_ACTION_TYPE_RELEASE)
+        u32 rapid_fire_io_button = config_rapid_to_io_map[config_button_action - CONFIG_BUTTON_RAPID_I];
+        if (event_input.action_type == INPUT_ACTION_TYPE_RELEASE)
+        {
           rapid_fire_mask &= ~rapid_fire_io_button;
-        else
-          rapid_fire_mask |= rapid_fire_io_button;
-#else
-        if(event_input.action_type == INPUT_ACTION_TYPE_PRESS){
-          rapid_fire_mask ^= rapid_fire_io_button;
         }
-#endif
+        else
+        {
+          rapid_fire_mask |= rapid_fire_io_button;
+        }
       }
-      else
-
-          if (event_input.action_type == INPUT_ACTION_TYPE_PRESS)
+#endif
+      else if (config_button_action == CONFIG_BUTTON_RAPID_ONOFF)
+      {
+        if (event_input.action_type == INPUT_ACTION_TYPE_PRESS)
+        {
+          m_RapidSelect = 1;
+        }
+        else
+        {
+          m_RapidSelect = 0;
+        }
+      }
+      else if (event_input.action_type == INPUT_ACTION_TYPE_PRESS)
       {
         switch (config_button_action)
         {
@@ -140,8 +169,8 @@ void update_events(void)
                   config.savestate_number);
 
           load_state(state_name, NULL, 0);
-          return;
         }
+          return;
 
         case CONFIG_BUTTON_SAVE_STATE:
         {

@@ -17,18 +17,21 @@ typedef enum
   CONFIG_BUTTON_VI,
   CONFIG_BUTTON_RUN,
   CONFIG_BUTTON_SELECT,
+  /*
   CONFIG_BUTTON_RAPID_I,
   CONFIG_BUTTON_RAPID_II,
   CONFIG_BUTTON_RAPID_III,
   CONFIG_BUTTON_RAPID_IV,
   CONFIG_BUTTON_RAPID_V,
   CONFIG_BUTTON_RAPID_VI,
+  */
   CONFIG_BUTTON_MENU,
   CONFIG_BUTTON_SAVE_STATE,
   CONFIG_BUTTON_LOAD_STATE,
   CONFIG_BUTTON_VOLUME_DOWN,
   CONFIG_BUTTON_VOLUME_UP,
   CONFIG_BUTTON_FAST_FORWARD,
+  CONFIG_BUTTON_RAPID_ONOFF,
   CONFIG_BUTTON_NONE,
   CONFIG_BUTTON_MAX,
 } config_buttons_enum;
@@ -121,6 +124,7 @@ typedef struct
 void initialize_event(void);
 void get_gui_input(gui_input_struct *gui_input);
 void clear_gui_actions(void);
+void init_events(void);
 void update_events(void);
 u32 update_input(event_input_struct *event_input);
 

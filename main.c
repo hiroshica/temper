@@ -362,6 +362,7 @@ int main(int argc, char *argv[])
   fflush(stdout);
 
   printf("Running game.\n");
+  init_events();
 
   if (netplay.pause == 0)
     audio_unpause();
@@ -1011,12 +1012,12 @@ s32 load_config_file(char *file_name)
           CONFIG_BUTTON_SELECT,
           CONFIG_BUTTON_III,
           CONFIG_BUTTON_VI,
-          CONFIG_BUTTON_RAPID_I,
-          CONFIG_BUTTON_RAPID_II,
+          //CONFIG_BUTTON_RAPID_I,
+          //CONFIG_BUTTON_RAPID_II,
           CONFIG_BUTTON_SAVE_STATE,
           CONFIG_BUTTON_LOAD_STATE,
           CONFIG_BUTTON_FAST_FORWARD,
-          CONFIG_BUTTON_MENU,
+          CONFIG_BUTTON_RAPID_ONOFF,
       };
 #else
   config_buttons_enum v1_to_v2_button_config[] =
@@ -1029,15 +1030,15 @@ s32 load_config_file(char *file_name)
           CONFIG_BUTTON_SELECT,
           CONFIG_BUTTON_I,
           CONFIG_BUTTON_II,
-          CONFIG_BUTTON_RAPID_I,
-          CONFIG_BUTTON_RAPID_II,
+          //CONFIG_BUTTON_RAPID_I,
+          //CONFIG_BUTTON_RAPID_II,
           CONFIG_BUTTON_MENU,
           CONFIG_BUTTON_SAVE_STATE,
           CONFIG_BUTTON_LOAD_STATE,
           CONFIG_BUTTON_VOLUME_DOWN,
           CONFIG_BUTTON_VOLUME_UP,
           CONFIG_BUTTON_FAST_FORWARD,
-          CONFIG_BUTTON_NONE,
+          CONFIG_BUTTON_RAPID_ONOFF,
       };
 #endif
 
