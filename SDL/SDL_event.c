@@ -250,6 +250,7 @@ u32 update_input(event_input_struct *event_input)
 	  event_input->config_button_action = key_map(event.key.keysym.sym);
 	  break;
 
+#ifndef RG350_BUILD
 	case SDL_JOYBUTTONDOWN:
 	  event_input->action_type = INPUT_ACTION_TYPE_PRESS;
 	  {
@@ -271,6 +272,7 @@ u32 update_input(event_input_struct *event_input)
 	    event_input->config_button_action = joy_button_map(button);
 	  }
 	  break;
+#endif
 
 	case SDL_JOYHATMOTION:
 	  event_input->hat_status = joy_hat_map(event.jhat.value);

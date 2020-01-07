@@ -84,6 +84,7 @@ typedef struct
   u32 status_message_lines;
   char status_message[STATUS_MESSAGE_LINES][128];
   char *input_message;
+  u32 rapid_frame[24];
 } config_struct;
 
 typedef struct
