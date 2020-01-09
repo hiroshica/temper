@@ -911,7 +911,9 @@ invalid:
     file_##type##_variable(config_file, config.netplay_port);                 \
     file_##type##_variable(config_file, config.netplay_ip);                   \
     file_##type##_variable(config_file, config.netplay_server_frame_latency); \
+    file_##type##_array(config_file, config.rapid_frame);                     \
   }
+
 
 void save_config_file(char *file_name)
 {

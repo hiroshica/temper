@@ -141,7 +141,7 @@ void update_events(void)
         }
         else
         {
-          if (event_input.action_type == INPUT_ACTION_TYPE_PRESS && )
+          if (event_input.action_type == INPUT_ACTION_TYPE_PRESS)
           {
 
             m_RapidStatus[index].m_Active ^= 1;

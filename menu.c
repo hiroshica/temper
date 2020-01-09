@@ -1667,8 +1667,7 @@ menu_struct *create_menu_options(menu_state_struct *menu_state,
   return menu;
 }
 
-menu_struct *create_menu_pad(menu_state_struct *menu_state,
- menu_struct *parent_menu)
+menu_struct *create_menu_pad(menu_state_struct *menu_state, menu_struct *parent_menu)
 {
   menu_struct *menu = create_menu(platform_control_count + 3, parent_menu,
    draw_menu_pad, focus_menu_pad);
@@ -1691,9 +1690,7 @@ menu_struct *create_menu_pad(menu_state_struct *menu_state,
 
   for(i = 0; i < platform_control_count; i++)
   {
-    add_menu_option(create_numeric_labeled(NULL, platform_control_names[i],
-     current_line_number, &(config.pad[i]), 0, 24,
-     button_strings));
+    add_menu_option(create_numeric_labeled(NULL, platform_control_names[i], current_line_number, &(config.pad[i]), 0, 24, button_strings));
   }
 
   current_line_number++;
@@ -1703,6 +1700,78 @@ menu_struct *create_menu_pad(menu_state_struct *menu_state,
   menu->column_start = control_config_start_column;
   return menu;
 }
+
+/*
+  0 = SQUARE
+  1 = CROSS
+  2 = CIRCLE
+  3 = TRIANGLE
+  4 = L1
+  5 = R1
+  6 = L2
+  7 = R2
+  8 = SHARE
+  9 = OPTION
+  10 = L3
+  11 = R3
+  12 = PS
+  13 = touchpad
+  -------------------
+   {SDLK_UP, (u32)0},
+   {SDLK_DOWN, (u32)1},
+   {SDLK_LEFT, (u32)2},
+   {SDLK_RIGHT, (u32)3},
+
+   {SDLK_LSHIFT, (u32)4}, //Y
+   {SDLK_LALT, (u32)5},   //B
+   {SDLK_SPACE, (u32)6},  //X
+   {SDLK_LCTRL, (u32)7},  //A
+
+   {SDLK_TAB, (u32)10},   //L1
+   {SDLK_BACKSPACE, (u32)11}, //R1
+
+   {SDLK_PAGEUP, (u32)12},   //L2
+   {SDLK_PAGEDOWN, (u32)13}, //R2
+
+   {SDLK_KP_DIVIDE, (u32)14}, //L3
+   {SDLK_KP_PERIOD, (u32)15}, //R3
+
+   {SDLK_ESCAPE, (u32)9},  // Select
+   {SDLK_RETURN, (u32)8},  // Start
+   {SDLK_HOME, (u32)4+12}, // Power
+*/
+menu_struct *create_menu_pad2(menu_state_struct *menu_state, menu_struct *parent_menu)
+{
+    static char *button_strings2[] =
+  {
+    "          Up", "        Down", "        Left", "       Right",
+    "           Y", "           B", "           X", "           A",
+    "          L1", "          R1",
+    "          L2", "          R2",
+    "      SELECT", "       START",
+    "          L3", "          R3",
+  };
+  static u32 button_string2_size = sizeof(button_strings2) / sizeof(char *);
+
+  menu_struct *menu = create_menu(button_string2_size + 3, parent_menu,
+   draw_menu_pad, focus_menu_pad);
+  void **menu_options = (void **)menu->options;
+  u32 current_menu_option = 0;
+  u32 current_line_number = 6;
+  u32 i;
+
+  for(i = 0; i < button_string2_size; i++)
+  {
+    add_menu_option(create_numeric( NULL,button_strings2[i], current_line_number, &(config.rapid_frame[i]), 1, 15));
+  }
+  current_line_number++;
+
+  add_save_config_options();
+
+  menu->column_start = control_config_start_column;
+  return menu;
+}
+
 
 
 menu_struct *create_menu_netplay(menu_state_struct *menu_state,
@@ -1750,53 +1819,42 @@ menu_struct *create_menu_netplay(menu_state_struct *menu_state,
 
 menu_struct *create_menu_main(menu_state_struct *menu_state) 
 {
-  menu_struct *menu = create_menu(11, NULL, draw_menu_main, NULL);
+  menu_struct *menu = create_menu(12, NULL, draw_menu_main, NULL);
   menu_struct *options_menu = create_menu_options(menu_state, menu);
   menu_struct *pad_menu = create_menu_pad(menu_state, menu);
+  menu_struct *pad2_menu = create_menu_pad2(menu_state, menu);
   menu_struct *netplay_menu = create_menu_netplay(menu_state, menu);
 
   void **menu_options = (void **)menu->options;
   u32 current_menu_option = 0;
-  u32 current_line_number = 13;
+  u32 current_line_number = 12;
 
-  add_menu_option(create_select_menu(NULL, "Change options",
-   current_line_number, options_menu));
-  add_menu_option(create_select_menu(NULL, "Configure pad ", 
-   current_line_number, pad_menu));
-  add_menu_option(create_select_menu(NULL, "Netplay       ", 
-   current_line_number, netplay_menu));
+  add_menu_option(create_select_menu(NULL,          "Change options", current_line_number, options_menu));
+  add_menu_option(create_select_menu(NULL,          "Configure pad ", current_line_number, pad_menu));
+  add_menu_option(create_select_menu(NULL, "Speed Adjustment by key", current_line_number, pad2_menu));
+  add_menu_option(create_select_menu(NULL,          "Netplay       ", current_line_number, netplay_menu));
 
   current_line_number++;
 
-  add_menu_option(create_numeric_select(NULL, "Load state   ",
-   current_line_number, &(config.savestate_number), 0, 9, select_load_state,
-   modify_snapshot_bg, focus_savestate));
-  add_menu_option(create_numeric_select(NULL, "Save state   ",
-   current_line_number, &(config.savestate_number), 0, 9, select_save_state,
-   modify_snapshot_bg, focus_savestate));
-  add_menu_option(create_select(NULL, "Save snapshot ", current_line_number, 
-   select_save_snapshot));
+  add_menu_option(create_numeric_select(NULL, "Load state   ", current_line_number, &(config.savestate_number), 0, 9, select_load_state, modify_snapshot_bg, focus_savestate));
+  add_menu_option(create_numeric_select(NULL, "Save state   ", current_line_number, &(config.savestate_number), 0, 9, select_save_state, modify_snapshot_bg, focus_savestate));
+  add_menu_option(create_select(NULL, "Save snapshot ", current_line_number, select_save_snapshot));
 
   current_line_number++;
 
-  add_menu_option(create_select(NULL, "Load new game ",
-   current_line_number, select_load_game));
-  add_menu_option(create_select(NULL, "Restart game  ", 
-   current_line_number, select_restart));
+  add_menu_option(create_select(NULL, "Load new game ", current_line_number, select_load_game));
+  add_menu_option(create_select(NULL, "Restart game  ", current_line_number, select_restart));
 
   current_line_number++;
 
-  add_menu_option(create_select(NULL, "Swap CD       ", 
-   current_line_number, select_swap_cd));
-  add_menu_option(create_select(NULL, "Return to game",  
-   current_line_number, select_return));
+  add_menu_option(create_select(NULL, "Swap CD       ", current_line_number, select_swap_cd));
+  add_menu_option(create_select(NULL, "Return to game", current_line_number, select_return));
 
   current_line_number++;
 
-  add_menu_option( create_select(NULL, "Exit Temper   ",
-   current_line_number, select_quit));
+  add_menu_option( create_select(NULL, "Exit Temper   ", current_line_number, select_quit));
 
-  menu->column_start = 104;
+  menu->column_start = 8 * 8;
 
   return menu;
 }
