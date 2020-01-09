@@ -141,11 +141,15 @@ void update_events(void)
         }
         else
         {
-          if (event_input.action_type == INPUT_ACTION_TYPE_PRESS)
+          if (event_input.action_type == INPUT_ACTION_TYPE_PRESS && )
           {
+
             m_RapidStatus[index].m_Active ^= 1;
             m_RapidStatus[index].m_bottunStatus = io_button;
             m_RapidStatus[index].m_frameCount = 0;
+            if(config.rapid_frame[index] == 0){
+              config.rapid_frame[index] = 1;
+            }
           }
         }
       }
@@ -312,15 +316,15 @@ void update_events(void)
   {
     if (m_RapidStatus[iI].m_Active && m_RapidStatus[iI].m_Status == INPUT_ACTION_TYPE_PRESS)
     {
-      m_RapidStatus[iI].m_frameCount++;
-      if (m_RapidStatus[iI].m_frameCount == 1)
+      if (m_RapidStatus[iI].m_frameCount == config.rapid_frame[iI])
       {
         button_status &= ~m_RapidStatus[iI].m_bottunStatus;
+        m_RapidStatus[iI].m_frameCount = 0;
       }
       else
       {
         button_status |= m_RapidStatus[iI].m_bottunStatus;
-        m_RapidStatus[iI].m_frameCount = 0;
+        m_RapidStatus[iI].m_frameCount++;
       }
     }
   }

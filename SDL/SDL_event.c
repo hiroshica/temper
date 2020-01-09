@@ -256,6 +256,7 @@ u32 update_input(event_input_struct *event_input)
 	  event_input->action_type = INPUT_ACTION_TYPE_PRESS;
 	  {
 	    u32 button = event.jbutton.button;
+		event_input->hard_key_index = button;
 #ifdef RG350_BUILD
 	    button = change_rg350buttoon(button);
 #endif
@@ -267,6 +268,7 @@ u32 update_input(event_input_struct *event_input)
 	  event_input->action_type = INPUT_ACTION_TYPE_RELEASE;
 	  {
 	    u32 button = event.jbutton.button;
+		event_input->hard_key_index = button;
 #ifdef RG350_BUILD
 	    button = change_rg350buttoon(button);
 #endif

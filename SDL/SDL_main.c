@@ -85,6 +85,13 @@ config_struct config =
         12345,             // u32 netplay_port;
         0x7F000001,        // u32 netplay_ip;
         3,                 // u32 netplay_server_frame_latency;
+
+        {
+          1,1,1,1,1,1,1,1,
+          1,1,1,1,1,1,1,1,
+          1,1,1,1,1,1,1,1,
+        },
+
 };
 
 void synchronize()

@@ -56,6 +56,8 @@ typedef struct
   u32 netplay_ip;
   u32 netplay_server_frame_latency;
 
+  u32 rapid_frame[24];
+
   // This will save the last directory you loaded a ROM from,
   // in a separate config file.
   char rom_directory[MAX_PATH];
@@ -84,7 +86,6 @@ typedef struct
   u32 status_message_lines;
   char status_message[STATUS_MESSAGE_LINES][128];
   char *input_message;
-  u32 rapid_frame[24];
 } config_struct;
 
 typedef struct
