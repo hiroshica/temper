@@ -15,6 +15,9 @@ function makeproject
 PROJECTDIR=$PWD/project
 SRCDIR=../../../project
 
+#export SDL_INCLUDE_DIRS=`sdl-config --cflags`
+#export SDL_LIBRARIES=`sdl-config --libs`
+
 COMPILE_TYPE=$1
 
     if [ "$1" = "linux" ] ; then
