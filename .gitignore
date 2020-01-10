@@ -9,3 +9,7 @@ temper
 temper*
 *.opk
 *~
+save_states
+config
+images
+build
