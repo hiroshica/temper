@@ -12,11 +12,8 @@ function usages
 ####
 function makeproject
 {
-PROJECTDIR=$PWD/project
-SRCDIR=../../../project
-
-#export SDL_INCLUDE_DIRS=`sdl-config --cflags`
-#export SDL_LIBRARIES=`sdl-config --libs`
+export PROJECTDIR=$PWD/project
+export SRCDIR=../../../project
 
 COMPILE_TYPE=$1
 
@@ -25,7 +22,7 @@ COMPILE_TYPE=$1
 	echo "create linux type"
 	PROJDIR=build/"$COMPILE_TYPE"/$2
 	PTARGET='Eclipse CDT4 - Unix Makefiles'
-	PTARGET_OPT='-DECLIPSE_CDT4_GENERATE_SOURCE_PROJECT=TRUE'
+	PTARGET_OPT='-DCMAKE_ECLIPSE_GENERATE_SOURCE_PROJECT=TRUE'
 	TOOLCHAIN=""
 	LINUXMACHINE=`uname -m`
 

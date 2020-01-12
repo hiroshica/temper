@@ -1,15 +1,7 @@
-*.o
-*.gcda
-*.elf
-*.txt
-*.pce
-*.ipk
-.vscode
-temper
-temper*
-*.opk
 *~
+.vscode
 save_states
 config
 images
 build
+project/exe
