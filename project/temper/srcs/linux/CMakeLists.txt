@@ -7,5 +7,5 @@ srcs/linux/SDL_screen.c
 srcs/linux/SDL_audio.c
 srcs/linux/SDL_event.c
 srcs/linux/SDL_menu.c
-srcs/crc32.c
+srcs/linux/crc32.c
 )
