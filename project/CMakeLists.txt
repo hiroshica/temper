@@ -53,7 +53,7 @@ else()
   set(PROJECT_LIB_SUFFIX "D")
 endif()
 
-set(PROJECT_EXE_SUFFIX "${MACHINE_SUFFIX}${PROJECT_LIB_SUFFIX}")
+set(PROJECT_EXE_SUFFIX "${MACHINE_SUFFIX}-${COMPILE_TYPE}${PROJECT_LIB_SUFFIX}")
 
 if(COMPILE_TYPE STREQUAL "linux")
   # linux
@@ -81,5 +81,26 @@ INCLUDE(ConfigCompileType)
 ################################################
 #
 add_subdirectory(temper)
+
+if(COMPILE_TYPE STREQUAL "rg350")
+set (NOWWORKDIR "${CMAKE_CURRENT_SOURCE_DIR}/srcs/${COMPILE_TYPE}")
+set (NOWWORKOUTFILE "${EXECUTABLE_OUTPUT_PATH}${OUT_EXEC_FILE}")
+set (NOWWORKOUTFILEBASE "temper-RG350")
+set (NOWWORKLASTOUTFILE "${NOWWORKOUTFILEBASE}.opk")
+
+add_custom_command(OUTPUT ${NOWWORKLASTOUTFILE}
+DEPENDS ${NOWWORKOUTFILE}
+WORKING_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
+COMMENT "Build OPK"
+POST_BUILD
+COMMAND "rm -rf .opk_data"
+COMMAND "cp -r ${NOWWORKDIR}/data .opk_data"
+COMMAND "cp ${NOWWORKOUTFILE} .opk_data/${NOWWORKOUTFILEBASE}"
+COMMAND "${CMAKE_STRIP} .opk_data/${NOWWORKOUTFILEBASE}"
+COMMAND "${TOOLCHAIN_PREFIX}/bin/mksquashfs .opk_data ${NOWWORKLASTOUTFILE} -all-root -noappend -no-exports -no-xattrs")
+
+#add_dependencies(${NOWWORKLASTOUTFILE})
+endif()
+
 
 ################ end of file ################

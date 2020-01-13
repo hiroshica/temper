@@ -27,6 +27,5 @@ srcs/rg350/tremor/synthesis.c
 srcs/rg350/tremor/vorbisfile.c
 srcs/rg350/tremor/window.c
 )
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/srcs/${COMPILE_TYPE}/tremor)
 
