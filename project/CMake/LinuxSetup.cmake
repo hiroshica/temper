@@ -9,7 +9,7 @@ set(CMAKE_LINKER /usr/bin/gcc)
 set(COMPILE_MODE_FLAG "-m64 -D__ADDRESS_64BIT__")
 set(LIB_DIR "lib/linux")
 # setup platform libraries
-set(PLATFORM_LIBS GL GLU SDL)
+#set(PLATFORM_LIBS GL GLU SDL)
 
 # compiler default option
 # Linux

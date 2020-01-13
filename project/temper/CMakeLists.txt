@@ -4,31 +4,29 @@
 set(EXECNAME temper)
 
 set (SOURCE_FILES
-srcs/adpcm.c
-srcs/audio.c
-srcs/cd.c
-srcs/debug.c
-srcs/event.c
-srcs/irq.c
+srcs/main.c
+srcs/cpu.c
 srcs/memory.c
-srcs/netplay.c
-srcs/screen.c
+srcs/irq.c
+srcs/io.c
 srcs/video.c
+srcs/timer.c
+srcs/psg.c
+srcs/disasm.c
+
+srcs/screen.c
+srcs/event.c
+srcs/audio.c
+srcs/menu.c
+srcs/debug.c
+srcs/cd.c
+srcs/adpcm.c
+srcs/netplay.c
 srcs/arcade_card.c
 srcs/bin_cue.c
-srcs/cpu.c
-srcs/disasm.c  srcs/io.c
-srcs/main.c
-srcs/menu.c
-srcs/psg.c
-srcs/timer.c
-srcs/crc32.c
-srcs/SDL/SDL_main.c
-srcs/SDL/SDL_screen.c
-srcs/SDL/SDL_audio.c
-srcs/SDL/SDL_event.c
-srcs/SDL/SDL_menu.c
 )
+
+INCLUDE(srcs/${COMPILE_TYPE}/CMakeLists.txt)
 
 set (OUT_EXEC_FILE ${EXECNAME}${PROJECT_EXE_SUFFIX})
 
