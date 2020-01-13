@@ -1,20 +1,34 @@
 ##########################################################################################
 #    this file is part of the CMake build system for ProjectSS
 ##########################################################################################
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.1)
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE)
 cmake_policy(SET CMP0003 NEW)
 
-project(temper)    #dummy project name
+################################################
+MESSAGE("compile type = ${COMPILE_TYPE}")
+
+project(temper)
 
 ################################################
 # setup library cmake includes
 ################################################
-find_package(PkgConfig REQUIRED)
+if(COMPILE_TYPE STREQUAL "linux")
+  # linux
+elseif(COMPILE_TYPE STREQUAL "rg350")
+  # rg350
+  set(PKG_CONFIG_EXECUTABLE "/opt/rg350-toolchain/usr/bin/pkg-config")
+elseif(COMPILE_TYPE STREQUAL "mingw")
+  # mingw32
+elseif(COMPILE_TYPE STREQUAL "win32")
+  # win32(VS2008)
+endif()
+
+  find_package(PkgConfig REQUIRED)
 pkg_check_modules(SDL sdl REQUIRED)
 
-MESSAGE("SDL_INC = ${SDL_INCLUDE_DIR}")
-MESSAGE("SDL_LIBS = ${SDL_LIBRARIES}")
+MESSAGE("SDL_INC = ${SDL_INCLUDE_DIRS}")
+MESSAGE("SDL_LIBS = ${SDL_LDFLAGS}")
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
 
@@ -40,6 +54,21 @@ else()
 endif()
 
 set(PROJECT_EXE_SUFFIX "${MACHINE_SUFFIX}${PROJECT_LIB_SUFFIX}")
+
+if(COMPILE_TYPE STREQUAL "linux")
+  # linux
+  set(PLATFORM_CFLAGS "-DLINUX_X86_BUILD")
+  set(PLATFORM_LIBS "-lz -lm -pthread")
+elseif(COMPILE_TYPE STREQUAL "rg350")
+  # rg350
+  set(PLATFORM_CFLAGS "-DRG350_BUILD -Ofast -mips32r2 -mmxu -fdata-sections -ffunction-sections")
+  set(PLATFORM_LIBS " -lz -lm -lbz2 -pthread -Wl,--as-needed -Wl,--gc-sections -flto -s")
+elseif(COMPILE_TYPE STREQUAL "mingw")
+  # mingw32
+elseif(COMPILE_TYPE STREQUAL "win32")
+  # win32(VS2008)
+endif()
+
 
 ################################################
 # setup project

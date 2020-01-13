@@ -15,7 +15,7 @@ else()
 endif()
 
 if("${TOOLCHAIN_PREFIX}" STREQUAL "")
-  set(TOOLCHAIN_PREFIX "/opt/${MODEL}-toolchain")
+  set(TOOLCHAIN_PREFIX "/opt/${MODEL}-toolchain/usr")
 endif()
 
 set(TOOL_OS_SUFFIX "")

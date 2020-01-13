@@ -26,6 +26,14 @@ COMPILE_TYPE=$1
 	TOOLCHAIN=""
 	LINUXMACHINE=`uname -m`
 
+    elif  [ "$1" = "rg350" ] ; then
+	echo "create RG350PROJECT type"
+	COMPILE_TYPE="$1"
+	PROJDIR=build/$1/$2
+	PTARGET='Eclipse CDT4 - Unix Makefiles'
+	PTARGET_OPT='-DCMAKE_ECLIPSE_GENERATE_SOURCE_PROJECT=TRUE'
+	TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=$PROJECTDIR/CMake/mips32-linux-gcc.cmake
+
     elif  [ "$1" = "mingw" ] ; then
 	echo "create mingw type"
 	PROJDIR=build/$1/$2
@@ -42,20 +50,13 @@ COMPILE_TYPE=$1
 	PTARGET_OPT=""
 	TOOLCHAIN=""
 
-    elif  [ "$1" = "rg350" ] ; then
-	echo "create RG350PROJECT type"
-	PROJDIR=build/$1/$2
-	PTARGET='Eclipse CDT4 - Unix Makefiles'
-	PTARGET_OPT='-DECLIPSE_CDT4_GENERATE_SOURCE_PROJECT=TRUE'
-	TOOLCHAIN='-DCMAKE_TOOLCHAIN_FILE=$PROJECTDIR/PROJECT/CMake/mips32-linux-gcc.cmake'
-
     else
 	usages
 	exit 1
     fi
 # create project
     mkdir -p $PROJDIR
-    pushd $PROJDIR ; cmake -G "$PTARGET" $PTARGET_OPT -DCOMPILE_TYPE="$COMPILE_TYPE" -DCMAKE_BUILD_TYPE="$2" -DLINUX_OS="$LINUXMACHINE" $TOOLCHAIN $SRCDIR ; popd
+    pushd $PROJDIR ; cmake -G "$PTARGET" $PTARGET_OPT -DCOMPILE_TYPE="$COMPILE_TYPE" -DMODEL="$COMPILE_TYPE" -DCMAKE_BUILD_TYPE="$2" -DLINUX_OS="$LINUXMACHINE" $TOOLCHAIN $SRCDIR ; popd
 }
 ####
 if [ $# -eq 1 ] ; then
