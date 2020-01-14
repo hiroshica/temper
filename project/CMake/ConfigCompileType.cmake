@@ -10,7 +10,7 @@ if(COMPILE_TYPE STREQUAL "linux")
   INCLUDE(LinuxSetup)
 elseif(COMPILE_TYPE STREQUAL "mingw")
   # mingw32
-  INCLUDE(MingWSetup)
+  INCLUDE(Windows-GNU)
 elseif(COMPILE_TYPE STREQUAL "win32")
   # win32(VS2008)
   INCLUDE(Win32Setup)

@@ -2,13 +2,12 @@
 #    setup for Linux version
 ##########################################################################################
 #  compiler setting
-add_definitions(-D__OS_MINGW__ -D__MINGW32__)
+#add_definitions(-D__OS_MINGW__ -D__MINGW32__)
 set(CMAKE_EXE_LINKER_FLAGS -mwindows)
 
 # compiler default option
 # MinGW32
-set(C_DEF_FLAGS "-Wno-unused ${SDL_INCLUDE_DIRS}")
-set(CXX_DEF_FLAGS "-fcheck-new -Wno-unused ${SDL_INCLUDE_DIRS}")
-set(PLATFORM_LIBS "${SDL_LIBRARY} -mconsole -lbz2 -lz -lvorbisfile -lvorbis -logg -lwsock32")
+set(CMAKE_C_FLAGS          "${CMAKE_C_FLAGS} ${COMPILE_MODE_FLAG}"     CACHE STRING "C flags")
+set(CMAKE_CXX_FLAGS        "${CMAKE_CXX_FLAGS} ${COMPILE_MODE_FLAG} -fcheck-new" CACHE STRING "C++ flags")
 
 ################ end of file ################

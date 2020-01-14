@@ -15,33 +15,31 @@ function makeproject
 export PROJECTDIR=$PWD/project
 export SRCDIR=../../../project
 
-COMPILE_TYPE=$1
+COMPILE_TYPE="$1"
 
     if [ "$1" = "linux" ] ; then
-	COMPILE_TYPE="$1"
 	echo "create linux type"
 	PROJDIR=build/"$COMPILE_TYPE"/$2
-	PTARGET='Eclipse CDT4 - Unix Makefiles'
-	PTARGET_OPT='-DCMAKE_ECLIPSE_GENERATE_SOURCE_PROJECT=TRUE'
-	TOOLCHAIN=""
+	PTARGET='Unix Makefiles'
+	PTARGET_OPT=""
+	TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=$PROJECTDIR/CMake/LinuxSetup.cmake
 	LINUXMACHINE=`uname -m`
 
     elif  [ "$1" = "rg350" ] ; then
 	echo "create RG350PROJECT type"
-	COMPILE_TYPE="$1"
 	PROJDIR=build/$1/$2
-	PTARGET='Eclipse CDT4 - Unix Makefiles'
-	PTARGET_OPT='-DCMAKE_ECLIPSE_GENERATE_SOURCE_PROJECT=TRUE'
+	PTARGET='Unix Makefiles'
+	PTARGET_OPT=""
 	TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=$PROJECTDIR/CMake/mips32-linux-gcc.cmake
 
     elif  [ "$1" = "mingw" ] ; then
 	echo "create mingw type"
 	PROJDIR=build/$1/$2
-	PTARGET='Eclipse CDT4 - Unix Makefiles'
-	PTARGET_OPT='-DCMAKE_ECLIPSE_GENERATE_SOURCE_PROJECT=TRUE'
+	PTARGET='MSYS Makefiles'
+	PTARGET_OPT=""
+	#TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=$PROJECTDIR/CMake/MingWSetup.cmake
 	#TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=$PROJECTDIR/CMake/ToolChain-i586-mingw32.cmake
-	TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=$PROJECTDIR/CMake/MingWSetup.cmake
-	#TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=$PROJECTDIR/CMake/Windows-GNU.cmake
+	TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=$PROJECTDIR/CMake/Windows-GNU.cmake
 
     elif  [ "$1" = "win32" ] ; then
 	echo "create win32 type"

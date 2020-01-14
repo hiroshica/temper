@@ -1,5 +1,5 @@
-#ifndef IO_H
-#define IO_H
+#ifndef USER_IO_H
+#define USER_IO_H
 
 typedef enum
 {

@@ -20,15 +20,34 @@ elseif(COMPILE_TYPE STREQUAL "rg350")
   set(PKG_CONFIG_EXECUTABLE "/opt/rg350-toolchain/usr/bin/pkg-config")
 elseif(COMPILE_TYPE STREQUAL "mingw")
   # mingw32
+  set(PKG_CONFIG_EXECUTABLE "C:/msys64/mingw64/bin/pkg-config.exe")
 elseif(COMPILE_TYPE STREQUAL "win32")
   # win32(VS2008)
 endif()
 
-  find_package(PkgConfig REQUIRED)
+find_package(PkgConfig REQUIRED)
 pkg_check_modules(SDL sdl REQUIRED)
 
-MESSAGE("SDL_INC = ${SDL_INCLUDE_DIRS}")
-MESSAGE("SDL_LIBS = ${SDL_LDFLAGS}")
+
+if(COMPILE_TYPE STREQUAL "linux")
+  # linux
+  set(SDL_INC "${SDL_INCLUDE_DIRS}")
+  set(SDL_LIBS "${SDL_LIBRARIES}")
+elseif(COMPILE_TYPE STREQUAL "rg350")
+  # rg350
+  set(SDL_INC "${SDL_INCLUDE_DIRS}")
+  set(SDL_LIBS "${SDL_LIBRARIES}")
+elseif(COMPILE_TYPE STREQUAL "mingw")
+  # mingw32
+  set(SDL_INC "${SDL_INCLUDE_DIRS}")
+  set(SDL_LIBS "${SDL_LDFLAGS};-mwindows")
+  #string(REPLACE "-lmingw32;" "" SDL_LIBS "${SDL_LDFLAGS}")
+  #string(REPLACE "-lSDLmain;" "" SDL_LIBS "${SDL_LIBS}")
+elseif(COMPILE_TYPE STREQUAL "win32")
+  # win32(VS2008)
+endif()
+MESSAGE("SDL_INC = ${SDL_INC}")
+MESSAGE("SDL_LIBS = ${SDL_LIBS}")
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
 
@@ -53,18 +72,22 @@ else()
   set(PROJECT_LIB_SUFFIX "D")
 endif()
 
-set(PROJECT_EXE_SUFFIX "${MACHINE_SUFFIX}-${COMPILE_TYPE}${PROJECT_LIB_SUFFIX}")
 
 if(COMPILE_TYPE STREQUAL "linux")
   # linux
   set(PLATFORM_CFLAGS "-DLINUX_X86_BUILD")
   set(PLATFORM_LIBS "-lz -lm -pthread")
+  set(PROJECT_EXE_SUFFIX "${MACHINE_SUFFIX}-${COMPILE_TYPE}${PROJECT_LIB_SUFFIX}")
 elseif(COMPILE_TYPE STREQUAL "rg350")
   # rg350
   set(PLATFORM_CFLAGS "-DRG350_BUILD -Ofast -mips32r2 -mmxu -fdata-sections -ffunction-sections")
   set(PLATFORM_LIBS " -lz -lm -lbz2 -pthread -Wl,--as-needed -Wl,--gc-sections -flto -s")
+  set(PROJECT_EXE_SUFFIX "${MACHINE_SUFFIX}-${COMPILE_TYPE}${PROJECT_LIB_SUFFIX}")
 elseif(COMPILE_TYPE STREQUAL "mingw")
   # mingw32
+  set(PLATFORM_CFLAGS "-DWIN32_BUILD")
+  set(PLATFORM_LIBS "-mconsole -lbz2 -lz -lvorbisfile -lvorbis -logg -lwsock32")
+  set(PROJECT_EXE_SUFFIX "${MACHINE_SUFFIX}-${COMPILE_TYPE}${PROJECT_LIB_SUFFIX}")
 elseif(COMPILE_TYPE STREQUAL "win32")
   # win32(VS2008)
 endif()
@@ -73,8 +96,7 @@ endif()
 ################################################
 # setup project
 ################################################
-
-INCLUDE(ConfigCompileType)
+#INCLUDE(ConfigCompileType)
 
 ################################################
 #    setup targets
