@@ -12,6 +12,11 @@ update:
 整理整頓を行った。CMakeに移行予定
 
 ***
+ToDo:
+- キーコントロール周りを共通仕様にする。
+- Screenのリサイズに対応できるようにする
+
+***
 このプロジェクトは以下のプロジェクトを基にしています。  
 https://github.com/gameblabla/temper.git
 
