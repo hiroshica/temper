@@ -165,7 +165,6 @@ void initialize_pce();
 void reset_pce();
 void quit();
 
-extern SDL_Joystick *joy;
 
 void platform_initialize();
 void platform_update();

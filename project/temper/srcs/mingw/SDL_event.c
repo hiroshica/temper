@@ -533,6 +533,7 @@ void get_gui_input(gui_input_struct *gui_input)
 	gui_input->action_type = gui_action;
 }
 
+SDL_Joystick *joy[64];
 void initialize_event()
 {
 	u32 i;
@@ -543,7 +544,7 @@ void initialize_event()
 	{
 		for (i = 0; i < joystick_count; i++)
 		{
-			SDL_JoystickOpen(i);
+			joy[i] = SDL_JoystickOpen(i);
 		}
 		SDL_JoystickEventState(SDL_ENABLE);
 	}

@@ -22,5 +22,7 @@ typedef enum
   PC_BUTTON_NONE
 } pc_buttons_enum;
 
+extern SDL_Joystick *joy[64];
+
 #endif
 
