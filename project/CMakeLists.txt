@@ -32,7 +32,7 @@ pkg_check_modules(SDL sdl REQUIRED)
 if(COMPILE_TYPE STREQUAL "linux")
   # linux
   set(SDL_INC "${SDL_INCLUDE_DIRS}")
-  set(SDL_LIBS "${SDL_LIBRARIES}")
+  set(SDL_LIBS "${SDL_LDFLAGS}")
 elseif(COMPILE_TYPE STREQUAL "rg350")
   # rg350
   set(SDL_INC "${SDL_INCLUDE_DIRS}")
