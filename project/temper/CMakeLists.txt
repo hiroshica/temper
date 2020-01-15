@@ -62,7 +62,6 @@ elseif(COMPILE_TYPE STREQUAL "rg350")
   target_link_libraries(${OUT_EXEC_FILE} ${BUILD_LDFLAGS})
 #
   set (NOWWORKDIR "${CMAKE_CURRENT_SOURCE_DIR}/srcs/${COMPILE_TYPE}")
-  #set (NOWWORKOUTFILE "${EXECUTABLE_OUTPUT_PATH}${OUT_EXEC_FILE}")
   set (NOWWORKOUTFILE "${OUT_EXEC_FILE}")
   set (NOWWORKOUTFILEBASE "temper-RG350")
   set (NOWWORKLASTOUTFILE "${NOWWORKOUTFILEBASE}.opk")
@@ -73,6 +72,15 @@ elseif(COMPILE_TYPE STREQUAL "rg350")
   COMMENT "Build OPK"
   COMMAND rm -rf .opk_data
   COMMAND cp -r ${NOWWORKDIR}/data .opk_data
+  COMMAND echo "[Desktop Entry]" > .opk_data/default.gcw0.desktop
+  COMMAND echo Type=Application >> .opk_data/default.gcw0.desktop
+  COMMAND echo Name=${NOWWORKOUTFILEBASE} >> .opk_data/default.gcw0.desktop
+  COMMAND echo Comment=PC-Engine emulator >> .opk_data/default.gcw0.desktop
+  COMMAND echo Exec=${NOWWORKOUTFILEBASE} %f >> .opk_data/default.gcw0.desktop
+  COMMAND echo Icon=icon >> .opk_data/default.gcw0.desktop
+  COMMAND echo Terminal=false >> .opk_data/default.gcw0.desktop
+  COMMAND echo "Categories=emulators;" >> .opk_data/default.gcw0.desktop
+  COMMAND echo MimeType=.pce >> .opk_data/default.gcw0.desktop
   COMMAND cp ${NOWWORKOUTFILE} .opk_data/${NOWWORKOUTFILEBASE}
   COMMAND ${CMAKE_STRIP} .opk_data/${NOWWORKOUTFILEBASE}
   COMMAND ${TOOLCHAIN_PREFIX}/bin/mksquashfs .opk_data ${NOWWORKLASTOUTFILE} -all-root -noappend -no-exports -no-xattrs
