@@ -1,0 +1,18 @@
+################################################
+#    setup targets
+################################################
+add_subdirectory(SsLib)
+
+#
+# Graphics Library
+#add_subdirectory(SsIrrlicht)
+
+#
+# Samples
+add_subdirectory(samples)
+
+#
+# tools
+#add_subdirectory(testtools)
+
+################ end of file ################

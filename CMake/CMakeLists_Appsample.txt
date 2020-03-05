@@ -1,0 +1,60 @@
+##########################################################################################
+#    setting of samples
+##########################################################################################
+# setup SsLibraries
+if (SSLIB_SUBSET STREQUAL "FALSE")
+  set(SSLIB_ARCHIVES 
+    ssdebuggraph${PROJECT_LIB_SUFFIX}
+    ssgraph${PROJECT_LIB_SUFFIX}
+    sssound${PROJECT_LIB_SUFFIX}
+    ssresource${PROJECT_LIB_SUFFIX}
+    sscore${PROJECT_LIB_SUFFIX}
+    ssmath${PROJECT_LIB_SUFFIX}
+    ${SSLIB_ARCH_ARCHIVES}
+  )
+else()
+  set(SSLIB_ARCHIVES 
+    ssdebuggraph${PROJECT_LIB_SUFFIX}
+    ssgraph${PROJECT_LIB_SUFFIX}
+    sssound${PROJECT_LIB_SUFFIX}
+    ssresource${PROJECT_LIB_SUFFIX}
+    sscore${PROJECT_LIB_SUFFIX}
+    ssmathsubset${PROJECT_LIB_SUFFIX}
+    ${SSLIB_ARCH_ARCHIVES}
+  )
+endif()
+# 将来たせたらいいな
+#  ssbullet${PROJECT_LIB_SUFFIX}
+#  ssirrlicht${PROJECT_LIB_SUFFIX}
+# 将来たせたらいいな
+
+#MESSAGE("now sslibs ${SSLIB_ARCHIVES}")
+#MESSAGE("now platform libs ${PLATFORM_LIBS}")
+
+# build setup by target os  
+if(COMPILE_TYPE STREQUAL "linux")
+  # linux
+  set(BUILD_LDFLAGS "${PLATFORM_LIBS} ${SDL_LIBS}")
+elseif(COMPILE_TYPE STREQUAL "mingw")
+  # mingw32
+  set(BUILD_LDFLAGS "${PLATFORM_LIBS} ${SDL_LIBS}")
+elseif(COMPILE_TYPE STREQUAL "rg350")
+  set(BUILD_LDFLAGS "${SDL_LIBS} ${PLATFORM_LIBS}")
+endif()
+
+LINK_DIRECTORIES("${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
+set_property(SOURCE ${SOURCE_FILES} PROPERTY COMPILE_FLAGS "${BUILD_CFLAGS}")
+
+add_subdirectory(testGUI)
+
+#add_subdirectory(testbase)
+#add_subdirectory(taskcontrol)
+#add_subdirectory(frameworkcon)
+#add_subdirectory(sdlwintest)
+#add_subdirectory(testSprite)
+
+
+#add_subdirectory(helloworld)
+#add_subdirectory(testSound)
+
+################ end of file ################

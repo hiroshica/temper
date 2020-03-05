@@ -14,6 +14,7 @@ function makeproject
 {
 export PROJECTDIR=$PWD/project
 export SRCDIR=../../../project
+export CMAKEMODULEDIR=$PWD/CMake
 
 COMPILE_TYPE="$1"
 
@@ -22,7 +23,7 @@ COMPILE_TYPE="$1"
 	PROJDIR=build/"$COMPILE_TYPE"/$2
 	PTARGET='Unix Makefiles'
 	PTARGET_OPT=""
-	TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=$PROJECTDIR/CMake/LinuxSetup.cmake
+	TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=$CMAKEMODULEDIR/LinuxSetup.cmake
 	LINUXMACHINE=`uname -m`
 
     elif  [ "$1" = "rg350" ] ; then
@@ -30,7 +31,7 @@ COMPILE_TYPE="$1"
 	PROJDIR=build/$1/$2
 	PTARGET='Unix Makefiles'
 	PTARGET_OPT=""
-	TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=$PROJECTDIR/CMake/mips32-linux-gcc.cmake
+	TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=$CMAKEMODULEDIR/mips32-linux-gcc.cmake
 
     elif  [ "$1" = "mingw" ] ; then
 	echo "create mingw type"
@@ -39,7 +40,7 @@ COMPILE_TYPE="$1"
 	PTARGET_OPT=""
 	#TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=$PROJECTDIR/CMake/MingWSetup.cmake
 	#TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=$PROJECTDIR/CMake/ToolChain-i586-mingw32.cmake
-	TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=$PROJECTDIR/CMake/Windows-GNU.cmake
+	TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=$CMAKEMODULEDIR/Windows-GNU.cmake
 
     elif  [ "$1" = "win32" ] ; then
 	echo "create win32 type"
@@ -54,7 +55,7 @@ COMPILE_TYPE="$1"
     fi
 # create project
     mkdir -p $PROJDIR
-    pushd $PROJDIR ; cmake -G "$PTARGET" $PTARGET_OPT -DCOMPILE_TYPE="$COMPILE_TYPE" -DMODEL="$COMPILE_TYPE" -DCMAKE_BUILD_TYPE="$2" -DLINUX_OS="$LINUXMACHINE" $TOOLCHAIN $SRCDIR ; popd
+    pushd $PROJDIR ; cmake -G "$PTARGET" $PTARGET_OPT -DCOMPILE_TYPE="$COMPILE_TYPE" -DMODEL="$COMPILE_TYPE" -DCMAKE_BUILD_TYPE="$2" -DLINUX_OS="$LINUXMACHINE" -DCMAKE_MODULE_PATH="$CMAKEMODULEDIR" $TOOLCHAIN $SRCDIR ; popd
 }
 ####
 if [ $# -eq 1 ] ; then
