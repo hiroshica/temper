@@ -78,19 +78,19 @@ if(COMPILE_TYPE STREQUAL "linux")
   # linux
   add_definitions(-D__OS_LINUX__)
   add_definitions(-DLINUX_X86_BUILD)
-  set(PLATFORM_CFLAGS "")
+  set(PLATFORM_CFLAGS " ")
   set(PLATFORM_LIBS "-lz -lm -pthread ${SDL_LIBS}")
 elseif(COMPILE_TYPE STREQUAL "rg350")
   # rg350
   add_definitions(-D__OS_LINUX__)
   add_definitions(-DRG350_BUILD)
-  set(PLATFORM_CFLAGS " -Ofast -mips32r2 -mmxu -fdata-sections -ffunction-sections")
+  set(PLATFORM_CFLAGS "-Ofast -mips32r2 -mmxu -fdata-sections -ffunction-sections")
   set(PLATFORM_LIBS " -lz -lm -lbz2 -pthread -Wl,--as-needed -Wl,--gc-sections -flto -s ${SDL_LIBS}")
 elseif(COMPILE_TYPE STREQUAL "mingw")
   # mingw32
   add_definitions(-D__OS_MINGW__)
   add_definitions(-DWIN32_BUILD)
-  set(PLATFORM_CFLAGS "")
+  set(PLATFORM_CFLAGS " ")
   set(PLATFORM_LIBS "-mconsole -lbz2 -lz -lvorbisfile -lvorbis -logg -lwsock32 ${SDL_LIBS}")
 endif()
 

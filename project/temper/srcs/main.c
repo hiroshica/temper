@@ -1,18 +1,21 @@
 #include "common.h"
 
+
+#define COPY_MAXPATH   (MAX_PATH*2)
+#define COPY_MAXPATH2   (MAX_PATH*3)
 void setup_main_dirs()
 {
   struct stat sb;
 
 #ifdef LETSGO_HOME
-  char save_path[MAX_PATH], bram_path[MAX_PATH], config_path[MAX_PATH], images_path[MAX_PATH], sys_path[MAX_PATH];
-  snprintf(config.main_path, MAX_PATH, "%s/.temper", getenv("HOME"));
+  char save_path[COPY_MAXPATH], bram_path[COPY_MAXPATH], config_path[COPY_MAXPATH], images_path[COPY_MAXPATH], sys_path[COPY_MAXPATH];
+  snprintf(config.main_path, COPY_MAXPATH, "%s/.temper", getenv("HOME"));
 
-  snprintf(save_path, MAX_PATH, "%s/%s", config.main_path, "save_states");
-  snprintf(bram_path, MAX_PATH, "%s/%s", config.main_path, "bram");
-  snprintf(config_path, MAX_PATH, "%s/%s", config.main_path, "config");
-  snprintf(images_path, MAX_PATH, "%s/%s", config.main_path, "images");
-  snprintf(sys_path, MAX_PATH, "%s/%s", config.main_path, "syscards");
+  snprintf(save_path, COPY_MAXPATH, "%s/%s", config.main_path, "save_states");
+  snprintf(bram_path, COPY_MAXPATH, "%s/%s", config.main_path, "bram");
+  snprintf(config_path, COPY_MAXPATH, "%s/%s", config.main_path, "config");
+  snprintf(images_path, COPY_MAXPATH, "%s/%s", config.main_path, "images");
+  snprintf(sys_path, COPY_MAXPATH, "%s/%s", config.main_path, "syscards");
 
   if (stat(config.main_path, &sb))
   {
@@ -299,7 +302,7 @@ int main(int argc, char *argv[])
   printf("platform initialize now\n");
   platform_initialize();
 
-  printf("sizeof(cpu_struct): %d\n", sizeof(cpu_struct));
+  printf("sizeof(cpu_struct): %ld\n", sizeof(cpu_struct));
 
   printf("Setting up main directories.\n");
   setup_main_dirs();
@@ -322,7 +325,7 @@ int main(int argc, char *argv[])
 
     if (strstr(argv[1], ".bin") || strstr(argv[1], ".iso"))
     {
-      return;
+      return -1;
     }
 
     if (load_rom(argv[argc - 1]) == -1)
@@ -340,16 +343,16 @@ int main(int argc, char *argv[])
 
   if (config.load_state_0)
   {
-    char state_name[MAX_PATH];
-    sprintf(state_name, "%s_0.svs", config.rom_filename);
+    char state_name[COPY_MAXPATH];
+    snprintf(state_name,COPY_MAXPATH, "%s_0.svs", config.rom_filename);
 
     load_state(state_name, NULL, 0);
   }
 
   if (config.benchmark_mode)
   {
-    char state_name[MAX_PATH];
-    sprintf(state_name, "%s_0.svs", config.rom_filename);
+    char state_name[COPY_MAXPATH];
+    snprintf(state_name,COPY_MAXPATH, "%s_0.svs", config.rom_filename);
 
     load_state(state_name, NULL, 0);
 
@@ -457,8 +460,8 @@ void reset_pce()
 
 void save_state(char *file_name, u16 *snapshot)
 {
-  char path[MAX_PATH];
-  sprintf(path, "%s%csave_states%c%s", config.main_path, DIR_SEPARATOR_CHAR,
+  char path[COPY_MAXPATH];
+  snprintf(path,COPY_MAXPATH, "%s%csave_states%c%s", config.main_path, DIR_SEPARATOR_CHAR,
           DIR_SEPARATOR_CHAR, file_name);
   u8 *savestate_buffer = malloc(SAVESTATE_MAX_SIZE);
   u32 snapshot_length = 0;
@@ -597,8 +600,8 @@ void load_state_date(char *path, char *state_date)
 savestate_extension_enum load_state(char *file_name, u8 *in_memory_state,
                                     u32 in_memory_state_size)
 {
-  char path[MAX_PATH];
-  sprintf(path, "%s%csave_states%c%s", config.main_path, DIR_SEPARATOR_CHAR,
+  char path[COPY_MAXPATH];
+  snprintf(path,COPY_MAXPATH, "%s%csave_states%c%s", config.main_path, DIR_SEPARATOR_CHAR,
           DIR_SEPARATOR_CHAR, file_name);
   savestate_header_struct savestate_header;
   u8 *savestate_buffer = malloc(SAVESTATE_MAX_SIZE);
@@ -760,8 +763,8 @@ invalid:
 
 u8 *preload_state(char *file_name, u32 *_file_length, u32 trim_snapshot)
 {
-  char path[MAX_PATH];
-  sprintf(path, "%s%csave_states%c%s", config.main_path, DIR_SEPARATOR_CHAR,
+  char path[COPY_MAXPATH2];
+  snprintf(path,COPY_MAXPATH2, "%s%csave_states%c%s", config.main_path, DIR_SEPARATOR_CHAR,
           DIR_SEPARATOR_CHAR, file_name);
   FILE *savestate_file = fopen(path, "rb");
   u8 *savestate_buffer;
@@ -816,8 +819,8 @@ u8 *preload_state(char *file_name, u32 *_file_length, u32 trim_snapshot)
 savestate_extension_enum load_state_snapshot(char *file_name, u16 *buffer,
                                              char *state_date)
 {
-  char path[MAX_PATH];
-  sprintf(path, "%s%csave_states%c%s", config.main_path, DIR_SEPARATOR_CHAR,
+  char path[COPY_MAXPATH2];
+  snprintf(path,COPY_MAXPATH2, "%s%csave_states%c%s", config.main_path, DIR_SEPARATOR_CHAR,
           DIR_SEPARATOR_CHAR, file_name);
   savestate_header_struct savestate_header;
   u8 *savestate_buffer = malloc(SAVESTATE_HEADER_LENGTH + (320 * 240 * 2));
@@ -917,8 +920,8 @@ invalid:
 
 void save_config_file(char *file_name)
 {
-  char path[MAX_PATH];
-  sprintf(path, "%s%cconfig%c%s", config.main_path, DIR_SEPARATOR_CHAR,
+  char path[COPY_MAXPATH2];
+  snprintf(path,COPY_MAXPATH2, "%s%cconfig%c%s", config.main_path, DIR_SEPARATOR_CHAR,
           DIR_SEPARATOR_CHAR, file_name);
   u8 *config_file_buffer = malloc(16384);
 
@@ -948,8 +951,8 @@ void save_config_file(char *file_name)
 
 void save_directory_config_file(char *file_name)
 {
-  char path[MAX_PATH];
-  sprintf(path, "%s%cconfig%c%s", config.main_path, DIR_SEPARATOR_CHAR,
+  char path[COPY_MAXPATH2];
+  snprintf(path,COPY_MAXPATH2, "%s%cconfig%c%s", config.main_path, DIR_SEPARATOR_CHAR,
           DIR_SEPARATOR_CHAR, file_name);
   u8 *config_file_buffer = malloc(16384);
 
@@ -979,8 +982,8 @@ void save_directory_config_file(char *file_name)
 
 s32 load_config_file(char *file_name)
 {
-  char path[MAX_PATH];
-  sprintf(path, "%s%cconfig%c%s", config.main_path, DIR_SEPARATOR_CHAR,
+  char path[COPY_MAXPATH];
+  snprintf(path,COPY_MAXPATH, "%s%cconfig%c%s", config.main_path, DIR_SEPARATOR_CHAR,
           DIR_SEPARATOR_CHAR, file_name);
 
   u32 old_netplay_type = config.netplay_type;
@@ -1115,8 +1118,8 @@ invalid:
 
 s32 load_directory_config_file(char *file_name)
 {
-  char path[MAX_PATH];
-  sprintf(path, "%s%cconfig%c%s", config.main_path, DIR_SEPARATOR_CHAR,
+  char path[COPY_MAXPATH2];
+  snprintf(path,COPY_MAXPATH2, "%s%cconfig%c%s", config.main_path, DIR_SEPARATOR_CHAR,
           DIR_SEPARATOR_CHAR, file_name);
 
   printf("loading directory config file %s\n", path);
@@ -1157,8 +1160,8 @@ invalid:
 
 s32 save_screenshot(u16 *snapshot)
 {
-  char images_path[MAX_PATH];
-  char image_filename[MAX_PATH];
+  char images_path[COPY_MAXPATH];
+  char image_filename[COPY_MAXPATH];
   char current_dir[MAX_PATH];
   sprintf(images_path, "%s%cimages", config.main_path, DIR_SEPARATOR_CHAR);
   u32 shot_number = 0;
