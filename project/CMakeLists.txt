@@ -109,8 +109,10 @@ endif()
 set(SSLIB_ARCH_ARCHIVES arch_${SSLIB_ARCH_SUBDIRECTORY}${PROJECT_LIB_SUFFIX})
 set(BUILD_CFLAGS "${PLATFORM_CFLAGS}")
 set(BUILD_CXXFLAGS "${PLATFORM_CXXFLAGS}")
+set(BUILD_LDFLAGS "${PLATFORM_LIBS} ${SDL_LIBS}")
 
-#MESSAGE("first set BuildFlag ${BUILD_CFLAGS}")
+MESSAGE("first set BuildFlag ${BUILD_CFLAGS}")
+MESSAGE("first set Buildlibs ${BUILD_LDFLAGS}")
 include_directories(${SDL_INC})
 
 ################################################################################################

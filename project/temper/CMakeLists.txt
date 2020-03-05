@@ -1,7 +1,7 @@
 ##########################################################################################
 #    PC-ENGINE
 ##########################################################################################
-set(EXECNAME temper)
+set(EXECNAME RG-temp)
 
 set (SOURCE_FILES
 srcs/main.c
@@ -33,33 +33,18 @@ set (OUT_EXEC_FILE ${EXECNAME}${PROJECT_EXE_SUFFIX})
 INCLUDE(srcs/${COMPILE_TYPE}/CMakeLists.txt)
 
 LINK_DIRECTORIES("${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
-set(BUILD_CFLAGS " ${PLATFORM_CFLAGS} -I${SDL_INC}")
+#set(BUILD_CFLAGS " ${PLATFORM_CFLAGS} -I${SDL_INC}")
 
 
+set_property(SOURCE ${SOURCE_FILES} PROPERTY COMPILE_FLAGS "${BUILD_CFLAGS}")
+add_executable(${OUT_EXEC_FILE} ${SOURCE_FILES})
+target_link_libraries(${OUT_EXEC_FILE} ${BUILD_LDFLAGS})
 
 if(COMPILE_TYPE STREQUAL "linux")
   # linux
-  set(BUILD_LDFLAGS "${PLATFORM_LIBS} ${SDL_LIBS}")
-  set_property(SOURCE ${SOURCE_FILES} PROPERTY COMPILE_FLAGS "${BUILD_CFLAGS}")
-  add_executable(${OUT_EXEC_FILE} ${SOURCE_FILES})
-  target_link_libraries(${OUT_EXEC_FILE} ${BUILD_LDFLAGS})
 elseif(COMPILE_TYPE STREQUAL "mingw")
   # mingw32
-  set(BUILD_LDFLAGS "${PLATFORM_LIBS} ${SDL_LIBS}")
-  set_property(SOURCE ${SOURCE_FILES} PROPERTY COMPILE_FLAGS "${BUILD_CFLAGS}")
-  add_executable(${OUT_EXEC_FILE} ${SOURCE_FILES})
-  target_link_libraries(${OUT_EXEC_FILE} ${BUILD_LDFLAGS})
-elseif(COMPILE_TYPE STREQUAL "win32")
-  set(BUILD_LDFLAGS "${PLATFORM_LIBS} ${SDL_LIBS}")
-  set_property(SOURCE ${SOURCE_FILES} PROPERTY COMPILE_FLAGS "${BUILD_CFLAGS}")
-  add_executable(${OUT_EXEC_FILE} ${SOURCE_FILES})
-  target_link_libraries(${OUT_EXEC_FILE} ${BUILD_LDFLAGS})
 elseif(COMPILE_TYPE STREQUAL "rg350")
-  set(BUILD_LDFLAGS "${SDL_LIBS} ${PLATFORM_LIBS}")
-  set_property(SOURCE ${SOURCE_FILES} PROPERTY COMPILE_FLAGS "${BUILD_CFLAGS}")
-  add_executable(${OUT_EXEC_FILE} ${SOURCE_FILES})
-  #add_executable(${OUT_EXEC_FILE} EXCLUDE_FROM_ALL ${SOURCE_FILES})
-  target_link_libraries(${OUT_EXEC_FILE} ${BUILD_LDFLAGS})
 #
   set (NOWWORKDIR "${CMAKE_CURRENT_SOURCE_DIR}/srcs/${COMPILE_TYPE}")
   set (NOWWORKOUTFILE "${OUT_EXEC_FILE}")
