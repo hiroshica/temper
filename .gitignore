@@ -4,4 +4,4 @@ save_states
 config
 images
 build
-project/exe
+out
