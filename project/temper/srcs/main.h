@@ -163,6 +163,7 @@ typedef struct
 void synchronize();
 void initialize_pce();
 void reset_pce();
+void run_pce(u32 benchmark_frames);
 void quit();
 
 

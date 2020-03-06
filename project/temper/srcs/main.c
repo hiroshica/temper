@@ -338,7 +338,10 @@ int main(int argc, char *argv[])
     printf("Starting menu\n");
     menu(1);
   }
-
+  run_pce(benchmark_frames);
+}
+void run_pce(u32 benchmark_frames)
+{
   if (config.load_state_0)
   {
     char state_name[COPY_MAXPATH];
@@ -403,7 +406,7 @@ int main(int argc, char *argv[])
     update_cdda();
     audio_sync_end();
 
-    update_events();
+    update_events();   // input SDL
 
     if (config.benchmark_mode)
     {
