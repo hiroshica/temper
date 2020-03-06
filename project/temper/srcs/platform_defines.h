@@ -234,6 +234,8 @@
 
 #endif
 
+#define COPY_MAXPATH   (MAX_PATH*2)
+#define COPY_MAXPATH2   (MAX_PATH*3)
 
 #endif
 
