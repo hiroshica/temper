@@ -1,5 +1,5 @@
 ***
-Temper for RG350 
+Temper for RG350/linux/mingw(win32)
 ***
 update:
 - 2019-12-29
