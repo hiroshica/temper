@@ -61,13 +61,8 @@ void gui_wait_for_input(gui_input_struct *gui_input)
    {SDLK_RETURN, (u32)8},  // Start
    {SDLK_HOME, (u32)4+12}, // Power
 */
-typedef struct _tButtonMapData
-{
-  char *name;
-  u32 event_no;
-} tButtonMapData;
 
-static tButtonMapData ButtonMapData[PAD_STOCK_MAX] =
+tButtonMapData ButtonMapData[PAD_STOCK_MAX] =
     {
         {"          Up", CONFIG_BUTTON_UP},
         {"        Down", CONFIG_BUTTON_DOWN},

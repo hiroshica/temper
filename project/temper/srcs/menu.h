@@ -181,5 +181,12 @@ void select_save_config_global(menu_state_struct *menu_state,
 
 void menu(u32 start_file_dialog);
 
+typedef struct _tButtonMapData
+{
+  char *name;
+  u32 event_no;
+} tButtonMapData;
+extern tButtonMapData ButtonMapData[PAD_STOCK_MAX];
+
 #endif
 

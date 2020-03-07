@@ -187,7 +187,6 @@ u32 update_input(event_input_struct *event_input)
 			case SDLK_ESCAPE:
 #endif
 				event_input->config_button_action = CONFIG_BUTTON_MENU;
-				//event_input->key_action = KEY_ACTION_QUIT;
 				break;
 
 			case SDLK_1:
