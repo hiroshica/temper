@@ -1072,17 +1072,6 @@ s32 load_config_file(char *file_name)
 
   config_file_action(read, config_header.version);
 
-  // The key map was changed in v2.
-  if (config_header.version == 1)
-  {
-    /*
-    for (i = 0; i < 16; i++)
-    {
-      config.pad[i] = v1_to_v2_button_config[config.pad[i]];
-    }
-    */
-  }
-
   // Others not allowed on the menu for now.
   config.audio_output_frequency = 44100;
   file_read_close(config_file);

@@ -30,32 +30,21 @@ config_struct config =
     {
         // u32 pad[16];
         {
-#ifdef WIN32_BUILD
-            CONFIG_BUTTON_UP, CONFIG_BUTTON_DOWN, CONFIG_BUTTON_LEFT, CONFIG_BUTTON_RIGHT,
-            CONFIG_BUTTON_IV, CONFIG_BUTTON_I,
-            CONFIG_BUTTON_II, CONFIG_BUTTON_V,
-            CONFIG_BUTTON_III, CONFIG_BUTTON_VI,
-            CONFIG_BUTTON_SAVE_STATE, CONFIG_BUTTON_LOAD_STATE,
-            CONFIG_BUTTON_RUN, CONFIG_BUTTON_SELECT,
-            CONFIG_BUTTON_FAST_FORWARD, CONFIG_BUTTON_RAPID_ONOFF,
-            CONFIG_BUTTON_MENU,  CONFIG_BUTTON_MENU,
-            CONFIG_BUTTON_MENU,  CONFIG_BUTTON_MENU,
-            CONFIG_BUTTON_MENU,  CONFIG_BUTTON_MENU,
-            CONFIG_BUTTON_MENU,  CONFIG_BUTTON_MENU,
-#else
-            CONFIG_BUTTON_UP, CONFIG_BUTTON_DOWN, CONFIG_BUTTON_LEFT, CONFIG_BUTTON_RIGHT,
-            CONFIG_BUTTON_I, CONFIG_BUTTON_II,
-            CONFIG_BUTTON_I, CONFIG_BUTTON_II,
-            CONFIG_BUTTON_RUN, CONFIG_BUTTON_SELECT,
+           0, 1, 2, 3,
+           4, 5, 6, 7,
+           8, 9,10,11,
+          12,13,14,15,
+          16,17,
+          -1,-1,
 
-            CONFIG_BUTTON_III, CONFIG_BUTTON_III,
-            CONFIG_BUTTON_SAVE_STATE, CONFIG_BUTTON_LOAD_STATE,
-            CONFIG_BUTTON_FAST_FORWARD, CONFIG_BUTTON_RAPID_ONOFF,
-            CONFIG_BUTTON_MENU,  CONFIG_BUTTON_MENU,
-            CONFIG_BUTTON_MENU,  CONFIG_BUTTON_MENU,
-            CONFIG_BUTTON_MENU,  CONFIG_BUTTON_MENU,
-            CONFIG_BUTTON_MENU,  CONFIG_BUTTON_MENU,
-#endif
+          -1,-1,-1,-1,
+          -1,-1,-1,-1,
+          -1,-1,-1,-1,
+        },
+        {
+          1,1,1,1,1,1,1,1,
+          1,1,1,1,1,1,1,1,
+          1,1,1,1,1,1,1,1,
         },
         0,               // u32 show_fps;
         1,               // u32 enable_sound;
@@ -85,12 +74,6 @@ config_struct config =
         12345,             // u32 netplay_port;
         0x7F000001,        // u32 netplay_ip;
         3,                 // u32 netplay_server_frame_latency;
-
-        {
-          1,1,1,1,1,1,1,1,
-          1,1,1,1,1,1,1,1,
-          1,1,1,1,1,1,1,1,
-        },
 
 };
 

@@ -18,11 +18,12 @@ typedef enum
 #define STATUS_MESSAGE_DURATION 30
 
 // ~3K + 172B
-
+#define PAD_STOCK_MAX   (32)
 typedef struct
 {
   // This should be stored in the config file.
-  u32 pad[24];
+  u32 pad[PAD_STOCK_MAX];   // hard keyに button_stringsの番号をマッピングする
+  u32 rapid_frame[PAD_STOCK_MAX];
 
   u32 show_fps;
   u32 enable_sound;
@@ -55,8 +56,6 @@ typedef struct
   u32 netplay_port;
   u32 netplay_ip;
   u32 netplay_server_frame_latency;
-
-  u32 rapid_frame[24];
 
   // This will save the last directory you loaded a ROM from,
   // in a separate config file.
