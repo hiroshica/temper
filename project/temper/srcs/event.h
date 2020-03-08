@@ -34,11 +34,18 @@ typedef enum _config_buttons_enum
   CONFIG_BUTTON_MENU,
   CONFIG_BUTTON_NONE,
 
+  CONFIG_BUTTON_UP_LEFT,
+  CONFIG_BUTTON_UP_RIGHT,
+  CONFIG_BUTTON_DOWN_LEFT,
+  CONFIG_BUTTON_DOWN_RIGHT,
+
   CONFIG_BUTTON_MAX,
 
   //CONFIG_BUTTON_VOLUME_DOWN,
   //CONFIG_BUTTON_VOLUME_UP,
 } config_buttons_enum;
+// debugテーブル必ずenumと同じ並びにすること（追加もね）
+extern char *config_name_table[];
 
 // These actions can't be configured and are triggered by
 // fixed inputs.

@@ -3,7 +3,8 @@
 
 extern u32 nowDebugKey;
 
-#define kLIMIT (0x00001000)
+// analogしきい値-32767～32767まで
+#define kLIMIT ((s16)0x4000)
 /*
  * eMODE_KEYSYM のデータ内訳
  * sdl_key = SDLK_???
@@ -37,6 +38,15 @@ tSDLtoConfigMap SDLtoConfigMap[] =
 
 		{eMODE_BUTTON, 12, 16},
 		{eMODE_BUTTON, 13, 17},
+
+		{eMODE_HAT, SDL_HAT_UP, CONFIG_BUTTON_UP},
+		{eMODE_HAT, SDL_HAT_RIGHTUP, CONFIG_BUTTON_UP_RIGHT},
+		{eMODE_HAT, SDL_HAT_RIGHT, CONFIG_BUTTON_RIGHT},
+		{eMODE_HAT, SDL_HAT_RIGHTDOWN, CONFIG_BUTTON_DOWN_RIGHT},
+		{eMODE_HAT, SDL_HAT_DOWN, CONFIG_BUTTON_DOWN},
+		{eMODE_HAT, SDL_HAT_LEFTDOWN, CONFIG_BUTTON_DOWN_LEFT},
+		{eMODE_HAT, SDL_HAT_LEFT, CONFIG_BUTTON_LEFT},
+		{eMODE_HAT, SDL_HAT_LEFTUP, CONFIG_BUTTON_UP_LEFT},
 
 		{eMODE_END, -1, -1},
 };
@@ -130,6 +140,10 @@ u32 key_search(eKeyMode inmode, u32 keys)
 			{
 				return ButtonMapData[config.pad[sdl_to_config_map[iI].index]].event_no;
 			}
+			else if (inmode == eMODE_HAT)
+			{
+				return sdl_to_config_map[iI].index;
+			}
 		}
 	}
 	return CONFIG_BUTTON_NONE;
@@ -163,10 +177,57 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 		event_input->config_button_action = key_search(eMODE_BUTTON, event->jbutton.button);
 		break;
 	case SDL_JOYAXISMOTION:
+		//status_message("now axis = %d which = %d",event->jaxis.axis,event->jaxis.which);
+		if (!(event->jaxis.axis & 0x02))  // ここのbitが左右スティックの判定
+		{
+			u32 keydata = SDL_HAT_CENTERED;
+			if ((event->jaxis.axis&0x01))
+			{
+				// 縦
+				if (event->jaxis.value < -kLIMIT)
+				{
+					keydata = SDL_HAT_UP;
+				}
+				else if (event->jaxis.value > kLIMIT)
+				{
+					keydata = SDL_HAT_DOWN;
+				}
+			}
+			else if (!(event->jaxis.axis&0x01))
+			{
+				// 横
+				if (event->jaxis.value < -kLIMIT)
+				{
+					keydata = SDL_HAT_LEFT;
+				}
+				else if (event->jaxis.value > kLIMIT)
+				{
+					keydata = SDL_HAT_RIGHT;
+				}
+			}
+			if (keydata != SDL_HAT_CENTERED)
+			{
+				event_input->action_type = INPUT_ACTION_TYPE_PRESS;
+				event_input->config_button_action = key_search(eMODE_HAT, keydata);
+			}
+			else
+			{
+				// no input
+			}
+		}
 		//status_message("id=%d data=%d", event.jaxis.axis, event.jaxis.value);
 		break;
 	case SDL_JOYHATMOTION:
-		//event_input->config_button_action = key_search(eMODE_HAT,event.jhat.value);
+		if (event->jhat.value != SDL_HAT_CENTERED)
+		{
+			event_input->action_type = INPUT_ACTION_TYPE_PRESS;
+			event_input->key_letter = event->key.keysym.unicode;
+			event_input->config_button_action = key_search(eMODE_HAT, event->jhat.value);
+		}
+		else
+		{
+			// no input
+		}
 		break;
 	}
 }
@@ -189,13 +250,14 @@ u32 update_input(event_input_struct *event_input)
 			// Deliberate fallthrough
 		default:
 			key_map(&event, event_input);
-			 break;
+			break;
 		}
 	}
 	else
 	{
 		return 0;
 	}
+	status_message("now input = %s",config_name_table[event_input->config_button_action]);
 
 	return 1;
 }
@@ -336,10 +398,10 @@ void get_gui_input(gui_input_struct *gui_input)
 			break;
 
 		case SDL_JOYAXISMOTION:
-			status_message("id=%d data=%d", event.jaxis.axis, event.jaxis.value);
+			//status_message("id=%d data=%d", event.jaxis.axis, event.jaxis.value);
 			if (event.jaxis.axis <= 3)
 			{
-				printf("a:%d v:%d\n", event.jaxis.axis, event.jaxis.value);
+				//printf("a:%d v:%d\n", event.jaxis.axis, event.jaxis.value);
 				if ((event.jaxis.axis & 1) || (event.jaxis.value != 0))
 				{
 					count_hat_input++;
@@ -445,7 +507,7 @@ void initialize_event()
 {
 	u32 i;
 	u32 joystick_count = SDL_NumJoysticks();
-	printf("%d joysticks\n", joystick_count);
+	//printf("%d joysticks\n", joystick_count);
 
 	if (joystick_count > 0)
 	{

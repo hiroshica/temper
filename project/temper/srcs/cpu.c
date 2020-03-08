@@ -1,6 +1,6 @@
 // Hu6280 CPU emulator.
 
-#include "common.h"
+#include "cpu_common.h"
 #include "op_list.h"
 
 //#define PROFILE ON

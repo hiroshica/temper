@@ -26,8 +26,9 @@ typedef enum
 
 typedef enum ekeymode{
   eMODE_END = -1,
-  eMODE_BUTTON = 0,
-  eMODE_KEYSYM,
+  eMODE_KEYSYM = 0,
+  eMODE_BUTTON,
+  eMODE_HAT,
 } eKeyMode;
 typedef struct _tSDLtoConfigMap
 {

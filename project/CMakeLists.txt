@@ -112,7 +112,7 @@ set(BUILD_CXXFLAGS "${PLATFORM_CXXFLAGS}")
 set(BUILD_LDFLAGS "${PLATFORM_LIBS} ${SDL_LIBS}")
 
 MESSAGE("first set BuildFlag ${BUILD_CFLAGS}")
-MESSAGE("first set Buildlibs ${BUILD_LDFLAGS}")
+MESSAGE("first set Buildlibs ${BUILD_LFLAGS}")
 include_directories(${SDL_INC})
 
 ################################################################################################
