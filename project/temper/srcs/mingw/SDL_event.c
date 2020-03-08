@@ -4,153 +4,171 @@
 extern u32 nowDebugKey;
 
 #define kLIMIT (0x00001000)
-u32 sdl_to_config_map[][2] =
+/*
+ * eMODE_KEYSYM のデータ内訳
+ * sdl_key = SDLK_???
+ * index = config_buttons_enumの値
+ * eMODE_BUTTON のデータ内訳
+ * sdl_key = JoyPadのボタン番号
+ * index = platform_control_namesのindex
+ */
+tSDLtoConfigMap SDLtoConfigMap[] =
 	{
-#if 0
-   {SDLK_UP, (u32)CONFIG_BUTTON_UP},
-   {SDLK_DOWN, (u32)CONFIG_BUTTON_DOWN},
-   {SDLK_LEFT, (u32)CONFIG_BUTTON_LEFT},
-   {SDLK_RIGHT, (u32)CONFIG_BUTTON_RIGHT},
-   {SDLK_LSHIFT, (u32)CONFIG_BUTTON_IV},
-   {SDLK_LALT, (u32)CONFIG_BUTTON_I},
-   {SDLK_SPACE, (u32)CONFIG_BUTTON_V},
-   {SDLK_LCTRL, (u32)CONFIG_BUTTON_II},
-   {SDLK_TAB, (u32)CONFIG_BUTTON_III},
-   {SDLK_BACKSPACE, (u32)CONFIG_BUTTON_VI},
-   {SDLK_PAGEUP, (u32)CONFIG_BUTTON_SAVE_STATE},
-   {SDLK_PAGEDOWN, (u32)CONFIG_BUTTON_LOAD_STATE},
-   {SDLK_KP_DIVIDE, (u32)CONFIG_BUTTON_MENU},
-   {SDLK_KP_PERIOD, (u32)CONFIG_BUTTON_FAST_FORWARD},
-   {SDLK_ESCAPE, (u32)CONFIG_BUTTON_SELECT},
-   {SDLK_RETURN, (u32)CONFIG_BUTTON_RUN},
-   {SDLK_HOME, (u32)CONFIG_BUTTON_MENU},
-#else
-		{SDLK_UP, (u32)0},
-		{SDLK_DOWN, (u32)1},
-		{SDLK_LEFT, (u32)2},
-		{SDLK_RIGHT, (u32)3},
+		{eMODE_KEYSYM, SDLK_UP, CONFIG_BUTTON_UP},
+		{eMODE_KEYSYM, SDLK_DOWN, CONFIG_BUTTON_DOWN},
+		{eMODE_KEYSYM, SDLK_LEFT, CONFIG_BUTTON_LEFT},
+		{eMODE_KEYSYM, SDLK_RIGHT, CONFIG_BUTTON_RIGHT},
 
-		{SDLK_LSHIFT, (u32)4},
-		{SDLK_LALT, (u32)5},
-		{SDLK_SPACE, (u32)6},
-		{SDLK_LCTRL, (u32)7},
+		{eMODE_BUTTON, 9, 4},
+		{eMODE_BUTTON, 8, 5},
 
-		{SDLK_TAB, (u32)10},
-		{SDLK_BACKSPACE, (u32)11},
+		{eMODE_BUTTON, 0, 6},
+		{eMODE_BUTTON, 3, 7},
+		{eMODE_BUTTON, 1, 8},
+		{eMODE_BUTTON, 2, 9},
 
-		{SDLK_PAGEUP, (u32)12},
-		{SDLK_PAGEDOWN, (u32)13},
+		{eMODE_BUTTON, 4, 10},
+		{eMODE_BUTTON, 6, 11},
+		{eMODE_BUTTON, 7, 12},
 
-		{SDLK_KP_DIVIDE, (u32)14},
-		{SDLK_KP_PERIOD, (u32)15},
+		{eMODE_BUTTON, 5, 13},
+		{eMODE_BUTTON, 7, 14},
+		{eMODE_BUTTON, 11, 15},
 
-		{SDLK_ESCAPE, (u32)9},
-		{SDLK_RETURN, (u32)8},
-		{SDLK_HOME, (u32)4 + 12},
-#endif
-		{
-			(u32)-1,
-			(u32)-1,
-		},
+		{eMODE_BUTTON, 12, 16},
+		{eMODE_BUTTON, 13, 17},
+
+		{eMODE_END, -1, -1},
 };
+#if 0
+  // keyboardでのマッピング処理
+	  switch (event.key.keysym.sym)
+	    {
+	    case SDLK_ESCAPE:
+	      event_input->config_button_action = CONFIG_BUTTON_MENU;
+	      //event_input->key_action = KEY_ACTION_QUIT;
+	      break;
 
-u32 key_map(u32 keys, u32 *hard)
+	    case SDLK_1:
+	      event_input->key_action = KEY_ACTION_BG_OFF;
+	      break;
+
+	    case SDLK_2:
+	      event_input->key_action = KEY_ACTION_SPR_OFF;
+	      break;
+
+	    case SDLK_F1:
+	      event_input->key_action = KEY_ACTION_DEBUG_BREAK;
+	      break;
+
+	    case SDLK_t:
+	      event_input->key_action = KEY_ACTION_NETPLAY_TALK;
+	      break;
+
+	    case SDLK_BACKQUOTE:
+	      event_input->config_button_action = CONFIG_BUTTON_FAST_FORWARD;
+	      break;
+
+	    case SDLK_F5:
+	      event_input->config_button_action = CONFIG_BUTTON_SAVE_STATE;
+	      break;
+
+	    case SDLK_F7:
+	      event_input->config_button_action = CONFIG_BUTTON_LOAD_STATE;
+	      break;
+
+	    case SDLK_m:
+	      event_input->config_button_action = CONFIG_BUTTON_MENU;
+	      break;
+	    case SDLK_BACKSPACE:
+	      event_input->key_action = KEY_ACTION_NETPLAY_TALK_CURSOR_BACKSPACE;
+		  event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
+	      break;
+
+	    case SDLK_RETURN:
+	      event_input->key_action = KEY_ACTION_NETPLAY_TALK_CURSOR_ENTER;
+		  event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
+	      break;
+
+	    case SDLK_LEFT:
+	      event_input->key_action = KEY_ACTION_NETPLAY_TALK_CURSOR_LEFT;
+		  event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
+	      break;
+
+	    case SDLK_RIGHT:
+	      event_input->key_action = KEY_ACTION_NETPLAY_TALK_CURSOR_RIGHT;
+		  event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
+	      break;
+	    default:
+		  event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
+	      break;
+	    }
+#endif
+
+// return u32 : config_buttons_enumを返す
+// inmode : チェックするキーのモード
+// keys  : SDLが返してきているキーデータ
+u32 key_search(eKeyMode inmode, u32 keys)
 {
-	unsigned char i;
+	unsigned char iI;
+	tSDLtoConfigMap *sdl_to_config_map = SDLtoConfigMap;
 
-	for (i = 0; sdl_to_config_map[i][0] != (u32)-1; i++)
+	for (iI = 0; sdl_to_config_map[iI].mode != eMODE_END; iI++)
 	{
-		if (keys == sdl_to_config_map[i][0])
+		if (inmode == sdl_to_config_map[iI].mode && sdl_to_config_map[iI].sdl_key == keys)
 		{
-			*hard = sdl_to_config_map[i][1];
-			return config.pad[*hard];
+			if (inmode == eMODE_KEYSYM)
+			{
+				// keyboard 入力はwin32/linuxの場合はそのままconfig_dataを返す
+#if !defined(RG350_BUILD)
+				return sdl_to_config_map[iI].index;
+#else
+				return CONFIG_BUTTON_NONE;
+#endif
+			}
+			else if (inmode == eMODE_BUTTON)
+			{
+				return ButtonMapData[config.pad[sdl_to_config_map[iI].index]].event_no;
+			}
 		}
 	}
 	return CONFIG_BUTTON_NONE;
 }
 
-u32 joy_button_map(u32 button)
+void key_map(SDL_Event *event, event_input_struct *event_input)
 {
-	return config.pad[button + 4];
-}
-
-u32 joy_hat_map(u32 hat_value)
-{
-	switch (hat_value)
+	switch (event->type)
 	{
-	case SDL_HAT_UP:
-		return HAT_STATUS_UP;
+	case SDL_KEYDOWN:
+		event_input->action_type = INPUT_ACTION_TYPE_PRESS;
+		event_input->key_letter = event->key.keysym.unicode;
+		event_input->config_button_action = key_search(eMODE_KEYSYM, event->key.keysym.sym);
+		break;
 
-	case SDL_HAT_RIGHTUP:
-		return HAT_STATUS_UP_RIGHT;
+	case SDL_KEYUP:
+		event_input->action_type = INPUT_ACTION_TYPE_RELEASE;
+		event_input->key_letter = event->key.keysym.unicode;
+		event_input->config_button_action = key_search(eMODE_KEYSYM, event->key.keysym.sym);
+		break;
 
-	case SDL_HAT_RIGHT:
-		return HAT_STATUS_RIGHT;
+	case SDL_JOYBUTTONDOWN:
+		event_input->action_type = INPUT_ACTION_TYPE_PRESS;
+		event_input->key_letter = event->key.keysym.unicode;
+		event_input->config_button_action = key_search(eMODE_BUTTON, event->jbutton.button);
+		break;
 
-	case SDL_HAT_RIGHTDOWN:
-		return HAT_STATUS_DOWN_RIGHT;
-
-	case SDL_HAT_DOWN:
-		return HAT_STATUS_DOWN;
-
-	case SDL_HAT_LEFTDOWN:
-		return HAT_STATUS_DOWN_LEFT;
-
-	case SDL_HAT_LEFT:
-		return HAT_STATUS_LEFT;
-
-	case SDL_HAT_LEFTUP:
-		return HAT_STATUS_UP_LEFT;
-
-	default:
-		return HAT_STATUS_CENTER;
+	case SDL_JOYBUTTONUP:
+		event_input->action_type = INPUT_ACTION_TYPE_RELEASE;
+		event_input->key_letter = event->key.keysym.unicode;
+		event_input->config_button_action = key_search(eMODE_BUTTON, event->jbutton.button);
+		break;
+	case SDL_JOYAXISMOTION:
+		//status_message("id=%d data=%d", event.jaxis.axis, event.jaxis.value);
+		break;
+	case SDL_JOYHATMOTION:
+		//event_input->config_button_action = key_search(eMODE_HAT,event.jhat.value);
+		break;
 	}
-}
-
-/*
-  0 = SQUARE
-  1 = CROSS
-  2 = CIRCLE
-  3 = TRIANGLE
-  4 = L1
-  5 = R1
-  6 = L2
-  7 = R2
-  8 = SHARE
-  9 = OPTION
-  10 = L3
-  11 = R3
-  12 = PS
-  13 = touchpad
-*/
-u32 rg350_changemap[][2] = {
-	{(u32)304, (u32)0},
-	{(u32)308, (u32)1},
-	{(u32)306, (u32)2},
-	{(u32)32, (u32)3},
-	{(u32)9, (u32)4},
-	{(u32)8, (u32)5},
-	{(u32)280, (u32)6},
-	{(u32)281, (u32)7},
-	{(u32)27, (u32)8},
-	{(u32)13, (u32)9},
-	{(u32)267, (u32)10},
-	{(u32)266, (u32)11},
-	{(u32)278, (u32)12},
-	{(u32)-1, (u32)-1},
-};
-
-u32 change_rg350buttoon(u32 button)
-{
-	u32 i;
-	for (i = 0; rg350_changemap[i][0] != (u32)-1; i++)
-	{
-		if (rg350_changemap[i][0] == button)
-		{
-			return rg350_changemap[i][1];
-		}
-	}
-	return CONFIG_BUTTON_MENU;
 }
 
 u32 update_input(event_input_struct *event_input)
@@ -160,7 +178,6 @@ u32 update_input(event_input_struct *event_input)
 	event_input->config_button_action = CONFIG_BUTTON_NONE;
 	event_input->key_action = KEY_ACTION_NONE;
 	event_input->key_letter = 0;
-	event_input->hat_status = HAT_STATUS_NONE;
 
 	if (SDL_PollEvent(&event))
 	{
@@ -170,118 +187,9 @@ u32 update_input(event_input_struct *event_input)
 			event_input->action_type = INPUT_ACTION_TYPE_PRESS;
 			event_input->key_action = KEY_ACTION_QUIT;
 			// Deliberate fallthrough
-
-		case SDL_KEYDOWN:
-			event_input->action_type = INPUT_ACTION_TYPE_PRESS;
-			event_input->key_letter = event.key.keysym.unicode;
-#ifdef RG350_BUILD
-			event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
-#else
-			switch (event.key.keysym.sym)
-			{
-#ifdef RS97_BUILD
-			case SDLK_END:
-#elif RG350_BUILD
-			case SDLK_HOME:
-#else
-			case SDLK_ESCAPE:
-#endif
-				event_input->config_button_action = CONFIG_BUTTON_MENU;
-				break;
-
-			case SDLK_1:
-				event_input->key_action = KEY_ACTION_BG_OFF;
-				break;
-
-			case SDLK_2:
-				event_input->key_action = KEY_ACTION_SPR_OFF;
-				break;
-
-			case SDLK_F1:
-				event_input->key_action = KEY_ACTION_DEBUG_BREAK;
-				break;
-
-			case SDLK_t:
-				event_input->key_action = KEY_ACTION_NETPLAY_TALK;
-				break;
-
-			case SDLK_BACKQUOTE:
-				event_input->config_button_action = CONFIG_BUTTON_FAST_FORWARD;
-				break;
-
-			case SDLK_F5:
-				event_input->config_button_action = CONFIG_BUTTON_SAVE_STATE;
-				break;
-
-			case SDLK_F7:
-				event_input->config_button_action = CONFIG_BUTTON_LOAD_STATE;
-				break;
-
-			case SDLK_m:
-				event_input->config_button_action = CONFIG_BUTTON_MENU;
-				break;
-			case SDLK_BACKSPACE:
-				event_input->key_action = KEY_ACTION_NETPLAY_TALK_CURSOR_BACKSPACE;
-				event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
-				break;
-
-			case SDLK_RETURN:
-				event_input->key_action = KEY_ACTION_NETPLAY_TALK_CURSOR_ENTER;
-				event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
-				break;
-
-			case SDLK_LEFT:
-				event_input->key_action = KEY_ACTION_NETPLAY_TALK_CURSOR_LEFT;
-				event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
-				break;
-
-			case SDLK_RIGHT:
-				event_input->key_action = KEY_ACTION_NETPLAY_TALK_CURSOR_RIGHT;
-				event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
-				break;
-			default:
-				event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
-				break;
-			}
-#endif
-			break;
-
-		case SDL_KEYUP:
-			event_input->action_type = INPUT_ACTION_TYPE_RELEASE;
-			event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
-			break;
-
-#ifndef RG350_BUILD
-		case SDL_JOYBUTTONDOWN:
-			event_input->action_type = INPUT_ACTION_TYPE_PRESS;
-			{
-				u32 button = event.jbutton.button;
-				event_input->hard_key_index = button + 4;
-#ifdef RG350_BUILD
-				button = change_rg350buttoon(button);
-#endif
-				event_input->config_button_action = joy_button_map(button);
-			}
-			break;
-
-		case SDL_JOYBUTTONUP:
-			event_input->action_type = INPUT_ACTION_TYPE_RELEASE;
-			{
-				u32 button = event.jbutton.button;
-				event_input->hard_key_index = button + 4;
-#ifdef RG350_BUILD
-				button = change_rg350buttoon(button);
-#endif
-				event_input->config_button_action = joy_button_map(button);
-			}
-			break;
-#endif
-		case SDL_JOYAXISMOTION:
-			status_message("id=%d data=%d", event.jaxis.axis, event.jaxis.value);
-			break;
-		case SDL_JOYHATMOTION:
-			event_input->hat_status = joy_hat_map(event.jhat.value);
-			break;
+		default:
+			key_map(&event, event_input);
+			 break;
 		}
 	}
 	else

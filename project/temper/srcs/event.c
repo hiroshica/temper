@@ -31,6 +31,12 @@ typedef struct tRapidStatus
 #define MAX_HARD_KEY (24)
 static u32 m_RapidSelect = 0;
 static RapidStatus m_RapidStatus[MAX_HARD_KEY];
+//static u32 rapid_fire_state = 0;
+//static u32 rapid_fire_mask = 0;
+static u32 button_status = 0xFFFFFFFF;  // emulatorへ送り込むキー情報
+static u32 talk_mode = 0;
+static u32 talk_x = 0;
+static char talk_message[128];
 
 void init_events(void)
 {
@@ -44,18 +50,43 @@ void init_events(void)
   m_RapidSelect = 0;
 }
 
+void config_PceKeys(u32 key_action)
+{
+  switch (key_action)
+  {
+  case KEY_ACTION_QUIT:
+    quit();
+    break;
+
+  case KEY_ACTION_BG_OFF:
+    config.bg_off ^= 1;
+    break;
+
+  case KEY_ACTION_SPR_OFF:
+    config.spr_off ^= 1;
+    break;
+
+  case KEY_ACTION_DEBUG_BREAK:
+    set_debug_mode(DEBUG_STEP);
+    break;
+
+  case KEY_ACTION_NETPLAY_TALK:
+    if (netplay.active)
+    {
+      talk_message[0] = '_';
+      talk_message[1] = 0;
+      config.input_message = talk_message;
+      talk_x = 0;
+      talk_mode = 1;
+    }
+    break;
+  }
+}
+
 void update_events(void)
 {
   event_input_struct event_input;
   u32 config_button_action;
-
-  static u32 rapid_fire_state = 0;
-  static u32 rapid_fire_mask = 0;
-  static u32 button_status = 0xFFFFFFFF;
-  static u32 talk_mode = 0;
-  static u32 talk_x = 0;
-  static char talk_message[128];
-
   u32 talk_message_limit =
       (SCREEN_WIDTH_NARROW_CHARS * 2) - (strlen(config.netplay_username) + 2);
 
@@ -122,6 +153,7 @@ void update_events(void)
       config_button_action = event_input.config_button_action;
       if (config_button_action <= CONFIG_BUTTON_SELECT)
       {
+#if false
         u32 io_button = config_to_io_map[config_button_action];
         u32 index = event_input.hard_key_index; // config_button_action;
         m_RapidStatus[index].m_Status = event_input.action_type;
@@ -152,25 +184,8 @@ void update_events(void)
             }
           }
         }
-      }
-#if 0      
-      else if (config_button_action <= CONFIG_BUTTON_RAPID_VI)
-      {
-        static u32 config_rapid_to_io_map[] = {
-            IO_BUTTON_I, IO_BUTTON_II, IO_BUTTON_III,
-            IO_BUTTON_IV, IO_BUTTON_V, IO_BUTTON_VI};
-
-        u32 rapid_fire_io_button = config_rapid_to_io_map[config_button_action - CONFIG_BUTTON_RAPID_I];
-        if (event_input.action_type == INPUT_ACTION_TYPE_RELEASE)
-        {
-          rapid_fire_mask &= ~rapid_fire_io_button;
-        }
-        else
-        {
-          rapid_fire_mask |= rapid_fire_io_button;
-        }
-      }
 #endif
+      }
       else if (config_button_action == CONFIG_BUTTON_RAPID_ONOFF)
       {
         if (event_input.action_type == INPUT_ACTION_TYPE_PRESS)
@@ -225,92 +240,9 @@ void update_events(void)
           break;
         }
       }
-
-      switch (event_input.key_action)
-      {
-      case KEY_ACTION_QUIT:
-        quit();
-        break;
-
-      case KEY_ACTION_BG_OFF:
-        config.bg_off ^= 1;
-        break;
-
-      case KEY_ACTION_SPR_OFF:
-        config.spr_off ^= 1;
-        break;
-
-      case KEY_ACTION_DEBUG_BREAK:
-        set_debug_mode(DEBUG_STEP);
-        break;
-
-      case KEY_ACTION_NETPLAY_TALK:
-        if (netplay.active)
-        {
-          talk_message[0] = '_';
-          talk_message[1] = 0;
-          config.input_message = talk_message;
-          talk_x = 0;
-          talk_mode = 1;
-        }
-        break;
-      }
-
-      if (event_input.hat_status != HAT_STATUS_NONE)
-      {
-        u32 hat_buttons_press = 0;
-        switch (event_input.hat_status)
-        {
-        case HAT_STATUS_UP:
-          hat_buttons_press = IO_BUTTON_UP;
-          break;
-
-        case HAT_STATUS_DOWN:
-          hat_buttons_press = IO_BUTTON_DOWN;
-          break;
-
-        case HAT_STATUS_LEFT:
-          hat_buttons_press = IO_BUTTON_LEFT;
-          break;
-
-        case HAT_STATUS_RIGHT:
-          hat_buttons_press = IO_BUTTON_RIGHT;
-          break;
-
-        case HAT_STATUS_UP_RIGHT:
-          hat_buttons_press = IO_BUTTON_UP | IO_BUTTON_RIGHT;
-          break;
-
-        case HAT_STATUS_DOWN_RIGHT:
-          hat_buttons_press = IO_BUTTON_DOWN | IO_BUTTON_RIGHT;
-          break;
-
-        case HAT_STATUS_UP_LEFT:
-          hat_buttons_press = IO_BUTTON_UP | IO_BUTTON_LEFT;
-          break;
-
-        case HAT_STATUS_DOWN_LEFT:
-          hat_buttons_press = IO_BUTTON_DOWN | IO_BUTTON_LEFT;
-          break;
-
-        default:
-          break;
-        }
-        button_status |=
-            (IO_BUTTON_UP | IO_BUTTON_DOWN | IO_BUTTON_LEFT | IO_BUTTON_RIGHT) &
-            ~hat_buttons_press;
-        button_status &= ~hat_buttons_press;
-      }
+      config_PceKeys(event_input.key_action);
     }
   }
-#if 0
-  if (rapid_fire_state)
-    button_status &= ~rapid_fire_mask;
-  else
-    button_status |= rapid_fire_mask;
-
-  rapid_fire_state ^= 1;
-#endif
   u32 iI;
   for (iI = 0; iI < CONFIG_BUTTON_MAX; ++iI)
   {

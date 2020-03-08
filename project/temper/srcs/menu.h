@@ -156,13 +156,14 @@ menu_struct *create_menu(u32 num_options, menu_struct *parent_menu,
  draw_menu_function_type draw_function, focus_menu_function_type 
  focus_function);
 
-#define MAX_CONTROLS 128
+#define MAX_CONTROLS (32)
 
 extern const char *control_config_exit_string;
 extern const char *control_config_string;
 extern const u32 control_config_start_column;
 extern const u32 platform_control_count;
 extern char *platform_control_names[MAX_CONTROLS];
+
 
 menu_struct *create_menu_options(menu_state_struct *menu_state,
  menu_struct *parent_menu);
@@ -184,7 +185,8 @@ void menu(u32 start_file_dialog);
 typedef struct _tButtonMapData
 {
   char *name;
-  u32 event_no;
+  config_buttons_enum event_no;
+  
 } tButtonMapData;
 extern tButtonMapData ButtonMapData[PAD_STOCK_MAX];
 

@@ -1,6 +1,7 @@
 #ifndef SDL_EVENT_H
 #define SDL_EVENT_H
 
+#if 0
 typedef enum
 {
   PC_BUTTON_UP,
@@ -21,6 +22,21 @@ typedef enum
   PC_BUTTON_12,
   PC_BUTTON_NONE
 } pc_buttons_enum;
+#endif
+
+typedef enum ekeymode{
+  eMODE_END = -1,
+  eMODE_BUTTON = 0,
+  eMODE_KEYSYM,
+} eKeyMode;
+typedef struct _tSDLtoConfigMap
+{
+  eKeyMode mode;
+	u32 sdl_key;
+	config_buttons_enum index; // ButtonMapData
+} tSDLtoConfigMap;
+
+
 
 extern SDL_Joystick *joy[64];
 

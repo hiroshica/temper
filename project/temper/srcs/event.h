@@ -2,35 +2,47 @@
 #define EVENT_H
 
 // These actions are configurable.
+#define DISABLE_HAT_STATUS  1
 
-typedef enum
+/*
+ * このenumはSDL入力時はbit fieldとして
+ * それ以外はindexとして扱う
+ */
+typedef enum _config_buttons_enum
 {
   CONFIG_BUTTON_UP,
   CONFIG_BUTTON_DOWN,
   CONFIG_BUTTON_LEFT,
   CONFIG_BUTTON_RIGHT,
+  // option/share
+  CONFIG_BUTTON_RUN,
+  CONFIG_BUTTON_SELECT,
+  // x/y/a/b
   CONFIG_BUTTON_I,
   CONFIG_BUTTON_II,
   CONFIG_BUTTON_III,
   CONFIG_BUTTON_IV,
-  CONFIG_BUTTON_V,
-  CONFIG_BUTTON_VI,
-  CONFIG_BUTTON_RUN,
-  CONFIG_BUTTON_SELECT,
-  CONFIG_BUTTON_MENU,
-  CONFIG_BUTTON_SAVE_STATE,
+  // L123
   CONFIG_BUTTON_LOAD_STATE,
-  CONFIG_BUTTON_VOLUME_DOWN,
-  CONFIG_BUTTON_VOLUME_UP,
-  CONFIG_BUTTON_FAST_FORWARD,
+  CONFIG_BUTTON_V,
   CONFIG_BUTTON_RAPID_ONOFF,
+  // R123
+  CONFIG_BUTTON_SAVE_STATE,
+  CONFIG_BUTTON_VI,
+  CONFIG_BUTTON_FAST_FORWARD,
+  // PS
+  CONFIG_BUTTON_MENU,
   CONFIG_BUTTON_NONE,
+
   CONFIG_BUTTON_MAX,
+
+  //CONFIG_BUTTON_VOLUME_DOWN,
+  //CONFIG_BUTTON_VOLUME_UP,
 } config_buttons_enum;
 
 // These actions can't be configured and are triggered by
 // fixed inputs.
-
+// emulatorの動作を司るconfigをコントロールするのに使われている
 typedef enum
 {
   KEY_ACTION_QUIT,
@@ -48,6 +60,7 @@ typedef enum
   KEY_ACTION_NONE,
 } key_action_enum;
 
+// emulatorのmenu操作に使われている
 typedef enum
 {
   CURSOR_UP,
@@ -85,6 +98,7 @@ typedef enum
   INPUT_ACTION_TYPE_REPEAT
 } input_action_type_enum;
 
+#if !defined(DISABLE_HAT_STATUS)
 typedef enum
 {
   HAT_STATUS_UP,
@@ -98,15 +112,17 @@ typedef enum
   HAT_STATUS_CENTER,
   HAT_STATUS_NONE,
 } hat_status_enum;
-
+#endif
 typedef struct
 {
-  u32 action_type;
-  u32 config_button_action;
-  u32 key_action;
-  u32 key_letter;
+  u32 action_type;          // input_action_type_enum
+  u32 config_button_action; // config_buttons_enum
+  u32 key_action;           // key_action_enum
+  u32 key_letter;           // SDL自体の入力データ
+#if !defined(DISABLE_HAT_STATUS)
   u32 hat_status;
   u32 hard_key_index;
+#endif
 } event_input_struct;
 
 typedef struct

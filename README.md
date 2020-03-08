@@ -1,7 +1,7 @@
 ***
-Temper for RG350/linux/mingw(win32)
+# Temper for RG350/linux/mingw(win32)
 ***
-update:
+## update:
 - 2019-12-29
 　win32版をそこそこ動くように修正
 - 2019-12-30
@@ -14,7 +14,10 @@ update:
   とりあえずCMakeに移行完了  
 
 ***
-ToDo:
+## 解析機能ドキュメント
+-[入力関連](./doc/input.md)
+***
+## ToDo:
 - キーコントロール周りを共通仕様にする。
 - Screenのリサイズに対応できるようにする
 
