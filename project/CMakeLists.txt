@@ -76,6 +76,8 @@ endif()
 ################################################################################################
 if(COMPILE_TYPE STREQUAL "linux")
   # linux
+  add_definitions(-D__POINTER64BIT__)
+  add_definitions(-D__LP64__)
   add_definitions(-D__OS_LINUX__)
   add_definitions(-DLINUX_X86_BUILD)
   set(PLATFORM_CFLAGS " ")
@@ -88,6 +90,8 @@ elseif(COMPILE_TYPE STREQUAL "rg350")
   set(PLATFORM_LIBS " -lz -lm -lbz2 -pthread -Wl,--as-needed -Wl,--gc-sections -flto -s ${SDL_LIBS}")
 elseif(COMPILE_TYPE STREQUAL "mingw")
   # mingw32
+  add_definitions(-D__LP64__)
+  add_definitions(-D__POINTER64BIT__)
   add_definitions(-D__OS_MINGW__)
   add_definitions(-DWIN32_BUILD)
   set(PLATFORM_CFLAGS " ")
@@ -95,7 +99,6 @@ elseif(COMPILE_TYPE STREQUAL "mingw")
 endif()
 
 set(PROJECT_EXE_SUFFIX "${MACHINE_SUFFIX}${PROJECT_LIB_SUFFIX}")
-
 
 if(SSLIB_ARCH_SUBDIRECTORY STREQUAL "SDLGL")
   add_definitions(-D__OPENGL__)

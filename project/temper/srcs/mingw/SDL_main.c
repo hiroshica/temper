@@ -28,13 +28,17 @@ void delay_us(u32 delay)
 
 config_struct config =
     {
-        // u32 pad[16];
+        // u32 pad[32];
         {
-           0, 1, 2, 3,
-           4, 5, 6, 7,
-           8, 9,10,11,
-          12,13,14,15,
-          16,17,
+          CONFIG_BUTTON_UP, CONFIG_BUTTON_DOWN, CONFIG_BUTTON_LEFT, CONFIG_BUTTON_RIGHT,
+          CONFIG_BUTTON_RUN, CONFIG_BUTTON_SELECT,
+          CONFIG_BUTTON_I, CONFIG_BUTTON_II,
+          CONFIG_BUTTON_III, CONFIG_BUTTON_IV,
+          CONFIG_BUTTON_LOAD_STATE, CONFIG_BUTTON_SAVE_STATE,     // LR1
+          CONFIG_BUTTON_V, CONFIG_BUTTON_VI,                      // LR2
+          CONFIG_BUTTON_FAST_FORWARD, CONFIG_BUTTON_RAPID_ONOFF,  // LR3
+          CONFIG_BUTTON_MENU,                                     // PS
+          CONFIG_BUTTON_MENU,                                     // TouchPad
           -1,-1,
 
           -1,-1,-1,-1,
@@ -42,6 +46,7 @@ config_struct config =
           -1,-1,-1,-1,
         },
         {
+          1,1,1,1,1,1,1,1,
           1,1,1,1,1,1,1,1,
           1,1,1,1,1,1,1,1,
           1,1,1,1,1,1,1,1,

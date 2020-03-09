@@ -15,22 +15,4 @@ char *platform_control_names[MAX_CONTROLS] =
 	"PS         ", "TOUCHPAD   ",
 };
 
-/*
- * SDL(windows)でのPS4 button key number
-  0 = SQUARE
-  1 = CROSS
-  2 = CIRCLE
-  3 = TRIANGLE
-  4 = L1
-  5 = R1
-  6 = L2
-  7 = R2
-  8 = SHARE
-  9 = OPTION
-  10 = L3
-  11 = R3
-  12 = PS
-  13 = touchpad
-*/
-
 const u32 platform_control_count = 18;

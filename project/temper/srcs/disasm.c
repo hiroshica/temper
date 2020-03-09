@@ -1,4 +1,4 @@
-#include "common.h"
+#include "cpu_common.h"
 
 /** Code fetch operations ****************************************************/
 

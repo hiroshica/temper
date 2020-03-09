@@ -1,4 +1,5 @@
-#include "common.h"
+#include "cpu_common.h"
+#include "video.h"
 
 debug_struct debug;
 

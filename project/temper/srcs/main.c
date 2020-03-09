@@ -419,7 +419,7 @@ void run_pce(u32 benchmark_frames)
     }
   }
 
-  return 0;
+  //return 0;
 }
 
 void initialize_pce()
