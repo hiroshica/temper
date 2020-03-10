@@ -1711,17 +1711,17 @@ else                                                                          \
 
 #define op_st0(address_mode, address_range)                                   \
   op_load_##address_range(address_mode, operand);                             \
-  vdc_register_select(operand)                                                \
+  vdc_register_select((u32)operand)                                                \
 
 #define op_st1(address_mode, address_range)                                   \
   cpu.cycles_remaining = cpu_cycles_remaining;                                \
   op_load_##address_range(address_mode, operand);                             \
-  vdc_data_write_low(operand)                                                 \
+  vdc_data_write_low((u32)operand)                                                 \
 
 #define op_st2(address_mode, address_range)                                   \
   cpu.cycles_remaining = cpu_cycles_remaining;                                \
   op_load_##address_range(address_mode, operand);                             \
-  vdc_data_write_high(operand)                                                \
+  vdc_data_write_high((u32)operand)                                                \
 
 
 
