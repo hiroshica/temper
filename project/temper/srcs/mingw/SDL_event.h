@@ -6,12 +6,14 @@ typedef enum ekeymode{
   eMODE_KEYSYM = 0,
   eMODE_BUTTON,
   eMODE_HAT,
+  eMODE_KEYACT,
 } eKeyMode;
 typedef struct _tSDLtoConfigMap
 {
   eKeyMode mode;
 	u32 sdl_key;
-	config_buttons_enum index; // ButtonMapData
+	u32 index; // ButtonMapData
+  void (*callback)();
 } tSDLtoConfigMap;
 
 

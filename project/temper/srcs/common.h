@@ -43,7 +43,6 @@
 #include "cd.h"
 #include "adpcm.h"
 #include "arcade_card.h"
-#include "netplay.h"
 #include "screen.h"
 #include "audio.h"
 
@@ -57,9 +56,6 @@
 #include <sched.h>
 #include <unistd.h>
 
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
 #include <poll.h>
 #include <errno.h>
 

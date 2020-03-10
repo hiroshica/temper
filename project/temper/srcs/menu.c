@@ -1362,13 +1362,6 @@ void draw_menu_pad(menu_state_struct *menu_state, menu_struct *menu)
                   wkRESOLUTION_WIDTH);
 }
 
-void draw_menu_netplay(menu_state_struct *menu_state, menu_struct *menu)
-{
-  print_string_bg("Configure Netplay", make_color16(0x1F, 0x3F, 0x1F),
-                  menu_state->current_bg, menu->column_start, menu_line(8),
-                  wkRESOLUTION_WIDTH);
-}
-
 void select_load_state(menu_state_struct *menu_state,
                        menu_option_struct *menu_option)
 {
@@ -1490,17 +1483,6 @@ void focus_menu_options(menu_state_struct *menu_state, menu_struct *menu,
 void focus_menu_pad(menu_state_struct *menu_state, menu_struct *menu,
                     u32 focus_type)
 {
-}
-
-void focus_menu_netplay(menu_state_struct *menu_state,
-                        menu_struct *menu, u32 focus_type)
-{
-  if (focus_type == FOCUS_TYPE_ENTER)
-  {
-  }
-  else
-  {
-  }
 }
 
 void select_save_snapshot(menu_state_struct *menu_state,
@@ -1779,56 +1761,12 @@ menu_struct *create_menu_padrapid(menu_state_struct *menu_state, menu_struct *pa
   return menu;
 }
 
-menu_struct *create_menu_netplay(menu_state_struct *menu_state,
-                                 menu_struct *parent_menu)
-{
-  menu_struct *menu = create_menu(8, parent_menu, draw_menu_netplay,
-                                  focus_menu_netplay);
-  void **menu_options = (void **)menu->options;
-  u32 current_menu_option = 0;
-  u32 current_line_number = 10;
-
-  static char *netplay_types[] = {"  none", "server", "client"};
-
-  add_menu_option(create_numeric_labeled(NULL,
-                                         "Netplay type                  ", current_line_number,
-                                         &(config.netplay_type), 0, 2, netplay_types));
-
-  current_line_number++;
-
-  if (config.netplay_username[0] == 0)
-  {
-    config.netplay_username[0] = ' ';
-    config.netplay_username[1] = 0;
-  }
-
-  add_menu_option(create_input(NULL, "Username             ",
-                               current_line_number, (s8 *)config.netplay_username, ' ', '~', -1, 15, 1));
-
-  current_line_number++;
-
-  add_menu_option(create_multi_input_int(NULL, "Server IP Address    ",
-                                         current_line_number, 4, 3, '.', (s32 *)&(config.netplay_ip), 256));
-  add_menu_option(create_input_int(NULL, "Connection Port                ",
-                                   current_line_number, (s32 *)&(config.netplay_port), 5, 0, 65535, 0));
-  add_menu_option(create_numeric(NULL, "Server Latency                    ",
-                                 current_line_number, &(config.netplay_server_frame_latency), 0, 99));
-
-  current_line_number++;
-
-  add_save_config_options();
-
-  menu->column_start = 16;
-  return menu;
-}
-
 menu_struct *create_menu_main(menu_state_struct *menu_state)
 {
-  menu_struct *menu = create_menu(12, NULL, draw_menu_main, NULL);
+  menu_struct *menu = create_menu(11, NULL, draw_menu_main, NULL);
   menu_struct *options_menu = create_menu_options(menu_state, menu);
   menu_struct *pad_menu = create_menu_pad(menu_state, menu);
   menu_struct *pad2_menu = create_menu_padrapid(menu_state, menu);
-  menu_struct *netplay_menu = create_menu_netplay(menu_state, menu);
 
   void **menu_options = (void **)menu->options;
   u32 current_menu_option = 0;
@@ -1837,7 +1775,6 @@ menu_struct *create_menu_main(menu_state_struct *menu_state)
   add_menu_option(create_select_menu(NULL, "Change options", current_line_number, options_menu));
   add_menu_option(create_select_menu(NULL, "Configure pad ", current_line_number, pad_menu));
   add_menu_option(create_select_menu(NULL, "Speed Adjustment by key", current_line_number, pad2_menu));
-  add_menu_option(create_select_menu(NULL, "Netplay       ", current_line_number, netplay_menu));
 
   current_line_number++;
 
@@ -1876,7 +1813,6 @@ void menu(u32 start_file_dialog)
   menu_option_struct *current_menu_option;
   menu_state_struct menu_state;
   u32 audio_pause_state;
-  u32 netplay_can_send = netplay.can_send;
 
   main_menu = create_menu_main(&menu_state);
 
@@ -1891,9 +1827,6 @@ void menu(u32 start_file_dialog)
   menu_state.bg_info_string[0] = 0;
 
   audio_pause_state = audio_pause();
-
-  if (netplay_can_send)
-    send_netplay_pause();
 
   copy_screen(menu_state.screen_bg);
   copy_screen_quarter_intensity(menu_state.screen_bg_quarter);
@@ -1976,9 +1909,6 @@ void menu(u32 start_file_dialog)
   }
 
   audio_revert_pause_state(audio_pause_state);
-
-  if (netplay_can_send && netplay.active)
-    send_netplay_unpause();
 
   // Wait for buttons to be released.
   while (1)

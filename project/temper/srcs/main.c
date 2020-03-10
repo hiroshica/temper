@@ -182,11 +182,6 @@ u32 process_arguments(int argc, char *argv[])
 
   static struct option long_options[] =
       {
-          {"netplay-server", no_argument, NULL, 0},
-          {"netplay-connect", required_argument, NULL, 0},
-          {"netplay-port", required_argument, NULL, 0},
-          {"netplay-latency", required_argument, NULL, 0},
-          {"netplay-username", required_argument, NULL, 0},
           {"countdown-breakpoint", required_argument, NULL, 0},
           {"pc-breakpoint", required_argument, NULL, 0},
       };
@@ -208,55 +203,6 @@ u32 process_arguments(int argc, char *argv[])
 
     switch (current_option)
     {
-    case 0:
-      switch (option_index)
-      {
-      case 0:
-        printf("Selected netplay server.\n");
-        config.netplay_type = NETPLAY_TYPE_SERVER;
-        break;
-
-      case 1:
-        config.netplay_type = NETPLAY_TYPE_CLIENT;
-        config.netplay_ip = netplay_ip_string_value(optarg);
-        printf("Selected netplay client, connecting to IP %x.\n",
-               config.netplay_ip);
-        break;
-
-      case 2:
-        config.netplay_port = atoi(optarg);
-        printf("Selected netplay port %d.\n", config.netplay_port);
-        break;
-
-      case 3:
-        config.netplay_server_frame_latency = atoi(optarg);
-        printf("Selected netplay latency %d.\n",
-               config.netplay_server_frame_latency);
-        break;
-
-      case 4:
-        strncpy(config.netplay_username, optarg, 128);
-        printf("Setting netplay username to %s\n", config.netplay_username);
-        break;
-
-      case 5:
-        debug.breakpoint = strtol(optarg, NULL, 16) + 1;
-        debug.breakpoint_original = debug.breakpoint;
-        set_debug_mode(DEBUG_COUNTDOWN_BREAKPOINT);
-        break;
-
-      case 6:
-        debug.breakpoint = strtol(optarg, NULL, 16);
-        debug.breakpoint_original = debug.breakpoint;
-        set_debug_mode(DEBUG_PC_BREAKPOINT);
-        printf("Breakpoint set to PC %04x", debug.breakpoint);
-        break;
-
-      default:
-        break;
-      }
-      break;
-
     case 'd':
       set_debug_mode(DEBUG_STEP);
       break;
@@ -362,25 +308,14 @@ void run_pce(u32 benchmark_frames)
     config.fast_forward = 1;
   }
 
-  printf("Initializing netplay.\n");
-  fflush(stdout);
 
   printf("Running game.\n");
   init_events();
 
-  if (netplay.pause == 0)
     audio_unpause();
 
   while (1)
   {
-    if (netplay.active && netplay.pause)
-    {
-      delay_us(10000);
-      update_events();
-      update_screen();
-      continue;
-    }
-
     /*synchronize();*/
 
 #ifdef FASTFORWARD_FRAMESKIP
@@ -452,7 +387,6 @@ void reset_pce()
 
   reset_debug();
 
-  netplay_connect();
 }
 
 // For now this will save a full sized snapshot.
@@ -619,7 +553,6 @@ savestate_extension_enum load_state(char *file_name, u8 *in_memory_state,
   else
   {
     printf("loading state %s\n", path);
-    netplay_send_savestate(file_name);
   }
 
   if (file_read_mem_invalid(savestate_file))
@@ -907,15 +840,6 @@ invalid:
     file_##type##_variable(config_file, config.scale_width);                  \
     file_##type##_variable(config_file, config.unlimit_sprites);              \
     file_##type##_variable(config_file, config.compatibility_mode);           \
-  }                                                                           \
-                                                                              \
-  if (version_gate >= 4)                                                      \
-  {                                                                           \
-    file_##type##_array(config_file, config.netplay_username);                \
-    file_##type##_variable(config_file, config.netplay_type);                 \
-    file_##type##_variable(config_file, config.netplay_port);                 \
-    file_##type##_variable(config_file, config.netplay_ip);                   \
-    file_##type##_variable(config_file, config.netplay_server_frame_latency); \
   }
 
 
@@ -987,8 +911,6 @@ s32 load_config_file(char *file_name)
   snprintf(path,COPY_MAXPATH, "%s%cconfig%c%s", config.main_path, DIR_SEPARATOR_CHAR,
           DIR_SEPARATOR_CHAR, file_name);
 
-  u32 old_netplay_type = config.netplay_type;
-
 #ifdef CONFIG_OPTIONS_RAM_TIMINGS
   u32 old_ram_timings = config.ram_timings;
 #endif
@@ -1003,50 +925,6 @@ s32 load_config_file(char *file_name)
 
   u32 i;
 
-#ifdef WIN32_BUILD
-  config_buttons_enum v1_to_v2_button_config[] =
-      {
-          CONFIG_BUTTON_UP,
-          CONFIG_BUTTON_DOWN,
-          CONFIG_BUTTON_LEFT,
-          CONFIG_BUTTON_RIGHT,
-          CONFIG_BUTTON_IV,
-          CONFIG_BUTTON_V,
-          CONFIG_BUTTON_I,
-          CONFIG_BUTTON_II,
-          CONFIG_BUTTON_RUN,
-          CONFIG_BUTTON_SELECT,
-          CONFIG_BUTTON_III,
-          CONFIG_BUTTON_VI,
-          //CONFIG_BUTTON_RAPID_I,
-          //CONFIG_BUTTON_RAPID_II,
-          CONFIG_BUTTON_SAVE_STATE,
-          CONFIG_BUTTON_LOAD_STATE,
-          CONFIG_BUTTON_FAST_FORWARD,
-          CONFIG_BUTTON_RAPID_ONOFF,
-      };
-#else
-  config_buttons_enum v1_to_v2_button_config[] =
-      {
-          CONFIG_BUTTON_UP,
-          CONFIG_BUTTON_DOWN,
-          CONFIG_BUTTON_LEFT,
-          CONFIG_BUTTON_RIGHT,
-          CONFIG_BUTTON_RUN,
-          CONFIG_BUTTON_SELECT,
-          CONFIG_BUTTON_I,
-          CONFIG_BUTTON_II,
-          //CONFIG_BUTTON_RAPID_I,
-          //CONFIG_BUTTON_RAPID_II,
-          CONFIG_BUTTON_MENU,
-          CONFIG_BUTTON_SAVE_STATE,
-          CONFIG_BUTTON_LOAD_STATE,
-          CONFIG_BUTTON_VOLUME_DOWN,
-          CONFIG_BUTTON_VOLUME_UP,
-          CONFIG_BUTTON_FAST_FORWARD,
-          CONFIG_BUTTON_RAPID_ONOFF,
-      };
-#endif
 
   printf("loading config file %s\n", path);
 
@@ -1095,8 +973,6 @@ s32 load_config_file(char *file_name)
   if (config.gamma_percent != old_gamma_percent)
     set_gamma(config.gamma_percent);
 #endif
-
-  config.netplay_type = old_netplay_type;
 
   return 0;
 

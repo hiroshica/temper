@@ -21,7 +21,6 @@ srcs/menu.c
 srcs/debug.c
 srcs/cd.c
 srcs/adpcm.c
-srcs/netplay.c
 srcs/arcade_card.c
 srcs/bin_cue.c
 )

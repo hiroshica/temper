@@ -20,6 +20,18 @@ tSDLtoConfigMap SDLtoConfigMap[] =
 		{eMODE_KEYSYM, SDLK_LEFT, CONFIG_BUTTON_LEFT},
 		{eMODE_KEYSYM, SDLK_RIGHT, CONFIG_BUTTON_RIGHT},
 
+		{eMODE_KEYSYM, SDLK_ESCAPE, CONFIG_BUTTON_MENU},
+		{eMODE_KEYSYM, SDLK_m, CONFIG_BUTTON_MENU},
+		{eMODE_KEYSYM, SDLK_BACKQUOTE, CONFIG_BUTTON_FAST_FORWARD},
+		{eMODE_KEYSYM, SDLK_F5, CONFIG_BUTTON_SAVE_STATE},
+		{eMODE_KEYSYM, SDLK_F7, CONFIG_BUTTON_LOAD_STATE},
+
+
+		{eMODE_KEYACT, SDLK_1, KEY_ACTION_BG_OFF},
+		{eMODE_KEYACT, SDLK_2, KEY_ACTION_SPR_OFF},
+		{eMODE_KEYACT, SDLK_F1, KEY_ACTION_DEBUG_BREAK},
+
+
 		{eMODE_BUTTON, 9, 4},
 		{eMODE_BUTTON, 8, 5},
 
@@ -50,75 +62,10 @@ tSDLtoConfigMap SDLtoConfigMap[] =
 
 		{eMODE_END, -1, -1},
 };
-#if 0
-  // keyboardでのマッピング処理
-	  switch (event.key.keysym.sym)
-	    {
-	    case SDLK_ESCAPE:
-	      event_input->config_button_action = CONFIG_BUTTON_MENU;
-	      //event_input->key_action = KEY_ACTION_QUIT;
-	      break;
 
-	    case SDLK_1:
-	      event_input->key_action = KEY_ACTION_BG_OFF;
-	      break;
-
-	    case SDLK_2:
-	      event_input->key_action = KEY_ACTION_SPR_OFF;
-	      break;
-
-	    case SDLK_F1:
-	      event_input->key_action = KEY_ACTION_DEBUG_BREAK;
-	      break;
-
-	    case SDLK_t:
-	      event_input->key_action = KEY_ACTION_NETPLAY_TALK;
-	      break;
-
-	    case SDLK_BACKQUOTE:
-	      event_input->config_button_action = CONFIG_BUTTON_FAST_FORWARD;
-	      break;
-
-	    case SDLK_F5:
-	      event_input->config_button_action = CONFIG_BUTTON_SAVE_STATE;
-	      break;
-
-	    case SDLK_F7:
-	      event_input->config_button_action = CONFIG_BUTTON_LOAD_STATE;
-	      break;
-
-	    case SDLK_m:
-	      event_input->config_button_action = CONFIG_BUTTON_MENU;
-	      break;
-	    case SDLK_BACKSPACE:
-	      event_input->key_action = KEY_ACTION_NETPLAY_TALK_CURSOR_BACKSPACE;
-		  event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
-	      break;
-
-	    case SDLK_RETURN:
-	      event_input->key_action = KEY_ACTION_NETPLAY_TALK_CURSOR_ENTER;
-		  event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
-	      break;
-
-	    case SDLK_LEFT:
-	      event_input->key_action = KEY_ACTION_NETPLAY_TALK_CURSOR_LEFT;
-		  event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
-	      break;
-
-	    case SDLK_RIGHT:
-	      event_input->key_action = KEY_ACTION_NETPLAY_TALK_CURSOR_RIGHT;
-		  event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
-	      break;
-	    default:
-		  event_input->config_button_action = key_map(event.key.keysym.sym, &event_input->hard_key_index);
-	      break;
-	    }
-#endif
-
-// return u32 : config_buttons_enumを返す
 // inmode : チェックするキーのモード
 // keys  : SDLが返してきているキーデータ
-u32 key_search(eKeyMode inmode, u32 keys)
+void key_search(event_input_struct *event_input, eKeyMode inmode, u32 keys)
 {
 	unsigned char iI;
 	tSDLtoConfigMap *sdl_to_config_map = SDLtoConfigMap;
@@ -127,26 +74,50 @@ u32 key_search(eKeyMode inmode, u32 keys)
 	{
 		if (inmode == sdl_to_config_map[iI].mode && sdl_to_config_map[iI].sdl_key == keys)
 		{
-			if (inmode == eMODE_KEYSYM)
+			// 共通処理
+			if (sdl_to_config_map[iI].callback != NULL)
+			{
+				sdl_to_config_map[iI].callback();
+			}
+			event_input->config_button_action = CONFIG_BUTTON_NONE;
+			// 共通処理(ここまで)
+
+			switch (inmode)
+			{
+			case eMODE_KEYSYM:
 			{
 				// keyboard 入力はwin32/linuxの場合はそのままconfig_dataを返す
 #if !defined(RG350_BUILD)
-				return sdl_to_config_map[iI].index;
+				event_input->config_button_action = sdl_to_config_map[iI].index;
 #else
-				return CONFIG_BUTTON_NONE;
 #endif
 			}
-			else if (inmode == eMODE_BUTTON)
+			break;
+			case eMODE_BUTTON:
 			{
-				return ButtonMapData[config.pad[sdl_to_config_map[iI].index]].event_no;
+				event_input->config_button_action = ButtonMapData[config.pad[sdl_to_config_map[iI].index]].event_no;
 			}
-			else if (inmode == eMODE_HAT)
+			break;
+			case eMODE_HAT:
 			{
-				return sdl_to_config_map[iI].index;
+				event_input->config_button_action = sdl_to_config_map[iI].index;
+			}
+			break;
+			case eMODE_KEYACT:
+			{
+				// keyboard 入力はwin32/linuxの場合はそのままconfig_dataを返す
+#if !defined(RG350_BUILD)
+				event_input->key_action = sdl_to_config_map[iI].index;
+#else
+#endif
+			}
+			break;
+
+			default:
+				break;
 			}
 		}
 	}
-	return CONFIG_BUTTON_NONE;
 }
 
 void key_map(SDL_Event *event, event_input_struct *event_input)
@@ -156,32 +127,32 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 	case SDL_KEYDOWN:
 		event_input->action_type = INPUT_ACTION_TYPE_PRESS;
 		event_input->key_letter = event->key.keysym.unicode;
-		event_input->config_button_action = key_search(eMODE_KEYSYM, event->key.keysym.sym);
+		key_search(event_input, eMODE_KEYSYM, event->key.keysym.sym);
 		break;
 
 	case SDL_KEYUP:
 		event_input->action_type = INPUT_ACTION_TYPE_RELEASE;
 		event_input->key_letter = event->key.keysym.unicode;
-		event_input->config_button_action = key_search(eMODE_KEYSYM, event->key.keysym.sym);
+		key_search(event_input, eMODE_KEYSYM, event->key.keysym.sym);
 		break;
 
 	case SDL_JOYBUTTONDOWN:
 		event_input->action_type = INPUT_ACTION_TYPE_PRESS;
 		event_input->key_letter = event->key.keysym.unicode;
-		event_input->config_button_action = key_search(eMODE_BUTTON, event->jbutton.button);
+		key_search(event_input, eMODE_BUTTON, event->jbutton.button);
 		break;
 
 	case SDL_JOYBUTTONUP:
 		event_input->action_type = INPUT_ACTION_TYPE_RELEASE;
 		event_input->key_letter = event->key.keysym.unicode;
-		event_input->config_button_action = key_search(eMODE_BUTTON, event->jbutton.button);
+		key_search(event_input, eMODE_BUTTON, event->jbutton.button);
 		break;
 	case SDL_JOYAXISMOTION:
 		//status_message("now axis = %d which = %d",event->jaxis.axis,event->jaxis.which);
-		if (!(event->jaxis.axis & 0x02))  // ここのbitが左右スティックの判定
+		if (!(event->jaxis.axis & 0x02)) // ここのbitが左右スティックの判定
 		{
 			u32 keydata = SDL_HAT_CENTERED;
-			if ((event->jaxis.axis&0x01))
+			if ((event->jaxis.axis & 0x01))
 			{
 				// 縦
 				if (event->jaxis.value < -kLIMIT)
@@ -193,7 +164,7 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 					keydata = SDL_HAT_DOWN;
 				}
 			}
-			else if (!(event->jaxis.axis&0x01))
+			else if (!(event->jaxis.axis & 0x01))
 			{
 				// 横
 				if (event->jaxis.value < -kLIMIT)
@@ -208,7 +179,7 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 			if (keydata != SDL_HAT_CENTERED)
 			{
 				event_input->action_type = INPUT_ACTION_TYPE_PRESS;
-				event_input->config_button_action = key_search(eMODE_HAT, keydata);
+				key_search(event_input, eMODE_HAT, keydata);
 			}
 			else
 			{
@@ -222,7 +193,7 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 		{
 			event_input->action_type = INPUT_ACTION_TYPE_PRESS;
 			event_input->key_letter = event->key.keysym.unicode;
-			event_input->config_button_action = key_search(eMODE_HAT, event->jhat.value);
+			key_search(event_input, eMODE_HAT, event->jhat.value);
 		}
 		else
 		{
@@ -257,7 +228,7 @@ u32 update_input(event_input_struct *event_input)
 	{
 		return 0;
 	}
-	status_message("now input = %s",config_name_table[event_input->config_button_action]);
+	status_message("now input = %s", config_name_table[event_input->config_button_action]);
 
 	return 1;
 }

@@ -2,7 +2,7 @@
 #include "palette.h"
 
 // Put temp debug vars here
-
+#undef RGB
 #define RGB(r, g, b) ((((r) >> 3) << 11) | (((g) >> 2) << 5) | ((b) >> 3))
 
 //u64 scanline_cycle_counter;
@@ -3123,20 +3123,6 @@ void update_frame(u32 skip)
     print_string("--FF--", 0xFFFF, 0x000, 320 - (6 * 6) - vce.screen_center_offset, 0, vce.screen_width);
   }
 
-  if (config.netplay_type != NETPLAY_TYPE_NONE)
-  {
-    char print_buffer[128];
-    sprintf(print_buffer, "latency: %d, (%1.2lf, %d) -> (%1.2lf, %d)",
-            netplay.frame_latency, (double)netplay.period_latency / LATENCY_CALCULATION_PERIOD, netplay.period_stalls,
-            (double)netplay.remote_latency_report / LATENCY_CALCULATION_PERIOD,
-            netplay.remote_stalls_report);
-
-    set_font_narrow();
-    print_string(print_buffer, 0xFFFF, 0x000, vce.screen_center_offset, 0,
-                 vce.screen_width);
-    set_font_wide();
-  }
-
   if (config.show_fps)
   {
     static u32 frames = 0;
@@ -3175,9 +3161,6 @@ void update_frame(u32 skip)
   if (config.input_message)
   {
     char input_message_full[128];
-
-    sprintf(input_message_full, "%s> %s", config.netplay_username,
-            config.input_message);
 
     if ((vce.screen_width < RESOLUTION_WIDTH) &&
         (config.scale_width == 0))

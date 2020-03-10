@@ -51,12 +51,6 @@ typedef struct
   u32 unlimit_sprites;
   u32 compatibility_mode;
 
-  char netplay_username[16];
-  u32 netplay_type;
-  u32 netplay_port;
-  u32 netplay_ip;
-  u32 netplay_server_frame_latency;
-
   // This will save the last directory you loaded a ROM from,
   // in a separate config file.
   char rom_directory[MAX_PATH];

@@ -73,13 +73,6 @@ config_struct config =
         0,                 // u32 scale_width;
         0,                 // u32 unlimit_sprites
         0,                 // u32 compatibility_mode
-
-        "Temper User",     // char netplay_username[16];
-        NETPLAY_TYPE_NONE, // u32 netplay_type;
-        12345,             // u32 netplay_port;
-        0x7F000001,        // u32 netplay_ip;
-        3,                 // u32 netplay_server_frame_latency;
-
 };
 
 void synchronize()

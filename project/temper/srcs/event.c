@@ -64,11 +64,9 @@ typedef struct tRapidStatus
 
 } RapidStatus;
 
-#define MAX_HARD_KEY (24)
+#define MAX_HARD_KEY (MAX_CONTROLS)
 static u32 m_RapidSelect = 0;
 static RapidStatus m_RapidStatus[MAX_HARD_KEY];
-//static u32 rapid_fire_state = 0;
-//static u32 rapid_fire_mask = 0;
 static u32 button_status = 0xFFFFFFFF;  // emulatorへ送り込むキー情報
 static u32 talk_mode = 0;
 static u32 talk_x = 0;
@@ -105,17 +103,6 @@ void config_PceKeys(u32 key_action)
   case KEY_ACTION_DEBUG_BREAK:
     set_debug_mode(DEBUG_STEP);
     break;
-
-  case KEY_ACTION_NETPLAY_TALK:
-    if (netplay.active)
-    {
-      talk_message[0] = '_';
-      talk_message[1] = 0;
-      config.input_message = talk_message;
-      talk_x = 0;
-      talk_mode = 1;
-    }
-    break;
   }
 }
 
@@ -123,75 +110,16 @@ void update_events(void)
 {
   event_input_struct event_input;
   u32 config_button_action;
-  u32 talk_message_limit =
-      (SCREEN_WIDTH_NARROW_CHARS * 2) - (strlen(config.netplay_username) + 2);
 
   while (update_input(&event_input))
   {
-    if (talk_mode)
-    {
-      if (event_input.action_type == INPUT_ACTION_TYPE_PRESS)
-      {
-        switch (event_input.key_action)
-        {
-        case KEY_ACTION_NETPLAY_TALK_CURSOR_ENTER:
-        {
-          char full_talk_message[128];
-          talk_message[talk_x] = 0;
-
-          if (talk_message[0])
-          {
-            sprintf(full_talk_message, "%s: %s", config.netplay_username,
-                    talk_message);
-
-            status_message_raw(full_talk_message);
-            if (strlen(full_talk_message) > SCREEN_WIDTH_NARROW_CHARS)
-            {
-              status_message_raw(full_talk_message +
-                                 SCREEN_WIDTH_NARROW_CHARS);
-            }
-            send_talk_message(full_talk_message);
-          }
-
-          config.input_message = NULL;
-          talk_mode = 0;
-          break;
-        }
-
-        case KEY_ACTION_QUIT:
-          config.input_message = NULL;
-          talk_mode = 0;
-          break;
-
-        case KEY_ACTION_NETPLAY_TALK_CURSOR_BACKSPACE:
-          if (talk_x > 0)
-          {
-            talk_x--;
-            talk_message[talk_x + 1] = 0;
-            talk_message[talk_x] = '_';
-          }
-          break;
-
-        default:
-          if (event_input.key_letter && (talk_x < talk_message_limit))
-          {
-            talk_message[talk_x] = event_input.key_letter;
-            talk_x++;
-            talk_message[talk_x] = '_';
-            talk_message[talk_x + 1] = 0;
-          }
-          break;
-        }
-      }
-    }
-    else
     {
       config_button_action = event_input.config_button_action;
-      if (config_button_action <= CONFIG_BUTTON_SELECT)
+      if (config_button_action <= CONFIG_BIT_BUTTON_MAX)
       {
-#if false
+#if 1
         u32 io_button = config_to_io_map[config_button_action];
-        u32 index = event_input.hard_key_index; // config_button_action;
+        u32 index = config_button_action;
         m_RapidStatus[index].m_Status = event_input.action_type;
         if (!m_RapidSelect)
         {
@@ -297,22 +225,6 @@ void update_events(void)
     }
   }
 
-  if (netplay.active)
-  {
-    switch (config.netplay_type)
-    {
-    case NETPLAY_TYPE_SERVER:
-      netplay_frame_update(button_status, &(io.button_status[0]),
-                           &(io.button_status[1]));
-      break;
-
-    case NETPLAY_TYPE_CLIENT:
-      netplay_frame_update(button_status, &(io.button_status[1]),
-                           &(io.button_status[0]));
-      break;
-    }
-  }
-  else
   {
     io.button_status[0] = button_status;
   }
@@ -321,20 +233,6 @@ void update_events(void)
   static FILE *control_log = NULL;
   static u32 frame_number = 0;
 
-  if (config.netplay_type != NETPLAY_TYPE_NONE)
-  {
-    if (control_log == NULL)
-    {
-      if (config.netplay_type == NETPLAY_TYPE_CLIENT)
-        control_log = fopen("control_log_client.txt", "wb");
-      else
-        control_log = fopen("control_log_server.txt", "wb");
-    }
-
-    fprintf(control_log, "Frame %d (%d): %08x %08x\n", netplay.frame_number,
-            vce.frames_rendered, io.button_status[0], io.button_status[1]);
-  }
-  else
   {
     if (control_log)
       fclose(control_log);
