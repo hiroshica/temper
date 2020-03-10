@@ -8,31 +8,35 @@ char *config_name_table[] =
         "CONFIG_BUTTON_DOWN",
         "CONFIG_BUTTON_LEFT",
         "CONFIG_BUTTON_RIGHT",
-        // option/share
+
         "CONFIG_BUTTON_RUN",
         "CONFIG_BUTTON_SELECT",
-        // x/y/a/b
+
         "CONFIG_BUTTON_I",
         "CONFIG_BUTTON_II",
         "CONFIG_BUTTON_III",
         "CONFIG_BUTTON_IV",
-        // L123
-        "CONFIG_BUTTON_LOAD_STATE",
         "CONFIG_BUTTON_V",
-        "CONFIG_BUTTON_RAPID_ONOFF",
-        // R123
-        "CONFIG_BUTTON_SAVE_STATE",
         "CONFIG_BUTTON_VI",
+
+        "CONFIG_BUTTON_LOAD_STATE",
+        "CONFIG_BUTTON_SAVE_STATE",
         "CONFIG_BUTTON_FAST_FORWARD",
-        // PS
+
+        "CONFIG_BUTTON_RAPID_ONOFF",
         "CONFIG_BUTTON_MENU",
+
+        "CONFIG_HAT_UP_CENTER",
+        "CONFIG_HAT_UP",
+        "CONFIG_HAT_UP_RIGHT",
+        "CONFIG_HAT_RIGHT",
+        "CONFIG_HAT_DOWN_RIGHT",
+        "CONFIG_HAT_DOWN",
+        "CONFIG_HAT_DOWN_LEFT",
+        "CONFIG_HAT_LEFT",
+        "CONFIG_HAT_UP_LEFT",
+
         "CONFIG_BUTTON_NONE",
-
-        "CONFIG_BUTTON_UP_LEFT",
-        "CONFIG_BUTTON_UP_RIGHT",
-        "CONFIG_BUTTON_DOWN_LEFT",
-        "CONFIG_BUTTON_DOWN_RIGHT",
-
         "CONFIG_BUTTON_MAX",
 };
 
@@ -117,7 +121,7 @@ void update_events(void)
       config_button_action = event_input.config_button_action;
       if (config_button_action < CONFIG_BIT_BUTTON_MAX)
       {
-#if 1
+        // 今のこの処理だとconfig.pad内の番号がpceのキー番号になっている        
         u32 io_button = config_to_io_map[config_button_action];
         u32 index = config_button_action;
         m_RapidStatus[index].m_Status = event_input.action_type;
@@ -149,7 +153,6 @@ void update_events(void)
             }
           }
         }
-#endif
       }
       else if (config_button_action == CONFIG_BUTTON_RAPID_ONOFF)
       {
@@ -208,6 +211,7 @@ void update_events(void)
       config_PceKeys(event_input.key_action);
     }
   }
+  // 連射生成
   u32 iI;
   for (iI = 0; iI < CONFIG_BIT_BUTTON_MAX; ++iI)
   {
@@ -225,10 +229,8 @@ void update_events(void)
       }
     }
   }
-
-  {
-    io.button_status[0] = button_status;
-  }
+  // 連射生成ここまで
+  io.button_status[0] = button_status;
 
 #ifdef LOG_CONTROLS
   static FILE *control_log = NULL;

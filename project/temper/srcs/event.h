@@ -2,7 +2,6 @@
 #define EVENT_H
 
 // These actions are configurable.
-#define DISABLE_HAT_STATUS  1
 
 /*
  * このenumはSDL入力時はbit fieldとして
@@ -31,7 +30,6 @@ typedef enum _config_buttons_enum
  
   CONFIG_BUTTON_RAPID_ONOFF,
   CONFIG_BUTTON_MENU,
-  CONFIG_BUTTON_NONE,
 
   CONFIG_HAT_CENTER,
   CONFIG_HAT_UP,
@@ -43,6 +41,7 @@ typedef enum _config_buttons_enum
   CONFIG_HAT_LEFT,
   CONFIG_HAT_UP_LEFT,
 
+  CONFIG_BUTTON_NONE,
   CONFIG_BUTTON_MAX,
 
   CONFIG_BIT_BUTTON_MAX = CONFIG_BUTTON_VI+1,
@@ -106,31 +105,14 @@ typedef enum
   INPUT_ACTION_TYPE_REPEAT
 } input_action_type_enum;
 
-#if !defined(DISABLE_HAT_STATUS)
-typedef enum
-{
-  HAT_STATUS_UP,
-  HAT_STATUS_UP_RIGHT,
-  HAT_STATUS_RIGHT,
-  HAT_STATUS_DOWN_RIGHT,
-  HAT_STATUS_DOWN,
-  HAT_STATUS_DOWN_LEFT,
-  HAT_STATUS_LEFT,
-  HAT_STATUS_UP_LEFT,
-  HAT_STATUS_CENTER,
-  HAT_STATUS_NONE,
-} hat_status_enum;
-#endif
 typedef struct
 {
   u32 action_type;          // input_action_type_enum
   u32 config_button_action; // config_buttons_enum
   u32 key_action;           // key_action_enum
   u32 key_letter;           // SDL自体の入力データ
-#if !defined(DISABLE_HAT_STATUS)
   u32 hat_status;
-  u32 hard_key_index;
-#endif
+  //u32 hard_key_index;
 } event_input_struct;
 
 typedef struct

@@ -101,7 +101,7 @@ void key_search(event_input_struct *event_input, eKeyMode inmode, u32 keys)
 				event_input->config_button_action = ButtonMapData[config.pad[sdl_to_config_map[iI].mIndex]].event_no;
 				break;
 			case eCASE_HAT:
-				event_input->config_button_action = sdl_to_config_map[iI].mIndex;
+				event_input->hat_status = sdl_to_config_map[iI].mIndex;
 				break;
 			case eCASE_KEYACT:
 				// keyboard 入力はwin32/linuxの場合はそのままconfig_dataを返す
@@ -146,7 +146,6 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 		key_search(event_input, eMODE_BUTTON, event->jbutton.button);
 		break;
 	case SDL_JOYAXISMOTION:
-		//status_message("now axis = %d which = %d",event->jaxis.axis,event->jaxis.which);
 		if (!(event->jaxis.axis & 0x02)) // ここのbitが左右スティックの判定
 		{
 			u32 keydata = SDL_HAT_CENTERED;
@@ -181,7 +180,8 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 			}
 			else
 			{
-				// no input
+				event_input->action_type = INPUT_ACTION_TYPE_RELEASE;
+				event_input->hat_status = CONFIG_HAT_CENTER;
 			}
 		}
 		//status_message("id=%d data=%d", event.jaxis.axis, event.jaxis.value);
@@ -195,7 +195,8 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 		}
 		else
 		{
-			// no input
+			event_input->action_type = INPUT_ACTION_TYPE_RELEASE;
+			event_input->hat_status = CONFIG_HAT_CENTER;
 		}
 		break;
 	}
@@ -226,7 +227,8 @@ u32 update_input(event_input_struct *event_input)
 	{
 		return 0;
 	}
-	if(event_input->config_button_action != CONFIG_BUTTON_NONE){
+	if (event_input->config_button_action != CONFIG_BUTTON_NONE)
+	{
 		status_message("now input = %s", config_name_table[event_input->config_button_action]);
 	}
 
