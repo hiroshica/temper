@@ -1914,7 +1914,7 @@ cpu_struct cpu;
 
 #ifndef ARM_ARCH
 
-void execute_instructions(s32 cpu_cycles_remaining)
+void execute_instructions(intptr_t cpu_cycles_remaining)
 {
   register u32 a = cpu.a;
   register u32 x = cpu.x;

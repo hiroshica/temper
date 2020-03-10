@@ -27,7 +27,7 @@ typedef enum
 
 typedef struct
 {
-  u64 global_cycles;
+  intptr_t global_cycles;
 
   // These are carefully arranged to align well and make load/store
   // efficient. Don't mess with the order.
@@ -53,7 +53,7 @@ extern cpu_struct cpu;
 
 void initialize_cpu();
 void reset_cpu();
-void execute_instructions(s32 cycles_to_execute);
+void execute_instructions(intptr_t cycles_to_execute);
 void execute_instructions_timer(s32 cpu_cycles_remaining);
 
 #define op_push(val)                                                          \
