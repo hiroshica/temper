@@ -15,52 +15,58 @@ extern u32 nowDebugKey;
  */
 tSDLtoConfigMap SDLtoConfigMap[] =
 	{
-		{eMODE_KEYSYM, SDLK_UP, CONFIG_BUTTON_UP},
-		{eMODE_KEYSYM, SDLK_DOWN, CONFIG_BUTTON_DOWN},
-		{eMODE_KEYSYM, SDLK_LEFT, CONFIG_BUTTON_LEFT},
-		{eMODE_KEYSYM, SDLK_RIGHT, CONFIG_BUTTON_RIGHT},
+		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_UP, CONFIG_BUTTON_UP},
+		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_DOWN, CONFIG_BUTTON_DOWN},
+		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_LEFT, CONFIG_BUTTON_LEFT},
+		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_RIGHT, CONFIG_BUTTON_RIGHT},
+		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_5, CONFIG_BUTTON_RUN},
+		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_6, CONFIG_BUTTON_SELECT},
+		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_z, CONFIG_BUTTON_I},
+		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_x, CONFIG_BUTTON_II},
+		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_c, CONFIG_BUTTON_III},
+		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_a, CONFIG_BUTTON_IV},
+		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_s, CONFIG_BUTTON_V},
+		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_d, CONFIG_BUTTON_VI},
 
-		{eMODE_KEYSYM, SDLK_ESCAPE, CONFIG_BUTTON_MENU},
-		{eMODE_KEYSYM, SDLK_m, CONFIG_BUTTON_MENU},
-		{eMODE_KEYSYM, SDLK_BACKQUOTE, CONFIG_BUTTON_FAST_FORWARD},
-		{eMODE_KEYSYM, SDLK_F5, CONFIG_BUTTON_SAVE_STATE},
-		{eMODE_KEYSYM, SDLK_F7, CONFIG_BUTTON_LOAD_STATE},
+		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_ESCAPE, CONFIG_BUTTON_MENU},
+		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_m, CONFIG_BUTTON_MENU},
+		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_BACKQUOTE, CONFIG_BUTTON_FAST_FORWARD},
+		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_F5, CONFIG_BUTTON_SAVE_STATE},
+		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_F7, CONFIG_BUTTON_LOAD_STATE},
 
+		{eMODE_KEYSYM, eCASE_KEYACT, SDLK_1, KEY_ACTION_BG_OFF},
+		{eMODE_KEYSYM, eCASE_KEYACT, SDLK_2, KEY_ACTION_SPR_OFF},
+		{eMODE_KEYSYM, eCASE_KEYACT, SDLK_F1, KEY_ACTION_DEBUG_BREAK},
 
-		{eMODE_KEYACT, SDLK_1, KEY_ACTION_BG_OFF},
-		{eMODE_KEYACT, SDLK_2, KEY_ACTION_SPR_OFF},
-		{eMODE_KEYACT, SDLK_F1, KEY_ACTION_DEBUG_BREAK},
+		{eMODE_BUTTON, eCASE_BUTTON, 9, 4},
+		{eMODE_BUTTON, eCASE_BUTTON, 8, 5},
 
+		{eMODE_BUTTON, eCASE_BUTTON, 0, 6},
+		{eMODE_BUTTON, eCASE_BUTTON, 3, 7},
+		{eMODE_BUTTON, eCASE_BUTTON, 1, 8},
+		{eMODE_BUTTON, eCASE_BUTTON, 2, 9},
 
-		{eMODE_BUTTON, 9, 4},
-		{eMODE_BUTTON, 8, 5},
+		{eMODE_BUTTON, eCASE_BUTTON, 4, 10},
+		{eMODE_BUTTON, eCASE_BUTTON, 6, 11},
+		{eMODE_BUTTON, eCASE_BUTTON, 7, 12},
 
-		{eMODE_BUTTON, 0, 6},
-		{eMODE_BUTTON, 3, 7},
-		{eMODE_BUTTON, 1, 8},
-		{eMODE_BUTTON, 2, 9},
+		{eMODE_BUTTON, eCASE_BUTTON, 5, 13},
+		{eMODE_BUTTON, eCASE_BUTTON, 7, 14},
+		{eMODE_BUTTON, eCASE_BUTTON, 11, 15},
 
-		{eMODE_BUTTON, 4, 10},
-		{eMODE_BUTTON, 6, 11},
-		{eMODE_BUTTON, 7, 12},
+		{eMODE_BUTTON, eCASE_BUTTON, 12, 16},
+		{eMODE_BUTTON, eCASE_BUTTON, 13, 17},
 
-		{eMODE_BUTTON, 5, 13},
-		{eMODE_BUTTON, 7, 14},
-		{eMODE_BUTTON, 11, 15},
+		{eMODE_HAT, eCASE_HAT, SDL_HAT_UP, CONFIG_HAT_UP},
+		{eMODE_HAT, eCASE_HAT, SDL_HAT_RIGHTUP, CONFIG_HAT_UP_RIGHT},
+		{eMODE_HAT, eCASE_HAT, SDL_HAT_RIGHT, CONFIG_HAT_RIGHT},
+		{eMODE_HAT, eCASE_HAT, SDL_HAT_RIGHTDOWN, CONFIG_HAT_DOWN_RIGHT},
+		{eMODE_HAT, eCASE_HAT, SDL_HAT_DOWN, CONFIG_HAT_DOWN},
+		{eMODE_HAT, eCASE_HAT, SDL_HAT_LEFTDOWN, CONFIG_HAT_DOWN_LEFT},
+		{eMODE_HAT, eCASE_HAT, SDL_HAT_LEFT, CONFIG_HAT_LEFT},
+		{eMODE_HAT, eCASE_HAT, SDL_HAT_LEFTUP, CONFIG_HAT_UP_LEFT},
 
-		{eMODE_BUTTON, 12, 16},
-		{eMODE_BUTTON, 13, 17},
-
-		{eMODE_HAT, SDL_HAT_UP, CONFIG_HAT_UP},
-		{eMODE_HAT, SDL_HAT_RIGHTUP, CONFIG_HAT_UP_RIGHT},
-		{eMODE_HAT, SDL_HAT_RIGHT, CONFIG_HAT_RIGHT},
-		{eMODE_HAT, SDL_HAT_RIGHTDOWN, CONFIG_HAT_DOWN_RIGHT},
-		{eMODE_HAT, SDL_HAT_DOWN, CONFIG_HAT_DOWN},
-		{eMODE_HAT, SDL_HAT_LEFTDOWN, CONFIG_HAT_DOWN_LEFT},
-		{eMODE_HAT, SDL_HAT_LEFT, CONFIG_HAT_LEFT},
-		{eMODE_HAT, SDL_HAT_LEFTUP, CONFIG_HAT_UP_LEFT},
-
-		{eMODE_END, -1, -1},
+		{eMODE_END, eCASE_END, -1, -1},
 };
 
 // inmode : チェックするキーのモード
@@ -70,48 +76,40 @@ void key_search(event_input_struct *event_input, eKeyMode inmode, u32 keys)
 	unsigned char iI;
 	tSDLtoConfigMap *sdl_to_config_map = SDLtoConfigMap;
 
-	for (iI = 0; sdl_to_config_map[iI].mode != eMODE_END; iI++)
+	for (iI = 0; sdl_to_config_map[iI].mMode != eMODE_END; iI++)
 	{
-		if (inmode == sdl_to_config_map[iI].mode && sdl_to_config_map[iI].sdl_key == keys)
+		if (inmode == sdl_to_config_map[iI].mMode && sdl_to_config_map[iI].mSdlKey == keys)
 		{
 			// 共通処理
-			if (sdl_to_config_map[iI].callback != NULL)
+			if (sdl_to_config_map[iI].mCallback != NULL)
 			{
-				sdl_to_config_map[iI].callback();
+				sdl_to_config_map[iI].mCallback();
 			}
 			event_input->config_button_action = CONFIG_BUTTON_NONE;
 			// 共通処理(ここまで)
 
-			switch (inmode)
+			switch (sdl_to_config_map[iI].mCase)
 			{
-			case eMODE_KEYSYM:
-			{
+			case eCASE_KEYSYM:
 				// keyboard 入力はwin32/linuxの場合はそのままconfig_dataを返す
 #if !defined(RG350_BUILD)
-				event_input->config_button_action = sdl_to_config_map[iI].index;
+				event_input->config_button_action = sdl_to_config_map[iI].mIndex;
 #else
 #endif
-			}
-			break;
-			case eMODE_BUTTON:
-			{
-				event_input->config_button_action = ButtonMapData[config.pad[sdl_to_config_map[iI].index]].event_no;
-			}
-			break;
-			case eMODE_HAT:
-			{
-				event_input->config_button_action = sdl_to_config_map[iI].index;
-			}
-			break;
-			case eMODE_KEYACT:
-			{
+				break;
+			case eCASE_BUTTON:
+				event_input->config_button_action = ButtonMapData[config.pad[sdl_to_config_map[iI].mIndex]].event_no;
+				break;
+			case eCASE_HAT:
+				event_input->config_button_action = sdl_to_config_map[iI].mIndex;
+				break;
+			case eCASE_KEYACT:
 				// keyboard 入力はwin32/linuxの場合はそのままconfig_dataを返す
 #if !defined(RG350_BUILD)
-				event_input->key_action = sdl_to_config_map[iI].index;
+				event_input->key_action = sdl_to_config_map[iI].mIndex;
 #else
 #endif
-			}
-			break;
+				break;
 
 			default:
 				break;
@@ -228,7 +226,9 @@ u32 update_input(event_input_struct *event_input)
 	{
 		return 0;
 	}
-	status_message("now input = %s", config_name_table[event_input->config_button_action]);
+	if(event_input->config_button_action != CONFIG_BUTTON_NONE){
+		status_message("now input = %s", config_name_table[event_input->config_button_action]);
+	}
 
 	return 1;
 }

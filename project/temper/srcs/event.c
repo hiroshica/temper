@@ -2,58 +2,58 @@
 
 //#define LOG_CONTROLS
 
-char *config_name_table[] = 
-{
-  "CONFIG_BUTTON_UP",
-  "CONFIG_BUTTON_DOWN",
-  "CONFIG_BUTTON_LEFT",
-  "CONFIG_BUTTON_RIGHT",
-  // option/share
-  "CONFIG_BUTTON_RUN",
-  "CONFIG_BUTTON_SELECT",
-  // x/y/a/b
-  "CONFIG_BUTTON_I",
-  "CONFIG_BUTTON_II",
-  "CONFIG_BUTTON_III",
-  "CONFIG_BUTTON_IV",
-  // L123
-  "CONFIG_BUTTON_LOAD_STATE",
-  "CONFIG_BUTTON_V",
-  "CONFIG_BUTTON_RAPID_ONOFF",
-  // R123
-  "CONFIG_BUTTON_SAVE_STATE",
-  "CONFIG_BUTTON_VI",
-  "CONFIG_BUTTON_FAST_FORWARD",
-  // PS
-  "CONFIG_BUTTON_MENU",
-  "CONFIG_BUTTON_NONE",
+char *config_name_table[] =
+    {
+        "CONFIG_BUTTON_UP",
+        "CONFIG_BUTTON_DOWN",
+        "CONFIG_BUTTON_LEFT",
+        "CONFIG_BUTTON_RIGHT",
+        // option/share
+        "CONFIG_BUTTON_RUN",
+        "CONFIG_BUTTON_SELECT",
+        // x/y/a/b
+        "CONFIG_BUTTON_I",
+        "CONFIG_BUTTON_II",
+        "CONFIG_BUTTON_III",
+        "CONFIG_BUTTON_IV",
+        // L123
+        "CONFIG_BUTTON_LOAD_STATE",
+        "CONFIG_BUTTON_V",
+        "CONFIG_BUTTON_RAPID_ONOFF",
+        // R123
+        "CONFIG_BUTTON_SAVE_STATE",
+        "CONFIG_BUTTON_VI",
+        "CONFIG_BUTTON_FAST_FORWARD",
+        // PS
+        "CONFIG_BUTTON_MENU",
+        "CONFIG_BUTTON_NONE",
 
-  "CONFIG_BUTTON_UP_LEFT",
-  "CONFIG_BUTTON_UP_RIGHT",
-  "CONFIG_BUTTON_DOWN_LEFT",
-  "CONFIG_BUTTON_DOWN_RIGHT",
+        "CONFIG_BUTTON_UP_LEFT",
+        "CONFIG_BUTTON_UP_RIGHT",
+        "CONFIG_BUTTON_DOWN_LEFT",
+        "CONFIG_BUTTON_DOWN_RIGHT",
 
-  "CONFIG_BUTTON_MAX",
+        "CONFIG_BUTTON_MAX",
 };
 
-
-
 // Make menu.c match this.
-
+// configからpceのbitに変換するテーブル
+// cnfigと同じ並びじゃないとバグる
 u32 config_to_io_map[] =
-    {
-        IO_BUTTON_UP,
-        IO_BUTTON_DOWN,
-        IO_BUTTON_LEFT,
-        IO_BUTTON_RIGHT,
-        IO_BUTTON_I,
-        IO_BUTTON_II,
-        IO_BUTTON_III,
-        IO_BUTTON_IV,
-        IO_BUTTON_V,
-        IO_BUTTON_VI,
-        IO_BUTTON_RUN,
-        IO_BUTTON_SELECT};
+{
+    IO_BUTTON_UP,
+    IO_BUTTON_DOWN,
+    IO_BUTTON_LEFT,
+    IO_BUTTON_RIGHT,
+    IO_BUTTON_RUN,
+    IO_BUTTON_SELECT,
+    IO_BUTTON_I,
+    IO_BUTTON_II,
+    IO_BUTTON_III,
+    IO_BUTTON_IV,
+    IO_BUTTON_V,
+    IO_BUTTON_VI,
+};
 
 typedef struct tRapidStatus
 {
@@ -67,7 +67,7 @@ typedef struct tRapidStatus
 #define MAX_HARD_KEY (MAX_CONTROLS)
 static u32 m_RapidSelect = 0;
 static RapidStatus m_RapidStatus[MAX_HARD_KEY];
-static u32 button_status = 0xFFFFFFFF;  // emulatorへ送り込むキー情報
+static u32 button_status = 0xFFFFFFFF; // emulatorへ送り込むキー情報
 static u32 talk_mode = 0;
 static u32 talk_x = 0;
 static char talk_message[128];
@@ -115,7 +115,7 @@ void update_events(void)
   {
     {
       config_button_action = event_input.config_button_action;
-      if (config_button_action <= CONFIG_BIT_BUTTON_MAX)
+      if (config_button_action < CONFIG_BIT_BUTTON_MAX)
       {
 #if 1
         u32 io_button = config_to_io_map[config_button_action];
@@ -143,7 +143,8 @@ void update_events(void)
             m_RapidStatus[index].m_Active ^= 1;
             m_RapidStatus[index].m_bottunStatus = io_button;
             m_RapidStatus[index].m_frameCount = 0;
-            if(config.rapid_frame[index] == 0){
+            if (config.rapid_frame[index] == 0)
+            {
               config.rapid_frame[index] = 1;
             }
           }
@@ -208,7 +209,7 @@ void update_events(void)
     }
   }
   u32 iI;
-  for (iI = 0; iI < CONFIG_BUTTON_MAX; ++iI)
+  for (iI = 0; iI < CONFIG_BIT_BUTTON_MAX; ++iI)
   {
     if (m_RapidStatus[iI].m_Active && m_RapidStatus[iI].m_Status == INPUT_ACTION_TYPE_PRESS)
     {
