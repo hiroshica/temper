@@ -20,10 +20,12 @@ SDLのpad button number (PS4)
 // このテーブルの並びをconfig.padに記録する
 //
 tButtonMapData ButtonMapData[PAD_STOCK_MAX] = {
+        /*
         {"          UP", k_INDEX_EFFECTIVE|0x00000100 },
         {"        DOWN", k_INDEX_EFFECTIVE|0x00000101 },
         {"        LEFT", k_INDEX_EFFECTIVE|0x00000102 },
         {"       RIGHT", k_INDEX_EFFECTIVE|0x00000103 },
+        */
 
         {"      OPTION", k_INDEX_EFFECTIVE|9 },
         {"       SHARE", k_INDEX_EFFECTIVE|8 },

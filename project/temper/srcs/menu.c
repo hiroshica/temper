@@ -28,11 +28,13 @@ menu_struct *create_menu_padrapid(menu_state_struct *menu_state, menu_struct *pa
 
 char *PCE_control_names[] =
 {
+  /*
 	"Up           ",
   "Down         ",
   "Left         ",
   "Right        ",
-
+  */
+ 
 	"RUN          ",
   "SELECT       ",
 
