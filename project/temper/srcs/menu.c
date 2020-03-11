@@ -1,6 +1,7 @@
 // Temper menu code
 
 #include "common.h"
+#include "setup.h"
 
 #define menu_line(line) \
   (line * 8)
@@ -21,6 +22,36 @@ void gui_wait_for_input(gui_input_struct *gui_input)
 #define DIR_LIST_CHARS 16
 #define FILE_LIST_POSITION 6
 #define DIR_LIST_POSITION (FILE_LIST_POSITION + (FILE_LIST_CHARS * 6) + 1)
+
+menu_struct *create_menu_pad(menu_state_struct *menu_state, menu_struct *parent_menu);
+menu_struct *create_menu_padrapid(menu_state_struct *menu_state, menu_struct *parent_menu);
+
+char *PCE_control_names[] =
+{
+	"Up           ",
+  "Down         ",
+  "Left         ",
+  "Right        ",
+
+	"RUN          ",
+  "SELECT       ",
+
+	"I   BUTTON   ",
+  "II  BUTTON   ",
+  "III BUTTON   ",
+  "IV  BUTTON   ",
+  "V   BUTTON   ",
+  "VI  BUTTON   ",
+
+  "LOAD STATE   ",
+  "SAVE STATE   ",
+  "FAST FORWARD ",
+  "RAPID ENTRY  ",
+  "MENU         ",
+};
+
+const u32 PCE_control_count = (sizeof(PCE_control_names) / sizeof(char *));
+
 
 /*
   0 = SQUARE
@@ -61,46 +92,6 @@ void gui_wait_for_input(gui_input_struct *gui_input)
    {SDLK_RETURN, (u32)8},  // Start
    {SDLK_HOME, (u32)4+12}, // Power
 */
-
-tButtonMapData ButtonMapData[PAD_STOCK_MAX] =
-    {
-        {"          Up", CONFIG_BUTTON_UP},
-        {"        Down", CONFIG_BUTTON_DOWN},
-        {"        Left", CONFIG_BUTTON_LEFT},
-        {"       Right", CONFIG_BUTTON_RIGHT},
-
-        {"         Run", CONFIG_BUTTON_RUN},
-        {"      Select", CONFIG_BUTTON_SELECT},
-
-        {"           I", CONFIG_BUTTON_I},
-        {"          II", CONFIG_BUTTON_II},
-        {"         III", CONFIG_BUTTON_III},
-        {"          IV", CONFIG_BUTTON_IV},
-        {"           V", CONFIG_BUTTON_V},
-        {"          VI", CONFIG_BUTTON_VI},
-
-        {"  Save state", CONFIG_BUTTON_SAVE_STATE},
-        {"  Load state", CONFIG_BUTTON_LOAD_STATE},
-        {"Fast forward", CONFIG_BUTTON_FAST_FORWARD},
-        {"Rapid Select", CONFIG_BUTTON_RAPID_ONOFF},
-        {"        Menu", CONFIG_BUTTON_MENU},
-        {"        None", CONFIG_BUTTON_NONE},
-        {"        None", CONFIG_BUTTON_NONE},
-        // 20
-        {"        None", CONFIG_BUTTON_NONE},
-        {"        None", CONFIG_BUTTON_NONE},
-        {"        None", CONFIG_BUTTON_NONE},
-        {"        None", CONFIG_BUTTON_NONE},
-        {"        None", CONFIG_BUTTON_NONE},
-        {"        None", CONFIG_BUTTON_NONE},
-        {"        None", CONFIG_BUTTON_NONE},
-        {"        None", CONFIG_BUTTON_NONE},
-        {"        None", CONFIG_BUTTON_NONE},
-        {"        None", CONFIG_BUTTON_NONE},
-        {"        None", CONFIG_BUTTON_NONE},
-        {"        None", CONFIG_BUTTON_NONE},
-        {"        None", CONFIG_BUTTON_NONE},
-};
 
 int sort_function(const void *dest_str_ptr, const void *src_str_ptr)
 {
@@ -1687,79 +1678,6 @@ menu_struct *create_menu_options(menu_state_struct *menu_state,
 }
 
 
-//static tButtonMapData ButtonMapData[PAD_STOCK_MAX] =
-char *button_strings[PAD_STOCK_MAX];
-int button_strings_count;
-void create_button_strings(void){
-  u32 iI = 0;
-  button_strings_count = 0;
-
-  for(iI = 0 ; iI < PAD_STOCK_MAX;++iI){
-    if(ButtonMapData[iI].event_no == CONFIG_BUTTON_NONE){
-      break;
-    }
-    button_strings[button_strings_count++] = ButtonMapData[iI].name;
-  }
-}
-
-menu_option_numeric_labeled_struct *create_numeric_labeled_pad(menu_option_numeric_labeled_struct *numeric_labeled, char *name,u32 line_number, u32 *value, u32 lower_limit, u32 upper_limit, char **labels)
-{
-  create_allocate(numeric_labeled, menu_option_numeric_labeled_struct);
-  menu_option_struct *base = (menu_option_struct *)numeric_labeled;
-
-  create_numeric((menu_option_numeric_struct *)base, name, line_number, value,
-                 lower_limit, upper_limit);
-  numeric_labeled->labels = labels;
-
-  base->draw_function = draw_numeric_labeled;
-
-  return numeric_labeled;
-}
-
-menu_struct *create_menu_pad(menu_state_struct *menu_state, menu_struct *parent_menu)
-{
-  menu_struct *menu = create_menu(platform_control_count + 3, parent_menu, draw_menu_pad, focus_menu_pad);
-  void **menu_options = (void **)menu->options;
-  u32 current_menu_option = 0;
-  u32 current_line_number = 6;
-  u32 i;
-
-  create_button_strings();
-
-  for (i = 0; i < platform_control_count; i++)
-  {
-    add_menu_option(create_numeric_labeled_pad(NULL, platform_control_names[i], current_line_number, &(config.pad[i]), 0, button_strings_count, button_strings));
-  }
-
-  current_line_number++;
-
-  add_save_config_options();
-
-  menu->column_start = control_config_start_column;
-  return menu;
-}
-
-menu_struct *create_menu_padrapid(menu_state_struct *menu_state, menu_struct *parent_menu)
-{
-  create_button_strings();
-
-  menu_struct *menu = create_menu(button_strings_count + 3, parent_menu, draw_menu_pad, focus_menu_pad);
-  void **menu_options = (void **)menu->options;
-  u32 current_menu_option = 0;
-  u32 current_line_number = 6;
-  u32 i;
-
-  for (i = 0; i < button_strings_count; i++)
-  {
-    add_menu_option(create_numeric(NULL, button_strings[i], current_line_number, &(config.rapid_frame[i]), 1, 15));
-  }
-  current_line_number++;
-
-  add_save_config_options();
-
-  menu->column_start = control_config_start_column;
-  return menu;
-}
 
 menu_struct *create_menu_main(menu_state_struct *menu_state)
 {
@@ -1942,4 +1860,82 @@ void menu(u32 start_file_dialog)
     update_screen();
   }
 #endif
+}
+
+
+
+/*******************************************************************/
+/* create pad menu                                                 */
+/*******************************************************************/
+char *button_strings[PAD_STOCK_MAX];
+int button_strings_count;
+void create_button_strings(void){
+  u32 iI = 0;
+  button_strings_count = 0;
+
+  for(iI = 0 ; iI < PAD_STOCK_MAX;++iI){
+    if(ButtonMapData[iI].mIndex == k_INDEX_NONE){
+      break;
+    }
+    button_strings[button_strings_count++] = ButtonMapData[iI].mName;
+  }
+}
+
+menu_option_numeric_labeled_struct *create_numeric_labeled_pad(menu_option_numeric_labeled_struct *numeric_labeled, char *name,u32 line_number, u32 *value, u32 lower_limit, u32 upper_limit, char **labels)
+{
+  create_allocate(numeric_labeled, menu_option_numeric_labeled_struct);
+  menu_option_struct *base = (menu_option_struct *)numeric_labeled;
+
+  create_numeric((menu_option_numeric_struct *)base, name, line_number, value,
+                 lower_limit, upper_limit);
+  numeric_labeled->labels = labels;
+
+  base->draw_function = draw_numeric_labeled;
+
+  return numeric_labeled;
+}
+
+menu_struct *create_menu_pad(menu_state_struct *menu_state, menu_struct *parent_menu)
+{
+  menu_struct *menu = create_menu(PCE_control_count + 3, parent_menu, draw_menu_pad, focus_menu_pad);
+  void **menu_options = (void **)menu->options;
+  u32 current_menu_option = 0;
+  u32 current_line_number = 6;
+  u32 i;
+
+  create_button_strings();
+
+  for (i = 0; i < PCE_control_count; i++)
+  {
+    add_menu_option(create_numeric_labeled_pad(NULL, PCE_control_names[i], current_line_number, &(config.pad[i]), 0, button_strings_count, button_strings));
+  }
+
+  current_line_number++;
+
+  add_save_config_options();
+
+  menu->column_start = control_config_start_column;
+  return menu;
+}
+
+menu_struct *create_menu_padrapid(menu_state_struct *menu_state, menu_struct *parent_menu)
+{
+  create_button_strings();
+
+  menu_struct *menu = create_menu(PCE_control_count + 3, parent_menu, draw_menu_pad, focus_menu_pad);
+  void **menu_options = (void **)menu->options;
+  u32 current_menu_option = 0;
+  u32 current_line_number = 6;
+  u32 i;
+
+  for (i = 0; i < PCE_control_count; i++)
+  {
+    add_menu_option(create_numeric(NULL, PCE_control_names[i], current_line_number, &(config.rapid_frame[i]), 1, 15));
+  }
+  current_line_number++;
+
+  add_save_config_options();
+
+  menu->column_start = control_config_start_column;
+  return menu;
 }

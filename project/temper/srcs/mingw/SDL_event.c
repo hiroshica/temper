@@ -98,7 +98,7 @@ void key_search(event_input_struct *event_input, eKeyMode inmode, u32 keys)
 #endif
 				break;
 			case eCASE_BUTTON:
-				event_input->config_button_action = ButtonMapData[config.pad[sdl_to_config_map[iI].mIndex]].event_no;
+				//event_input->config_button_action = ButtonMapData[config.pad[sdl_to_config_map[iI].mIndex]].event_no;
 				break;
 			case eCASE_HAT:
 				event_input->hat_status = sdl_to_config_map[iI].mIndex;

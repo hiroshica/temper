@@ -1,5 +1,5 @@
-#ifndef EVENT_H
-#define EVENT_H
+#ifndef __EVENT_H__
+#define __EVENT_H__
 
 // These actions are configurable.
 
@@ -49,7 +49,7 @@ typedef enum _config_buttons_enum
   //CONFIG_BUTTON_VOLUME_DOWN,
   //CONFIG_BUTTON_VOLUME_UP,
 } config_buttons_enum;
-// debugテーブル必ずenumと同じ並びにすること（追加もね）
+// debugテーブル必ずenumと同じ並びにすること（追加もね） event.c
 extern char *config_name_table[];
 
 // These actions can't be configured and are triggered by
@@ -82,8 +82,6 @@ typedef enum
   CURSOR_LETTER,
   CURSOR_NONE
 } gui_action_type;
-
-#endif
 
 // These define autorepeat values (in microseconds), tweak as necessary.
 
@@ -128,3 +126,4 @@ void init_events(void);
 void update_events(void);
 u32 update_input(event_input_struct *event_input);
 
+#endif

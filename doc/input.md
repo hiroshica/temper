@@ -1,7 +1,12 @@
 ***
+## 確定要素
+config.padの配列の並び = PCE_control_namesの並びと一致  
+(config_buttons_enumのボタン入力定義部分と一致する)  
+
+config.padの中身       = ButtonMapDataの並びと一致するので必要なデータは  
+ButtonMapData構造体を拡張する
+
+***
 ## 入力周りの変更 ToDo:
-今のやり方には問題があるのでできれば  
-config.padの配列の並び = PC-Engineのbitの並び  
-config.padの中身       = ハードウエアのキー番号  
-として処理したい
+
 ***

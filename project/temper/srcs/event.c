@@ -2,42 +2,43 @@
 
 //#define LOG_CONTROLS
 
+// debug用
 char *config_name_table[] =
-    {
-        "CONFIG_BUTTON_UP",
-        "CONFIG_BUTTON_DOWN",
-        "CONFIG_BUTTON_LEFT",
-        "CONFIG_BUTTON_RIGHT",
+{
+    "CONFIG_BUTTON_UP",
+    "CONFIG_BUTTON_DOWN",
+    "CONFIG_BUTTON_LEFT",
+    "CONFIG_BUTTON_RIGHT",
 
-        "CONFIG_BUTTON_RUN",
-        "CONFIG_BUTTON_SELECT",
+    "CONFIG_BUTTON_RUN",
+    "CONFIG_BUTTON_SELECT",
 
-        "CONFIG_BUTTON_I",
-        "CONFIG_BUTTON_II",
-        "CONFIG_BUTTON_III",
-        "CONFIG_BUTTON_IV",
-        "CONFIG_BUTTON_V",
-        "CONFIG_BUTTON_VI",
+    "CONFIG_BUTTON_I",
+    "CONFIG_BUTTON_II",
+    "CONFIG_BUTTON_III",
+    "CONFIG_BUTTON_IV",
+    "CONFIG_BUTTON_V",
+    "CONFIG_BUTTON_VI",
 
-        "CONFIG_BUTTON_LOAD_STATE",
-        "CONFIG_BUTTON_SAVE_STATE",
-        "CONFIG_BUTTON_FAST_FORWARD",
+    "CONFIG_BUTTON_LOAD_STATE",
+    "CONFIG_BUTTON_SAVE_STATE",
+    "CONFIG_BUTTON_FAST_FORWARD",
 
-        "CONFIG_BUTTON_RAPID_ONOFF",
-        "CONFIG_BUTTON_MENU",
+    "CONFIG_BUTTON_RAPID_ONOFF",
+    "CONFIG_BUTTON_MENU",
 
-        "CONFIG_HAT_UP_CENTER",
-        "CONFIG_HAT_UP",
-        "CONFIG_HAT_UP_RIGHT",
-        "CONFIG_HAT_RIGHT",
-        "CONFIG_HAT_DOWN_RIGHT",
-        "CONFIG_HAT_DOWN",
-        "CONFIG_HAT_DOWN_LEFT",
-        "CONFIG_HAT_LEFT",
-        "CONFIG_HAT_UP_LEFT",
+    "CONFIG_HAT_UP_CENTER",
+    "CONFIG_HAT_UP",
+    "CONFIG_HAT_UP_RIGHT",
+    "CONFIG_HAT_RIGHT",
+    "CONFIG_HAT_DOWN_RIGHT",
+    "CONFIG_HAT_DOWN",
+    "CONFIG_HAT_DOWN_LEFT",
+    "CONFIG_HAT_LEFT",
+    "CONFIG_HAT_UP_LEFT",
 
-        "CONFIG_BUTTON_NONE",
-        "CONFIG_BUTTON_MAX",
+    "CONFIG_BUTTON_NONE",
+    "CONFIG_BUTTON_MAX",
 };
 
 // Make menu.c match this.
@@ -68,7 +69,6 @@ typedef struct tRapidStatus
 
 } RapidStatus;
 
-#define MAX_HARD_KEY (MAX_CONTROLS)
 static u32 m_RapidSelect = 0;
 static RapidStatus m_RapidStatus[MAX_HARD_KEY];
 static u32 button_status = 0xFFFFFFFF; // emulatorへ送り込むキー情報

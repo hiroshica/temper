@@ -1,6 +1,9 @@
 #ifndef COMMON_DEFINES_H
 #define COMMON_DEFINES_H
 
+#define MAX_CONTROLS (32)
+#define MAX_HARD_KEY (MAX_CONTROLS)
+
 #define file_read(file_handle, ptr, size)                                     \
   fread(ptr, size, 1, file_handle)                                            \
 
