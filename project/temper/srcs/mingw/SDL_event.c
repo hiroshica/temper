@@ -3,73 +3,7 @@
 #include "SDL_event.h"
 
 extern u32 nowDebugKey;
-
-// analogしきい値-32767～32767まで
-#define kLIMIT ((s16)0x4000)
-/*
- * eMODE_KEYSYM のデータ内訳
- * sdl_key = SDLK_???
- * index = config_buttons_enumの値
- * eMODE_BUTTON のデータ内訳
- * sdl_key = JoyPadのボタン番号
- * index = platform_control_namesのindex
- */
-tSDLtoConfigMap SDLtoConfigMap[] =
-	{
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_UP, CONFIG_BUTTON_UP},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_DOWN, CONFIG_BUTTON_DOWN},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_LEFT, CONFIG_BUTTON_LEFT},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_RIGHT, CONFIG_BUTTON_RIGHT},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_5, CONFIG_BUTTON_RUN},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_6, CONFIG_BUTTON_SELECT},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_z, CONFIG_BUTTON_I},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_x, CONFIG_BUTTON_II},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_c, CONFIG_BUTTON_III},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_a, CONFIG_BUTTON_IV},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_s, CONFIG_BUTTON_V},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_d, CONFIG_BUTTON_VI},
-
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_ESCAPE, CONFIG_BUTTON_MENU},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_m, CONFIG_BUTTON_MENU},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_r, CONFIG_BUTTON_RAPID_ONOFF},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_BACKQUOTE, CONFIG_BUTTON_FAST_FORWARD},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_F5, CONFIG_BUTTON_SAVE_STATE},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_F7, CONFIG_BUTTON_LOAD_STATE},
-
-		{eMODE_KEYSYM, eCASE_KEYACT, SDLK_1, KEY_ACTION_BG_OFF},
-		{eMODE_KEYSYM, eCASE_KEYACT, SDLK_2, KEY_ACTION_SPR_OFF},
-		{eMODE_KEYSYM, eCASE_KEYACT, SDLK_F1, KEY_ACTION_DEBUG_BREAK},
-
-		{eMODE_BUTTON, eCASE_BUTTON, 9, 4},
-		{eMODE_BUTTON, eCASE_BUTTON, 8, 5},
-
-		{eMODE_BUTTON, eCASE_BUTTON, 0, 6},
-		{eMODE_BUTTON, eCASE_BUTTON, 3, 7},
-		{eMODE_BUTTON, eCASE_BUTTON, 1, 8},
-		{eMODE_BUTTON, eCASE_BUTTON, 2, 9},
-
-		{eMODE_BUTTON, eCASE_BUTTON, 4, 10},
-		{eMODE_BUTTON, eCASE_BUTTON, 6, 11},
-		{eMODE_BUTTON, eCASE_BUTTON, 7, 12},
-
-		{eMODE_BUTTON, eCASE_BUTTON, 5, 13},
-		{eMODE_BUTTON, eCASE_BUTTON, 7, 14},
-		{eMODE_BUTTON, eCASE_BUTTON, 11, 15},
-
-		{eMODE_BUTTON, eCASE_BUTTON, 12, 16},
-		{eMODE_BUTTON, eCASE_BUTTON, 13, 17},
-
-		{eMODE_HAT, eCASE_HAT, SDL_HAT_UP, CONFIG_HAT_UP},
-		{eMODE_HAT, eCASE_HAT, SDL_HAT_RIGHTUP, CONFIG_HAT_UP_RIGHT},
-		{eMODE_HAT, eCASE_HAT, SDL_HAT_RIGHT, CONFIG_HAT_RIGHT},
-		{eMODE_HAT, eCASE_HAT, SDL_HAT_RIGHTDOWN, CONFIG_HAT_DOWN_RIGHT},
-		{eMODE_HAT, eCASE_HAT, SDL_HAT_DOWN, CONFIG_HAT_DOWN},
-		{eMODE_HAT, eCASE_HAT, SDL_HAT_LEFTDOWN, CONFIG_HAT_DOWN_LEFT},
-		{eMODE_HAT, eCASE_HAT, SDL_HAT_LEFT, CONFIG_HAT_LEFT},
-		{eMODE_HAT, eCASE_HAT, SDL_HAT_LEFTUP, CONFIG_HAT_UP_LEFT},
-
-		{eMODE_END, eCASE_END, -1, -1},
-};
+extern tSDLtoConfigMap SDLtoConfigMap[];
 
 // inmode : チェックするキーのモード
 // keys  : SDLが返してきているキーデータ
@@ -104,13 +38,15 @@ void key_search(event_input_struct *event_input, eKeyMode inmode, u32 keys)
 					s32 actionindex = 0;
 					s32 mapindex;
 					s32 nowindex;
+					u32 createkey;
 					// ButtonMapDataからconfig.padに記録された番号の取得
 					for(mapindex = 0; ;mapindex++){
 						if(ButtonMapData[mapindex].mIndex == k_INDEX_NONE){
 							mapindex = -1;
 							break;
 						}
-						if(ButtonMapData[mapindex].mIndex&k_INDEX_MASK == keys){
+						createkey = ButtonMapData[mapindex].mIndex&k_INDEX_MASK;
+						if(createkey == keys){
 							break;
 						}
 					}
@@ -120,7 +56,7 @@ void key_search(event_input_struct *event_input, eKeyMode inmode, u32 keys)
 						nowindex = config.pad[mapindex];
 						// 上記で得た番号がマップされてるPCEのキー番号を取り出す
 						for(iI = 0; iI < PAD_STOCK_MAX; ++iI){
-							if(config.pad[iI] == mapindex){
+							if(config.pad[iI] == nowindex){
 								event_input->config_button_action[actionindex++] = iI;
 							}
 						}
