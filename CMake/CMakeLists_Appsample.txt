@@ -36,7 +36,10 @@ if(COMPILE_TYPE STREQUAL "linux")
   # linux
   set(BUILD_LDFLAGS "${PLATFORM_LIBS} ${SDL_LIBS}")
 elseif(COMPILE_TYPE STREQUAL "mingw")
-  # mingw32
+  # mingw
+  set(BUILD_LDFLAGS "${PLATFORM_LIBS} ${SDL_LIBS}")
+elseif(COMPILE_TYPE STREQUAL "mingw32")
+  # mingw
   set(BUILD_LDFLAGS "${PLATFORM_LIBS} ${SDL_LIBS}")
 elseif(COMPILE_TYPE STREQUAL "rg350")
   set(BUILD_LDFLAGS "${SDL_LIBS} ${PLATFORM_LIBS}")

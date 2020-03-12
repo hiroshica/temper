@@ -42,7 +42,9 @@ target_link_libraries(${OUT_EXEC_FILE} ${BUILD_LDFLAGS})
 if(COMPILE_TYPE STREQUAL "linux")
   # linux
 elseif(COMPILE_TYPE STREQUAL "mingw")
-  # mingw32
+  # mingw
+elseif(COMPILE_TYPE STREQUAL "mingw32")
+  # mingw
 elseif(COMPILE_TYPE STREQUAL "rg350")
 #
   set (NOWWORKDIR "${CMAKE_CURRENT_SOURCE_DIR}/srcs/${COMPILE_TYPE}")

@@ -24,8 +24,11 @@ elseif(COMPILE_TYPE STREQUAL "rg350")
   # rg350
 #  set(PKG_CONFIG_EXECUTABLE "${TOOLCHAIN_PREFIX}/bin/pkg-config")
 elseif(COMPILE_TYPE STREQUAL "mingw")
-  # mingw32
+  # mingw
   set(PKG_CONFIG_EXECUTABLE "C:/msys64/mingw64/bin/pkg-config.exe")
+elseif(COMPILE_TYPE STREQUAL "mingw32")
+  # mingw
+  set(PKG_CONFIG_EXECUTABLE "C:/msys64/mingw32/bin/pkg-config.exe")
 endif()
 
 MESSAGE("pkgpath = $ENV{PKG_CONFIG_PATH}")
@@ -41,7 +44,11 @@ elseif(COMPILE_TYPE STREQUAL "rg350")
   set(SDL_INC "${SDL_INCLUDE_DIRS}")
   set(SDL_LIBS "${SDL_LDFLAGS}")
 elseif(COMPILE_TYPE STREQUAL "mingw")
-  # mingw32
+  # mingw
+  set(SDL_INC "${SDL_INCLUDE_DIRS}")
+  set(SDL_LIBS "${SDL_LDFLAGS};-mwindows")
+elseif(COMPILE_TYPE STREQUAL "mingw32")
+  # mingw
   set(SDL_INC "${SDL_INCLUDE_DIRS}")
   set(SDL_LIBS "${SDL_LDFLAGS};-mwindows")
 endif()
@@ -89,13 +96,19 @@ elseif(COMPILE_TYPE STREQUAL "rg350")
   set(PLATFORM_CFLAGS "-Ofast -mips32r2 -mmxu -fdata-sections -ffunction-sections")
   set(PLATFORM_LIBS " -lz -lm -lbz2 -pthread -Wl,--as-needed -Wl,--gc-sections -flto -s ${SDL_LIBS}")
 elseif(COMPILE_TYPE STREQUAL "mingw")
-  # mingw32
+  # mingw
   add_definitions(-D__LP64__)
   add_definitions(-D__POINTER64BIT__)
   add_definitions(-D__OS_MINGW__)
   add_definitions(-DWIN32_BUILD)
   set(PLATFORM_CFLAGS " ")
-  set(PLATFORM_LIBS "-mconsole -lbz2 -lz -lvorbisfile -lvorbis -logg -lwsock32 ${SDL_LIBS}")
+  set(PLATFORM_LIBS "-mwindows -lbz2 -lz -lvorbisfile -lvorbis -logg -lwsock32 ${SDL_LIBS}")
+elseif(COMPILE_TYPE STREQUAL "mingw32")
+  # mingw
+  add_definitions(-D__OS_MINGW__)
+  add_definitions(-DWIN32_BUILD)
+  set(PLATFORM_CFLAGS "-m32")
+  set(PLATFORM_LIBS "-m32 -mconsole -lbz2 -lz -lvorbisfile -lvorbis -logg -lwsock32 ${SDL_LIBS}")
 endif()
 
 set(PROJECT_EXE_SUFFIX "${MACHINE_SUFFIX}${PROJECT_LIB_SUFFIX}")
