@@ -3157,7 +3157,7 @@ void update_frame(u32 skip)
                  vce.screen_width);
   }
   if(m_RapidSelect != 0){
-    print_string("Rapid Entry now", 0xFFFF, 0x000, 0, 1, vce.screen_width);
+    print_string("Rapid Entry now", 0xFFFF, 0x000, 0, 8, vce.screen_width);
   }
 
   update_status_message();
