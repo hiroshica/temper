@@ -76,8 +76,8 @@ endif()
 ################################################################################################
 if(COMPILE_TYPE STREQUAL "linux")
   # linux
-  add_definitions(-D__POINTER64BIT__)
   add_definitions(-D__LP64__)
+  add_definitions(-D__POINTER64BIT__)
   add_definitions(-D__OS_LINUX__)
   add_definitions(-DLINUX_X86_BUILD)
   set(PLATFORM_CFLAGS " ")
