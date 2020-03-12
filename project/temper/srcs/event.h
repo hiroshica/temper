@@ -119,6 +119,31 @@ typedef struct
   u32 key_letter;
 } gui_input_struct;
 
+typedef enum ekeymode{
+  eMODE_END = -1,
+  eMODE_KEYSYM = 0,
+  eMODE_BUTTON,
+  eMODE_HAT,
+} eKeyMode;
+typedef enum ekeycase{
+  eCASE_END = -1,
+  eCASE_KEYSYM = 0,
+  eCASE_BUTTON,
+  eCASE_HAT,
+  eCASE_KEYACT,
+} eKeyCase;
+typedef struct _tSDLtoConfigMap
+{
+  eKeyMode mMode;
+  eKeyCase mCase;
+	u32 mSdlKey;
+	u32 mIndex; // ButtonMapData
+  void (*mCallback)();
+} tSDLtoConfigMap;
+
+// analogしきい値-32767～32767まで
+#define kLIMIT ((s16)0x4000)
+
 void initialize_event(void);
 void get_gui_input(gui_input_struct *gui_input);
 void clear_gui_actions(void);

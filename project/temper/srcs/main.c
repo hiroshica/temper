@@ -312,7 +312,7 @@ void run_pce(u32 benchmark_frames)
   printf("Running game.\n");
   init_events();
 
-    audio_unpause();
+  audio_unpause();
 
   while (1)
   {
