@@ -106,7 +106,7 @@ typedef enum
 typedef struct
 {
   u32 action_type;          // input_action_type_enum
-  u32 config_button_action; // config_buttons_enum
+  u32 config_button_action[CONFIG_BIT_BUTTON_MAX]; // config_buttons_enum
   u32 key_action;           // key_action_enum
   u32 key_letter;           // SDL自体の入力データ
   u32 hat_status;

@@ -1,5 +1,6 @@
 #include "common.h"
 #include "palette.h"
+extern u32 m_RapidSelect;
 
 // Put temp debug vars here
 #undef RGB
@@ -3154,6 +3155,9 @@ void update_frame(u32 skip)
     sprintf(print_buffer, "%02d", fps);
     print_string(print_buffer, 0xFFFF, 0x000, 0, 0,
                  vce.screen_width);
+  }
+  if(m_RapidSelect != 0){
+    print_string("Rapid Entry now", 0xFFFF, 0x000, 0, 1, vce.screen_width);
   }
 
   update_status_message();

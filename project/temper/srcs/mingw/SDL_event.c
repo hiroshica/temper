@@ -1,4 +1,5 @@
 #include "../common.h"
+#include "../setup.h"
 #include "SDL_event.h"
 
 extern u32 nowDebugKey;
@@ -85,7 +86,6 @@ void key_search(event_input_struct *event_input, eKeyMode inmode, u32 keys)
 			{
 				sdl_to_config_map[iI].mCallback();
 			}
-			event_input->config_button_action = CONFIG_BUTTON_NONE;
 			// 共通処理(ここまで)
 
 			switch (sdl_to_config_map[iI].mCase)
@@ -93,12 +93,39 @@ void key_search(event_input_struct *event_input, eKeyMode inmode, u32 keys)
 			case eCASE_KEYSYM:
 				// keyboard 入力はwin32/linuxの場合はそのままconfig_dataを返す
 #if !defined(RG350_BUILD)
-				event_input->config_button_action = sdl_to_config_map[iI].mIndex;
+				event_input->config_button_action[0] = sdl_to_config_map[iI].mIndex;
 #else
 #endif
 				break;
 			case eCASE_BUTTON:
-				//event_input->config_button_action = ButtonMapData[config.pad[sdl_to_config_map[iI].mIndex]].event_no;
+				{
+					s32 iI;
+					s32 actionindex = 0;
+					s32 mapindex;
+					s32 nowindex;
+					// ButtonMapDataからconfig.padに記録された番号の取得
+					for(mapindex = 0; ;mapindex++){
+						if(ButtonMapData[mapindex].mIndex == k_INDEX_NONE){
+							mapindex = -1;
+							break;
+						}
+						if(ButtonMapData[mapindex].mIndex&k_INDEX_MASK == keys){
+							break;
+						}
+					}
+					// ButtonMapDataからconfig.padに記録された番号の取得(ここまで)
+
+					if(mapindex != -1){
+						nowindex = config.pad[mapindex];
+						// 上記で得た番号がマップされてるPCEのキー番号を取り出す
+						for(iI = 0; iI < PAD_STOCK_MAX; ++iI){
+							if(config.pad[iI] == mapindex){
+								event_input->config_button_action[actionindex++] = iI;
+							}
+						}
+						// 上記で得た番号がマップされてるPCEのキー番号を取り出す(ここまで)
+					}
+				}
 				break;
 			case eCASE_HAT:
 				event_input->hat_status = sdl_to_config_map[iI].mIndex;
@@ -146,9 +173,11 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 		key_search(event_input, eMODE_BUTTON, event->jbutton.button);
 		break;
 	case SDL_JOYAXISMOTION:
-		if (!(event->jaxis.axis & 0x02)) // ここのbitが左右スティックの判定
+		// 0b00x0 bit :立っていないなら左スティック立っていたら右スティック
+		// 0b000x bit :立っていないならの左右入力立っていたら上下の入力
+		if (!(event->jaxis.axis & 0x02))
 		{
-			u32 keydata = SDL_HAT_CENTERED;
+			u32 keydata = SDL_HAT_CENTERED;  // 何かしらの入力はあったからしきい値を超えないなら押してない判定にするためにcenterにしておく
 			if ((event->jaxis.axis & 0x01))
 			{
 				// 縦
@@ -202,13 +231,18 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 	}
 }
 
+void init_event_input(event_input_struct *event_input){
+	s32 iI;
+	for(iI = 0; iI < CONFIG_BIT_BUTTON_MAX; ++iI){
+		event_input->config_button_action[iI] = CONFIG_BUTTON_NONE;
+	}
+	event_input->key_action = KEY_ACTION_NONE;
+	event_input->key_letter = 0;
+}
 u32 update_input(event_input_struct *event_input)
 {
 	SDL_Event event;
-
-	event_input->config_button_action = CONFIG_BUTTON_NONE;
-	event_input->key_action = KEY_ACTION_NONE;
-	event_input->key_letter = 0;
+	init_event_input(event_input);
 
 	if (SDL_PollEvent(&event))
 	{
@@ -227,9 +261,9 @@ u32 update_input(event_input_struct *event_input)
 	{
 		return 0;
 	}
-	if (event_input->config_button_action != CONFIG_BUTTON_NONE)
+	for(int iI = 0; event_input->config_button_action[iI] != CONFIG_BUTTON_NONE;++iI)
 	{
-		status_message("now input = %s", config_name_table[event_input->config_button_action]);
+		status_message("now input = %s", config_name_table[event_input->config_button_action[iI]]);
 	}
 
 	return 1;

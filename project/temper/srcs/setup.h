@@ -7,8 +7,8 @@
 #include"event.h"
 
 #define k_INDEX_NONE         (0xffffffff)   // data終了
-#define k_INDEX_EFFECTIVE    (0x80000000)   // data有効
-#define k_INDEX_MASK         (0x7fffffff)   // data取り出し用マスク
+#define k_INDEX_EFFECTIVE    (0x00010000)   // data有効
+#define k_INDEX_MASK         (0x0000ffff)   // data取り出し用マスク
 typedef struct _tButtonMapData
 {
   char *mName;
