@@ -2,9 +2,9 @@
 # linux setup
 #############################################################################
 set (SOURCE_FILES ${SOURCE_FILES}
-srcs/mingw/SDL_main.c
-srcs/mingw/SDL_screen.c
-srcs/mingw/SDL_audio.c
-srcs/mingw/SDL_event.c
+srcs/SDL/SDL_main.c
+srcs/SDL/SDL_screen.c
+srcs/SDL/SDL_audio.c
+srcs/SDL/SDL_event.c
 srcs/mingw/setup.c
 )

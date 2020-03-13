@@ -22,7 +22,7 @@ if(COMPILE_TYPE STREQUAL "linux")
   # linux
 elseif(COMPILE_TYPE STREQUAL "rg350")
   # rg350
-#  set(PKG_CONFIG_EXECUTABLE "${TOOLCHAIN_PREFIX}/bin/pkg-config")
+  set(PKG_CONFIG_EXECUTABLE "${TOOLCHAIN_PREFIX}/bin/pkg-config")
 elseif(COMPILE_TYPE STREQUAL "mingw")
   # mingw
   set(PKG_CONFIG_EXECUTABLE "C:/msys64/mingw64/bin/pkg-config.exe")
@@ -94,7 +94,7 @@ elseif(COMPILE_TYPE STREQUAL "rg350")
   add_definitions(-D__OS_LINUX__)
   add_definitions(-DRG350_BUILD)
   set(PLATFORM_CFLAGS "-Ofast -mips32r2 -mmxu -fdata-sections -ffunction-sections")
-  set(PLATFORM_LIBS " -lz -lm -lbz2 -pthread -Wl,--as-needed -Wl,--gc-sections -flto -s ${SDL_LIBS}")
+  set(PLATFORM_LIBS "-lz -lm -lbz2 -pthread -Wl,--as-needed -Wl,--gc-sections -flto -s ${SDL_LIBS}")
 elseif(COMPILE_TYPE STREQUAL "mingw")
   # mingw
   add_definitions(-D__LP64__)

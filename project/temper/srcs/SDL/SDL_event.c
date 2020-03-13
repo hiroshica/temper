@@ -3,73 +3,61 @@
 #include "SDL_event.h"
 
 extern u32 nowDebugKey;
-
-// analogしきい値-32767～32767まで
-#define kLIMIT ((s16)0x4000)
-/*
- * eMODE_KEYSYM のデータ内訳
- * sdl_key = SDLK_???
- * index = config_buttons_enumの値
- * eMODE_BUTTON のデータ内訳
- * sdl_key = JoyPadのボタン番号
- * index = platform_control_namesのindex
- */
-tSDLtoConfigMap SDLtoConfigMap[] =
-	{
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_UP, CONFIG_BUTTON_UP},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_DOWN, CONFIG_BUTTON_DOWN},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_LEFT, CONFIG_BUTTON_LEFT},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_RIGHT, CONFIG_BUTTON_RIGHT},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_5, CONFIG_BUTTON_RUN},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_6, CONFIG_BUTTON_SELECT},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_z, CONFIG_BUTTON_I},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_x, CONFIG_BUTTON_II},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_c, CONFIG_BUTTON_III},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_a, CONFIG_BUTTON_IV},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_s, CONFIG_BUTTON_V},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_d, CONFIG_BUTTON_VI},
-
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_ESCAPE, CONFIG_BUTTON_MENU},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_m, CONFIG_BUTTON_MENU},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_r, CONFIG_BUTTON_RAPID_ONOFF},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_BACKQUOTE, CONFIG_BUTTON_FAST_FORWARD},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_F5, CONFIG_BUTTON_SAVE_STATE},
-		{eMODE_KEYSYM, eCASE_KEYSYM, SDLK_F7, CONFIG_BUTTON_LOAD_STATE},
-
-		{eMODE_KEYSYM, eCASE_KEYACT, SDLK_1, KEY_ACTION_BG_OFF},
-		{eMODE_KEYSYM, eCASE_KEYACT, SDLK_2, KEY_ACTION_SPR_OFF},
-		{eMODE_KEYSYM, eCASE_KEYACT, SDLK_F1, KEY_ACTION_DEBUG_BREAK},
-
-		{eMODE_BUTTON, eCASE_BUTTON, 9, 4},
-		{eMODE_BUTTON, eCASE_BUTTON, 8, 5},
-
-		{eMODE_BUTTON, eCASE_BUTTON, 0, 6},
-		{eMODE_BUTTON, eCASE_BUTTON, 3, 7},
-		{eMODE_BUTTON, eCASE_BUTTON, 1, 8},
-		{eMODE_BUTTON, eCASE_BUTTON, 2, 9},
-
-		{eMODE_BUTTON, eCASE_BUTTON, 4, 10},
-		{eMODE_BUTTON, eCASE_BUTTON, 6, 11},
-		{eMODE_BUTTON, eCASE_BUTTON, 7, 12},
-
-		{eMODE_BUTTON, eCASE_BUTTON, 5, 13},
-		{eMODE_BUTTON, eCASE_BUTTON, 7, 14},
-		{eMODE_BUTTON, eCASE_BUTTON, 11, 15},
-
-		{eMODE_BUTTON, eCASE_BUTTON, 12, 16},
-		{eMODE_BUTTON, eCASE_BUTTON, 13, 17},
-
-		{eMODE_HAT, eCASE_HAT, SDL_HAT_UP, CONFIG_HAT_UP},
-		{eMODE_HAT, eCASE_HAT, SDL_HAT_RIGHTUP, CONFIG_HAT_UP_RIGHT},
-		{eMODE_HAT, eCASE_HAT, SDL_HAT_RIGHT, CONFIG_HAT_RIGHT},
-		{eMODE_HAT, eCASE_HAT, SDL_HAT_RIGHTDOWN, CONFIG_HAT_DOWN_RIGHT},
-		{eMODE_HAT, eCASE_HAT, SDL_HAT_DOWN, CONFIG_HAT_DOWN},
-		{eMODE_HAT, eCASE_HAT, SDL_HAT_LEFTDOWN, CONFIG_HAT_DOWN_LEFT},
-		{eMODE_HAT, eCASE_HAT, SDL_HAT_LEFT, CONFIG_HAT_LEFT},
-		{eMODE_HAT, eCASE_HAT, SDL_HAT_LEFTUP, CONFIG_HAT_UP_LEFT},
-
-		{eMODE_END, eCASE_END, -1, -1},
+extern tSDLtoConfigMap SDLtoConfigMap[];
+s32 analog_inputkey = 0;
+s32 analog_activeindex = 0;
+s32 ud_value = 0;
+s32 lr_value = 0;
+u32 ConvertAnalogHAT[] = {
+	CONFIG_HAT_CENTER,		//0x0000
+	CONFIG_HAT_UP,			//0x0001
+	CONFIG_HAT_RIGHT,		//0x0002
+	CONFIG_HAT_UP_RIGHT,	//0x0003
+	CONFIG_BUTTON_DOWN,		//0x0004
+	CONFIG_HAT_CENTER,		//0x0005
+	CONFIG_HAT_DOWN_RIGHT,	//0x0006
+	CONFIG_HAT_CENTER,		//0x0007
+	CONFIG_HAT_LEFT,		//0x0008
+	CONFIG_HAT_UP_LEFT,		//0x0009
+	CONFIG_HAT_CENTER,		//0x000A
+	CONFIG_HAT_CENTER,		//0x000B
+	CONFIG_HAT_DOWN_LEFT,	//0x000C
+	CONFIG_HAT_CENTER,		//0x000D
+	CONFIG_HAT_CENTER,		//0x000E
+	CONFIG_HAT_CENTER,		//0x000F
 };
+void calc_analog_event(event_input_struct *event_input){
+	float x = (float)lr_value / 32767;
+	float y = (float)ud_value / 32767;
+
+	analog_inputkey	= 0;
+	if (ud_value < -kLIMIT)
+	{
+		analog_inputkey |= IO_BUTTON_UP;
+	}
+	else if (ud_value > kLIMIT)
+	{
+		analog_inputkey |= IO_BUTTON_DOWN;
+	}
+	if (lr_value < -kLIMIT)
+	{
+		analog_inputkey |= IO_BUTTON_LEFT;
+	}
+	else if (lr_value > kLIMIT)
+	{
+		analog_inputkey |= IO_BUTTON_RIGHT;
+	}
+
+	event_input->action_type = INPUT_ACTION_TYPE_PRESS;
+	u32 getkeydata = ConvertAnalogHAT[analog_inputkey];
+	if(analog_activeindex == 0){
+		event_input->config_button_action[analog_activeindex++] = getkeydata;
+	}
+	else{
+		event_input->config_button_action[analog_activeindex++] = getkeydata;
+		//lr_value = ud_value = 0;
+	}
+}
 
 // inmode : チェックするキーのモード
 // keys  : SDLが返してきているキーデータ
@@ -77,6 +65,7 @@ void key_search(event_input_struct *event_input, eKeyMode inmode, u32 keys)
 {
 	unsigned char iI;
 	tSDLtoConfigMap *sdl_to_config_map = SDLtoConfigMap;
+	s32 actionindex = 0;
 
 	for (iI = 0; sdl_to_config_map[iI].mMode != eMODE_END; iI++)
 	{
@@ -101,16 +90,17 @@ void key_search(event_input_struct *event_input, eKeyMode inmode, u32 keys)
 			case eCASE_BUTTON:
 				{
 					s32 iI;
-					s32 actionindex = 0;
 					s32 mapindex;
 					s32 nowindex;
+					u32 createkey;
 					// ButtonMapDataからconfig.padに記録された番号の取得
 					for(mapindex = 0; ;mapindex++){
 						if(ButtonMapData[mapindex].mIndex == k_INDEX_NONE){
 							mapindex = -1;
 							break;
 						}
-						if(ButtonMapData[mapindex].mIndex&k_INDEX_MASK == keys){
+						createkey = ButtonMapData[mapindex].mIndex&k_INDEX_MASK;
+						if(createkey == keys){
 							break;
 						}
 					}
@@ -120,8 +110,8 @@ void key_search(event_input_struct *event_input, eKeyMode inmode, u32 keys)
 						nowindex = config.pad[mapindex];
 						// 上記で得た番号がマップされてるPCEのキー番号を取り出す
 						for(iI = 0; iI < PAD_STOCK_MAX; ++iI){
-							if(config.pad[iI] == mapindex){
-								event_input->config_button_action[actionindex++] = iI;
+							if(config.pad[iI] == nowindex){
+								event_input->config_button_action[actionindex++] = iI + CONFIG_BUTTON_RUN;	// 上下左右を削ったのでその分を補正している
 							}
 						}
 						// 上記で得た番号がマップされてるPCEのキー番号を取り出す(ここまで)
@@ -129,7 +119,7 @@ void key_search(event_input_struct *event_input, eKeyMode inmode, u32 keys)
 				}
 				break;
 			case eCASE_HAT:
-				event_input->hat_status = sdl_to_config_map[iI].mIndex;
+				event_input->config_button_action[actionindex++] = sdl_to_config_map[iI].mIndex;
 				break;
 			case eCASE_KEYACT:
 				// keyboard 入力はwin32/linuxの場合はそのままconfig_dataを返す
@@ -142,6 +132,7 @@ void key_search(event_input_struct *event_input, eKeyMode inmode, u32 keys)
 			default:
 				break;
 			}
+			break;
 		}
 	}
 }
@@ -176,45 +167,15 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 	case SDL_JOYAXISMOTION:
 		// 0b00x0 bit :立っていないなら左スティック立っていたら右スティック
 		// 0b000x bit :立っていないならの左右入力立っていたら上下の入力
-		if (!(event->jaxis.axis & 0x02))
+		if (event->jaxis.axis == 1)
 		{
-			u32 keydata = SDL_HAT_CENTERED;  // 何かしらの入力はあったからしきい値を超えないなら押してない判定にするためにcenterにしておく
-			if ((event->jaxis.axis & 0x01))
-			{
-				// 縦
-				if (event->jaxis.value < -kLIMIT)
-				{
-					keydata = SDL_HAT_UP;
-				}
-				else if (event->jaxis.value > kLIMIT)
-				{
-					keydata = SDL_HAT_DOWN;
-				}
-			}
-			else if (!(event->jaxis.axis & 0x01))
-			{
-				// 横
-				if (event->jaxis.value < -kLIMIT)
-				{
-					keydata = SDL_HAT_LEFT;
-				}
-				else if (event->jaxis.value > kLIMIT)
-				{
-					keydata = SDL_HAT_RIGHT;
-				}
-			}
-			if (keydata != SDL_HAT_CENTERED)
-			{
-				event_input->action_type = INPUT_ACTION_TYPE_PRESS;
-				key_search(event_input, eMODE_HAT, keydata);
-			}
-			else
-			{
-				event_input->action_type = INPUT_ACTION_TYPE_RELEASE;
-				event_input->hat_status = CONFIG_HAT_CENTER;
-			}
+			ud_value = event->jaxis.value;
 		}
-		//status_message("id=%d data=%d", event.jaxis.axis, event.jaxis.value);
+		else if (event->jaxis.axis == 0)
+		{
+			lr_value = event->jaxis.value;
+		}
+		calc_analog_event(event_input);		// 入力イベントがなくてもアナログの入力は作り続ける
 		break;
 	case SDL_JOYHATMOTION:
 		if (event->jhat.value != SDL_HAT_CENTERED)
@@ -225,8 +186,8 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 		}
 		else
 		{
-			event_input->action_type = INPUT_ACTION_TYPE_RELEASE;
-			event_input->hat_status = CONFIG_HAT_CENTER;
+			event_input->action_type = INPUT_ACTION_TYPE_PRESS;
+			event_input->config_button_action[0] = CONFIG_HAT_CENTER;
 		}
 		break;
 	}
@@ -240,8 +201,13 @@ void init_event_input(event_input_struct *event_input){
 	event_input->key_action = KEY_ACTION_NONE;
 	event_input->key_letter = 0;
 }
+void init_update_input(){
+	analog_inputkey = 0;
+	analog_activeindex = 0;
+}
 u32 update_input(event_input_struct *event_input)
 {
+	int iI;
 	SDL_Event event;
 	init_event_input(event_input);
 
@@ -260,11 +226,13 @@ u32 update_input(event_input_struct *event_input)
 	}
 	else
 	{
+		calc_analog_event(event_input);		// 入力イベントがなくてもアナログの入力は作り続ける
+		//ud_value = lr_value = 0;
 		return 0;
 	}
-	for(int iI = 0; event_input->config_button_action[iI] != CONFIG_BUTTON_NONE;++iI)
+	for(iI = 0; event_input->config_button_action[iI] != CONFIG_BUTTON_NONE;++iI)
 	{
-		status_message("now input = %s", config_name_table[event_input->config_button_action[iI]]);
+		//status_message("now input = %s", config_name_table[event_input->config_button_action[iI]]);
 	}
 
 	return 1;
