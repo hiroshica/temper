@@ -77,6 +77,12 @@ static u32 talk_mode = 0;
 static u32 talk_x = 0;
 static char talk_message[128];
 
+void create_hat_key(u32 hat_buttons_press){
+  button_status |=
+            (IO_BUTTON_UP | IO_BUTTON_DOWN | IO_BUTTON_LEFT | IO_BUTTON_RIGHT) &
+            ~hat_buttons_press;
+        button_status &= ~hat_buttons_press;
+}
 void init_events(void)
 {
   u32 iI;
@@ -128,6 +134,8 @@ void update_events(void)
   event_input_struct event_input;
   u32 config_button_action;
 
+  init_update_input();
+
   while (update_input(&event_input))
   {
     actionindex = 0;
@@ -178,28 +186,31 @@ void update_events(void)
         switch (config_button_action)
         {
         case CONFIG_HAT_UP:
-          button_status &= ~IO_BUTTON_UP;
+          create_hat_key(IO_BUTTON_UP);
           break;
         case CONFIG_HAT_UP_RIGHT:
-          button_status &= ~(IO_BUTTON_UP | IO_BUTTON_RIGHT);
+          create_hat_key((IO_BUTTON_UP | IO_BUTTON_RIGHT));
           break;
         case CONFIG_HAT_RIGHT:
-          button_status &= ~IO_BUTTON_RIGHT;
+          create_hat_key(IO_BUTTON_RIGHT);
           break;
         case CONFIG_HAT_DOWN_RIGHT:
-          button_status &= ~(IO_BUTTON_DOWN | IO_BUTTON_RIGHT);
+          create_hat_key((IO_BUTTON_DOWN | IO_BUTTON_RIGHT));
           break;
         case CONFIG_HAT_DOWN:
-          button_status &= ~IO_BUTTON_DOWN;
+          create_hat_key(IO_BUTTON_DOWN);
           break;
         case CONFIG_HAT_DOWN_LEFT:
-          button_status &= ~(IO_BUTTON_DOWN | IO_BUTTON_LEFT);
+          create_hat_key((IO_BUTTON_DOWN | IO_BUTTON_LEFT));
           break;
         case CONFIG_HAT_LEFT:
-          button_status &= ~IO_BUTTON_LEFT;
+          create_hat_key(IO_BUTTON_LEFT);
           break;
         case CONFIG_HAT_UP_LEFT:
-          button_status &= ~(IO_BUTTON_UP | IO_BUTTON_LEFT);
+          create_hat_key((IO_BUTTON_UP | IO_BUTTON_LEFT));
+          break;
+        case CONFIG_HAT_CENTER:
+          create_hat_key(0);
           break;
 
         case CONFIG_BUTTON_MENU:
@@ -250,7 +261,7 @@ void update_events(void)
       {
         if (config_button_action == CONFIG_HAT_CENTER)
         {
-          button_status |= (IO_BUTTON_UDLR);
+          //button_status |= (IO_BUTTON_UDLR);
         }
       }
     }

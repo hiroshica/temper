@@ -150,6 +150,7 @@ void get_gui_input(gui_input_struct *gui_input);
 void clear_gui_actions(void);
 void init_events(void);
 void update_events(void);
+void init_update_input();
 u32 update_input(event_input_struct *event_input);
 
 #endif

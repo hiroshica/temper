@@ -4,6 +4,60 @@
 
 extern u32 nowDebugKey;
 extern tSDLtoConfigMap SDLtoConfigMap[];
+s32 analog_inputkey = 0;
+s32 analog_activeindex = 0;
+s32 ud_value = 0;
+s32 lr_value = 0;
+u32 ConvertAnalogHAT[] = {
+	CONFIG_HAT_CENTER,		//0x0000
+	CONFIG_HAT_UP,			//0x0001
+	CONFIG_HAT_RIGHT,		//0x0002
+	CONFIG_HAT_UP_RIGHT,	//0x0003
+	CONFIG_BUTTON_DOWN,		//0x0004
+	CONFIG_HAT_CENTER,		//0x0005
+	CONFIG_HAT_DOWN_RIGHT,	//0x0006
+	CONFIG_HAT_CENTER,		//0x0007
+	CONFIG_HAT_LEFT,		//0x0008
+	CONFIG_HAT_UP_LEFT,		//0x0009
+	CONFIG_HAT_CENTER,		//0x000A
+	CONFIG_HAT_CENTER,		//0x000B
+	CONFIG_HAT_DOWN_LEFT,	//0x000C
+	CONFIG_HAT_CENTER,		//0x000D
+	CONFIG_HAT_CENTER,		//0x000E
+	CONFIG_HAT_CENTER,		//0x000F
+};
+void calc_analog_event(event_input_struct *event_input){
+	float x = (float)lr_value / 32767;
+	float y = (float)ud_value / 32767;
+
+	analog_inputkey	= 0;
+	if (ud_value < -kLIMIT)
+	{
+		analog_inputkey |= IO_BUTTON_UP;
+	}
+	else if (ud_value > kLIMIT)
+	{
+		analog_inputkey |= IO_BUTTON_DOWN;
+	}
+	if (lr_value < -kLIMIT)
+	{
+		analog_inputkey |= IO_BUTTON_LEFT;
+	}
+	else if (lr_value > kLIMIT)
+	{
+		analog_inputkey |= IO_BUTTON_RIGHT;
+	}
+
+	event_input->action_type = INPUT_ACTION_TYPE_PRESS;
+	u32 getkeydata = ConvertAnalogHAT[analog_inputkey];
+	if(analog_activeindex == 0){
+		event_input->config_button_action[analog_activeindex++] = getkeydata;
+	}
+	else{
+		event_input->config_button_action[analog_activeindex++] = getkeydata;
+		//lr_value = ud_value = 0;
+	}
+}
 
 // inmode : チェックするキーのモード
 // keys  : SDLが返してきているキーデータ
@@ -113,53 +167,15 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 	case SDL_JOYAXISMOTION:
 		// 0b00x0 bit :立っていないなら左スティック立っていたら右スティック
 		// 0b000x bit :立っていないならの左右入力立っていたら上下の入力
-		if (!(event->jaxis.axis & 0x02))
+		if (event->jaxis.axis == 1)
 		{
-			u32 keydata = -1;
-			if ((event->jaxis.axis & 0x01))
-			{
-				// 縦
-				if (event->jaxis.value < -kLIMIT)
-				{
-					keydata = SDL_HAT_UP;
-				}
-				else if (event->jaxis.value > kLIMIT)
-				{
-					keydata = SDL_HAT_DOWN;
-				}
-				else if (event->jaxis.value > -kLOWLIMIT && event->jaxis.value < kLOWLIMIT)
-				{
-					keydata = SDL_HAT_CENTERED;  // 何かしらの入力はあったからしきい値を超えないなら押してない判定にするためにcenterにしておく
-				}
-			}
-			else if (!(event->jaxis.axis & 0x01))
-			{
-				// 横
-				if (event->jaxis.value < -kLIMIT)
-				{
-					keydata = SDL_HAT_LEFT;
-				}
-				else if (event->jaxis.value > kLIMIT)
-				{
-					keydata = SDL_HAT_RIGHT;
-				}
-				else if (event->jaxis.value > -kLOWLIMIT && event->jaxis.value < kLOWLIMIT)
-				{
-					keydata = SDL_HAT_CENTERED;  // 何かしらの入力はあったからしきい値を超えないなら押してない判定にするためにcenterにしておく
-				}
-			}
-			if (keydata != SDL_HAT_CENTERED)
-			{
-				event_input->action_type = INPUT_ACTION_TYPE_PRESS;
-				key_search(event_input, eMODE_HAT, keydata);
-			}
-			else if (keydata == SDL_HAT_CENTERED)
-			{
-				event_input->action_type = INPUT_ACTION_TYPE_RELEASE;
-				event_input->config_button_action[0] = CONFIG_HAT_CENTER;
-			}
+			ud_value = event->jaxis.value;
 		}
-		//status_message("id=%d data=%d", event.jaxis.axis, event.jaxis.value);
+		else if (event->jaxis.axis == 0)
+		{
+			lr_value = event->jaxis.value;
+		}
+		calc_analog_event(event_input);		// 入力イベントがなくてもアナログの入力は作り続ける
 		break;
 	case SDL_JOYHATMOTION:
 		if (event->jhat.value != SDL_HAT_CENTERED)
@@ -170,7 +186,7 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 		}
 		else
 		{
-			event_input->action_type = INPUT_ACTION_TYPE_RELEASE;
+			event_input->action_type = INPUT_ACTION_TYPE_PRESS;
 			event_input->config_button_action[0] = CONFIG_HAT_CENTER;
 		}
 		break;
@@ -184,6 +200,10 @@ void init_event_input(event_input_struct *event_input){
 	}
 	event_input->key_action = KEY_ACTION_NONE;
 	event_input->key_letter = 0;
+}
+void init_update_input(){
+	analog_inputkey = 0;
+	analog_activeindex = 0;
 }
 u32 update_input(event_input_struct *event_input)
 {
@@ -205,11 +225,13 @@ u32 update_input(event_input_struct *event_input)
 	}
 	else
 	{
+		calc_analog_event(event_input);		// 入力イベントがなくてもアナログの入力は作り続ける
+		//ud_value = lr_value = 0;
 		return 0;
 	}
 	for(int iI = 0; event_input->config_button_action[iI] != CONFIG_BUTTON_NONE;++iI)
 	{
-		status_message("now input = %s", config_name_table[event_input->config_button_action[iI]]);
+		//status_message("now input = %s", config_name_table[event_input->config_button_action[iI]]);
 	}
 
 	return 1;
