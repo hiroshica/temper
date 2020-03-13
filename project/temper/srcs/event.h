@@ -125,6 +125,7 @@ typedef enum ekeymode{
   eMODE_BUTTON,
   eMODE_HAT,
 } eKeyMode;
+
 typedef enum ekeycase{
   eCASE_END = -1,
   eCASE_KEYSYM = 0,
@@ -132,10 +133,17 @@ typedef enum ekeycase{
   eCASE_HAT,
   eCASE_KEYACT,
 } eKeyCase;
+
+typedef enum epadmode{
+  ePADMODE_NONE = -1,
+  ePADMODE_ON = 1,
+} ePadMode;
+
 typedef struct _tSDLtoConfigMap
 {
   eKeyMode mMode;
   eKeyCase mCase;
+  ePadMode mPadMode;  // mIndexの値がPadの番号に化ける
 	u32 mSdlKey;
 	u32 mIndex; // ButtonMapData
   void (*mCallback)();

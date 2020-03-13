@@ -9,28 +9,29 @@ s32 analog_activeindex = 0;
 s32 ud_value = 0;
 s32 lr_value = 0;
 u32 ConvertAnalogHAT[] = {
-	CONFIG_HAT_CENTER,		//0x0000
-	CONFIG_HAT_UP,			//0x0001
-	CONFIG_HAT_RIGHT,		//0x0002
-	CONFIG_HAT_UP_RIGHT,	//0x0003
-	CONFIG_BUTTON_DOWN,		//0x0004
-	CONFIG_HAT_CENTER,		//0x0005
-	CONFIG_HAT_DOWN_RIGHT,	//0x0006
-	CONFIG_HAT_CENTER,		//0x0007
-	CONFIG_HAT_LEFT,		//0x0008
-	CONFIG_HAT_UP_LEFT,		//0x0009
-	CONFIG_HAT_CENTER,		//0x000A
-	CONFIG_HAT_CENTER,		//0x000B
-	CONFIG_HAT_DOWN_LEFT,	//0x000C
-	CONFIG_HAT_CENTER,		//0x000D
-	CONFIG_HAT_CENTER,		//0x000E
-	CONFIG_HAT_CENTER,		//0x000F
+	CONFIG_HAT_CENTER,	 //0x0000
+	CONFIG_HAT_UP,		   //0x0001
+	CONFIG_HAT_RIGHT,	  //0x0002
+	CONFIG_HAT_UP_RIGHT,   //0x0003
+	CONFIG_BUTTON_DOWN,	//0x0004
+	CONFIG_HAT_CENTER,	 //0x0005
+	CONFIG_HAT_DOWN_RIGHT, //0x0006
+	CONFIG_HAT_CENTER,	 //0x0007
+	CONFIG_HAT_LEFT,	   //0x0008
+	CONFIG_HAT_UP_LEFT,	//0x0009
+	CONFIG_HAT_CENTER,	 //0x000A
+	CONFIG_HAT_CENTER,	 //0x000B
+	CONFIG_HAT_DOWN_LEFT,  //0x000C
+	CONFIG_HAT_CENTER,	 //0x000D
+	CONFIG_HAT_CENTER,	 //0x000E
+	CONFIG_HAT_CENTER,	 //0x000F
 };
-void calc_analog_event(event_input_struct *event_input){
+void calc_analog_event(event_input_struct *event_input)
+{
 	float x = (float)lr_value / 32767;
 	float y = (float)ud_value / 32767;
 
-	analog_inputkey	= 0;
+	analog_inputkey = 0;
 	if (ud_value < -kLIMIT)
 	{
 		analog_inputkey |= IO_BUTTON_UP;
@@ -50,13 +51,52 @@ void calc_analog_event(event_input_struct *event_input){
 
 	event_input->action_type = INPUT_ACTION_TYPE_PRESS;
 	u32 getkeydata = ConvertAnalogHAT[analog_inputkey];
-	if(analog_activeindex == 0){
+	if (analog_activeindex == 0)
+	{
 		event_input->config_button_action[analog_activeindex++] = getkeydata;
 	}
-	else{
+	else
+	{
 		event_input->config_button_action[analog_activeindex++] = getkeydata;
 		//lr_value = ud_value = 0;
 	}
+}
+s32 createButtonStatus(event_input_struct *event_input, u32 keys,s32 actionindex)
+{
+	s32 iI;
+	s32 mapindex;
+	s32 nowindex;
+	u32 createkey;
+	// ButtonMapDataからconfig.padに記録された番号の取得
+	for (mapindex = 0;; mapindex++)
+	{
+		if (ButtonMapData[mapindex].mIndex == k_INDEX_NONE)
+		{
+			mapindex = -1;
+			break;
+		}
+		createkey = ButtonMapData[mapindex].mIndex & k_INDEX_MASK;
+		if (createkey == keys)
+		{
+			break;
+		}
+	}
+	// ButtonMapDataからconfig.padに記録された番号の取得(ここまで)
+
+	if (mapindex != -1)
+	{
+		nowindex = config.pad[mapindex];
+		// 上記で得た番号がマップされてるPCEのキー番号を取り出す
+		for (iI = 0; iI < PAD_STOCK_MAX; ++iI)
+		{
+			if (config.pad[iI] == nowindex)
+			{
+				event_input->config_button_action[actionindex++] = iI + CONFIG_BUTTON_RUN; // 上下左右を削ったのでその分を補正している
+			}
+		}
+		// 上記で得た番号がマップされてるPCEのキー番号を取り出す(ここまで)
+	}
+	return actionindex;
 }
 
 // inmode : チェックするキーのモード
@@ -82,12 +122,21 @@ void key_search(event_input_struct *event_input, eKeyMode inmode, u32 keys)
 			{
 			case eCASE_KEYSYM:
 				// keyboard 入力はwin32/linuxの場合はそのままconfig_dataを返す
+				if(sdl_to_config_map[iI].mPadMode == ePADMODE_NONE)
+				{
+					event_input->config_button_action[0] = sdl_to_config_map[iI].mIndex;
+				}
+				else if(sdl_to_config_map[iI].mPadMode == ePADMODE_ON)
+				{
+					actionindex = createButtonStatus(event_input, sdl_to_config_map[iI].mIndex,actionindex);
+				}
 #if !defined(RG350_BUILD)
-				event_input->config_button_action[0] = sdl_to_config_map[iI].mIndex;
 #else
 #endif
 				break;
 			case eCASE_BUTTON:
+				actionindex = createButtonStatus(event_input, keys,actionindex);
+#if 0
 				{
 					s32 iI;
 					s32 mapindex;
@@ -117,6 +166,7 @@ void key_search(event_input_struct *event_input, eKeyMode inmode, u32 keys)
 						// 上記で得た番号がマップされてるPCEのキー番号を取り出す(ここまで)
 					}
 				}
+#endif
 				break;
 			case eCASE_HAT:
 				event_input->config_button_action[actionindex++] = sdl_to_config_map[iI].mIndex;
@@ -175,7 +225,7 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 		{
 			lr_value = event->jaxis.value;
 		}
-		calc_analog_event(event_input);		// 入力イベントがなくてもアナログの入力は作り続ける
+		calc_analog_event(event_input); // 入力イベントがなくてもアナログの入力は作り続ける
 		break;
 	case SDL_JOYHATMOTION:
 		if (event->jhat.value != SDL_HAT_CENTERED)
@@ -193,15 +243,18 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 	}
 }
 
-void init_event_input(event_input_struct *event_input){
+void init_event_input(event_input_struct *event_input)
+{
 	s32 iI;
-	for(iI = 0; iI < CONFIG_BIT_BUTTON_MAX; ++iI){
+	for (iI = 0; iI < CONFIG_BIT_BUTTON_MAX; ++iI)
+	{
 		event_input->config_button_action[iI] = CONFIG_BUTTON_NONE;
 	}
 	event_input->key_action = KEY_ACTION_NONE;
 	event_input->key_letter = 0;
 }
-void init_update_input(){
+void init_update_input()
+{
 	analog_inputkey = 0;
 	analog_activeindex = 0;
 }
@@ -226,13 +279,13 @@ u32 update_input(event_input_struct *event_input)
 	}
 	else
 	{
-		calc_analog_event(event_input);		// 入力イベントがなくてもアナログの入力は作り続ける
+		calc_analog_event(event_input); // 入力イベントがなくてもアナログの入力は作り続ける
 		//ud_value = lr_value = 0;
 		return 0;
 	}
-	for(iI = 0; event_input->config_button_action[iI] != CONFIG_BUTTON_NONE;++iI)
+	for (iI = 0; event_input->config_button_action[iI] != CONFIG_BUTTON_NONE; ++iI)
 	{
-		//status_message("now input = %s", config_name_table[event_input->config_button_action[iI]]);
+		status_message("now input = %s", config_name_table[event_input->config_button_action[iI]]);
 	}
 
 	return 1;
