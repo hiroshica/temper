@@ -66,7 +66,7 @@ elseif(COMPILE_TYPE STREQUAL "rg350")
   COMMAND echo Exec=${NOWWORKOUTFILEBASE} %f >> .opk_data/default.gcw0.desktop
   COMMAND echo Icon=icon >> .opk_data/default.gcw0.desktop
   COMMAND echo Terminal=false >> .opk_data/default.gcw0.desktop
-  COMMAND echo "Categories=emulators;" >> .opk_data/default.gcw0.desktop
+  COMMAND echo Categories=emulators; >> .opk_data/default.gcw0.desktop
   COMMAND echo MimeType=.pce >> .opk_data/default.gcw0.desktop
   COMMAND cp ${NOWWORKOUTFILE} .opk_data/${NOWWORKOUTFILEBASE}
   COMMAND ${CMAKE_STRIP} .opk_data/${NOWWORKOUTFILEBASE}

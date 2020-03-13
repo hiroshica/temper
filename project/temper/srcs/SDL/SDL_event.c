@@ -14,52 +14,58 @@ u32 ConvertAnalogHAT[] = {
 	CONFIG_HAT_RIGHT,	  //0x0002
 	CONFIG_HAT_UP_RIGHT,   //0x0003
 	CONFIG_BUTTON_DOWN,	//0x0004
-	CONFIG_HAT_CENTER,	 //0x0005
+	CONFIG_BUTTON_NONE,	 //0x0005
 	CONFIG_HAT_DOWN_RIGHT, //0x0006
-	CONFIG_HAT_CENTER,	 //0x0007
+	CONFIG_BUTTON_NONE,	 //0x0007
 	CONFIG_HAT_LEFT,	   //0x0008
 	CONFIG_HAT_UP_LEFT,	//0x0009
-	CONFIG_HAT_CENTER,	 //0x000A
-	CONFIG_HAT_CENTER,	 //0x000B
+	CONFIG_BUTTON_NONE,	 //0x000A
+	CONFIG_BUTTON_NONE,	 //0x000B
 	CONFIG_HAT_DOWN_LEFT,  //0x000C
-	CONFIG_HAT_CENTER,	 //0x000D
-	CONFIG_HAT_CENTER,	 //0x000E
-	CONFIG_HAT_CENTER,	 //0x000F
+	CONFIG_BUTTON_NONE,	 //0x000D
+	CONFIG_BUTTON_NONE,	 //0x000E
+	CONFIG_BUTTON_NONE,	 //0x000F
 };
 void calc_analog_event(event_input_struct *event_input)
 {
+	#define kLOWLIMITF   (0.1)
+	#define kLIMITF      (0.6)
 	float x = (float)lr_value / 32767;
 	float y = (float)ud_value / 32767;
 
 	analog_inputkey = 0;
-	if (ud_value < -kLIMIT)
+	if (y < -kLIMITF)
 	{
 		analog_inputkey |= IO_BUTTON_UP;
 	}
-	else if (ud_value > kLIMIT)
+	else if (y > kLIMITF)
 	{
 		analog_inputkey |= IO_BUTTON_DOWN;
 	}
-	if (lr_value < -kLIMIT)
+	else if ((-kLOWLIMITF < y) && (y < kLOWLIMITF))
+	{
+		analog_inputkey |= IO_BUTTON_UP;
+		analog_inputkey |= IO_BUTTON_DOWN;
+	}
+
+	if (x < -kLIMITF)
 	{
 		analog_inputkey |= IO_BUTTON_LEFT;
 	}
-	else if (lr_value > kLIMIT)
+	else if (x > kLIMITF)
 	{
+		analog_inputkey |= IO_BUTTON_RIGHT;
+	}
+	else if ((-kLOWLIMITF < x) &&  (x < kLOWLIMITF))
+	{
+		analog_inputkey |= IO_BUTTON_LEFT;
 		analog_inputkey |= IO_BUTTON_RIGHT;
 	}
 
 	event_input->action_type = INPUT_ACTION_TYPE_PRESS;
 	u32 getkeydata = ConvertAnalogHAT[analog_inputkey];
-	if (analog_activeindex == 0)
-	{
-		event_input->config_button_action[analog_activeindex++] = getkeydata;
-	}
-	else
-	{
-		event_input->config_button_action[analog_activeindex++] = getkeydata;
-		//lr_value = ud_value = 0;
-	}
+	event_input->config_button_action[analog_activeindex++] = getkeydata;
+
 }
 s32 createButtonStatus(event_input_struct *event_input, u32 keys,s32 actionindex)
 {
@@ -285,7 +291,7 @@ u32 update_input(event_input_struct *event_input)
 	}
 	for (iI = 0; event_input->config_button_action[iI] != CONFIG_BUTTON_NONE; ++iI)
 	{
-		status_message("now input = %s", config_name_table[event_input->config_button_action[iI]]);
+		//status_message("now input = %s", config_name_table[event_input->config_button_action[iI]]);
 	}
 
 	return 1;
