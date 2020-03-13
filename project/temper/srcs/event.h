@@ -109,7 +109,7 @@ typedef struct
   u32 config_button_action[CONFIG_BIT_BUTTON_MAX]; // config_buttons_enum
   u32 key_action;           // key_action_enum
   u32 key_letter;           // SDL自体の入力データ
-  u32 hat_status;
+  //u32 hat_status;
   //u32 hard_key_index;
 } event_input_struct;
 
@@ -142,6 +142,7 @@ typedef struct _tSDLtoConfigMap
 } tSDLtoConfigMap;
 
 // analogしきい値-32767～32767まで
+#define kLOWLIMIT ((s16)0x0800)
 #define kLIMIT ((s16)0x4000)
 
 void initialize_event(void);

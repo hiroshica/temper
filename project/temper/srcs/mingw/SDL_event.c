@@ -11,6 +11,7 @@ void key_search(event_input_struct *event_input, eKeyMode inmode, u32 keys)
 {
 	unsigned char iI;
 	tSDLtoConfigMap *sdl_to_config_map = SDLtoConfigMap;
+	s32 actionindex = 0;
 
 	for (iI = 0; sdl_to_config_map[iI].mMode != eMODE_END; iI++)
 	{
@@ -35,7 +36,6 @@ void key_search(event_input_struct *event_input, eKeyMode inmode, u32 keys)
 			case eCASE_BUTTON:
 				{
 					s32 iI;
-					s32 actionindex = 0;
 					s32 mapindex;
 					s32 nowindex;
 					u32 createkey;
@@ -57,7 +57,7 @@ void key_search(event_input_struct *event_input, eKeyMode inmode, u32 keys)
 						// 上記で得た番号がマップされてるPCEのキー番号を取り出す
 						for(iI = 0; iI < PAD_STOCK_MAX; ++iI){
 							if(config.pad[iI] == nowindex){
-								event_input->config_button_action[actionindex++] = iI;
+								event_input->config_button_action[actionindex++] = iI + CONFIG_BUTTON_RUN;	// 上下左右を削ったのでその分を補正している
 							}
 						}
 						// 上記で得た番号がマップされてるPCEのキー番号を取り出す(ここまで)
@@ -65,7 +65,7 @@ void key_search(event_input_struct *event_input, eKeyMode inmode, u32 keys)
 				}
 				break;
 			case eCASE_HAT:
-				event_input->hat_status = sdl_to_config_map[iI].mIndex;
+				event_input->config_button_action[actionindex++] = sdl_to_config_map[iI].mIndex;
 				break;
 			case eCASE_KEYACT:
 				// keyboard 入力はwin32/linuxの場合はそのままconfig_dataを返す
@@ -78,6 +78,7 @@ void key_search(event_input_struct *event_input, eKeyMode inmode, u32 keys)
 			default:
 				break;
 			}
+			break;
 		}
 	}
 }
@@ -114,7 +115,7 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 		// 0b000x bit :立っていないならの左右入力立っていたら上下の入力
 		if (!(event->jaxis.axis & 0x02))
 		{
-			u32 keydata = SDL_HAT_CENTERED;  // 何かしらの入力はあったからしきい値を超えないなら押してない判定にするためにcenterにしておく
+			u32 keydata = -1;
 			if ((event->jaxis.axis & 0x01))
 			{
 				// 縦
@@ -125,6 +126,10 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 				else if (event->jaxis.value > kLIMIT)
 				{
 					keydata = SDL_HAT_DOWN;
+				}
+				else if (event->jaxis.value > -kLOWLIMIT && event->jaxis.value < kLOWLIMIT)
+				{
+					keydata = SDL_HAT_CENTERED;  // 何かしらの入力はあったからしきい値を超えないなら押してない判定にするためにcenterにしておく
 				}
 			}
 			else if (!(event->jaxis.axis & 0x01))
@@ -138,16 +143,20 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 				{
 					keydata = SDL_HAT_RIGHT;
 				}
+				else if (event->jaxis.value > -kLOWLIMIT && event->jaxis.value < kLOWLIMIT)
+				{
+					keydata = SDL_HAT_CENTERED;  // 何かしらの入力はあったからしきい値を超えないなら押してない判定にするためにcenterにしておく
+				}
 			}
 			if (keydata != SDL_HAT_CENTERED)
 			{
 				event_input->action_type = INPUT_ACTION_TYPE_PRESS;
 				key_search(event_input, eMODE_HAT, keydata);
 			}
-			else
+			else if (keydata == SDL_HAT_CENTERED)
 			{
 				event_input->action_type = INPUT_ACTION_TYPE_RELEASE;
-				event_input->hat_status = CONFIG_HAT_CENTER;
+				event_input->config_button_action[0] = CONFIG_HAT_CENTER;
 			}
 		}
 		//status_message("id=%d data=%d", event.jaxis.axis, event.jaxis.value);
@@ -162,7 +171,7 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 		else
 		{
 			event_input->action_type = INPUT_ACTION_TYPE_RELEASE;
-			event_input->hat_status = CONFIG_HAT_CENTER;
+			event_input->config_button_action[0] = CONFIG_HAT_CENTER;
 		}
 		break;
 	}

@@ -52,20 +52,6 @@ tButtonMapData ButtonMapData[PAD_STOCK_MAX] = {
 const char *control_config_string = "PC-Engine            PC";
 const u32 control_config_start_column = 64;
 const char *control_config_exit_string = "Press escape to return to the main menu";
-#if 0
-char *platform_control_names[MAX_CONTROLS] =
-{
-	"Up         ", "Down       ", "Left       ", "Right      ",
-	"OPTION     ", "SHARE      ",
-	"SQUARE     ", "TRIANGLE   ", "CROSS      ", "CIRCLE     ",
-	"L1         ", "L2         ", "L3         ",
-	"R1         ", "R2         ", "R3         ",
-	"PS         ", "TOUCHPAD   ",
-};
-
-const u32 platform_control_count = 18;
-#endif
-
 /*
  * eMODE_KEYSYM のデータ内訳
  * sdl_key = SDLK_???

@@ -27,7 +27,7 @@ char *config_name_table[] =
         "CONFIG_BUTTON_RAPID_ONOFF",
         "CONFIG_BUTTON_MENU",
 
-        "CONFIG_HAT_UP_CENTER",
+        "CONFIG_HAT_CENTER",
         "CONFIG_HAT_UP",
         "CONFIG_HAT_UP_RIGHT",
         "CONFIG_HAT_RIGHT",
@@ -59,7 +59,7 @@ u32 config_to_io_map[] =
         IO_BUTTON_V,
         IO_BUTTON_VI,
 };
-#define IO_BUTTON_UDLR (IO_BUTTON_UP|IO_BUTTON_DOWN|IO_BUTTON_LEFT|IO_BUTTON_RIGHT)
+#define IO_BUTTON_UDLR (IO_BUTTON_UP | IO_BUTTON_DOWN | IO_BUTTON_LEFT | IO_BUTTON_RIGHT)
 
 typedef struct tRapidStatus
 {
@@ -134,7 +134,8 @@ void update_events(void)
     while (1)
     {
       config_button_action = getactiondata(&event_input);
-      if (config_button_action == CONFIG_BUTTON_NONE)  break;
+      if (config_button_action == CONFIG_BUTTON_NONE)
+        break;
       // joypad 入力判定
       if (config_button_action < CONFIG_BIT_BUTTON_MAX)
       {
@@ -177,28 +178,28 @@ void update_events(void)
         switch (config_button_action)
         {
         case CONFIG_HAT_UP:
-          button_status |= IO_BUTTON_UP;
+          button_status &= ~IO_BUTTON_UP;
           break;
         case CONFIG_HAT_UP_RIGHT:
-          button_status |= IO_BUTTON_UP|IO_BUTTON_RIGHT;
+          button_status &= ~(IO_BUTTON_UP | IO_BUTTON_RIGHT);
           break;
         case CONFIG_HAT_RIGHT:
-          button_status |= IO_BUTTON_RIGHT;
+          button_status &= ~IO_BUTTON_RIGHT;
           break;
         case CONFIG_HAT_DOWN_RIGHT:
-          button_status |= IO_BUTTON_DOWN|IO_BUTTON_RIGHT;
+          button_status &= ~(IO_BUTTON_DOWN | IO_BUTTON_RIGHT);
           break;
         case CONFIG_HAT_DOWN:
-          button_status |= IO_BUTTON_DOWN;
+          button_status &= ~IO_BUTTON_DOWN;
           break;
         case CONFIG_HAT_DOWN_LEFT:
-          button_status |= IO_BUTTON_DOWN|IO_BUTTON_LEFT;
+          button_status &= ~(IO_BUTTON_DOWN | IO_BUTTON_LEFT);
           break;
         case CONFIG_HAT_LEFT:
-          button_status |= IO_BUTTON_LEFT;
+          button_status &= ~IO_BUTTON_LEFT;
           break;
         case CONFIG_HAT_UP_LEFT:
-          button_status |= IO_BUTTON_UP|IO_BUTTON_LEFT;
+          button_status &= ~(IO_BUTTON_UP | IO_BUTTON_LEFT);
           break;
 
         case CONFIG_BUTTON_MENU:
@@ -247,13 +248,13 @@ void update_events(void)
       }
       else if (event_input.action_type == INPUT_ACTION_TYPE_RELEASE)
       {
-        if(config_button_action == CONFIG_HAT_CENTER){
-          button_status &= ~(IO_BUTTON_UDLR);
+        if (config_button_action == CONFIG_HAT_CENTER)
+        {
+          button_status |= (IO_BUTTON_UDLR);
         }
       }
-
     }
-    config_PceKeys(event_input.key_action);   // emulatorの設定キーの登録
+    config_PceKeys(event_input.key_action); // emulatorの設定キーの登録
   }
   // 連射生成
   u32 iI;

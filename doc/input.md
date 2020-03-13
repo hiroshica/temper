@@ -3,7 +3,7 @@
 上下左右のキーコンフィグはしない(できない）とする  
 
 config.pad(rapid_frame)の配列の並び = PCE_control_namesの並びと一致  
-(config_buttons_enumのボタン入力定義部分と一致する)  
+(config_buttons_enumのボタン入力定義部分と一致せず、上下左右を削った分がずれる))  
 
 config.padの中身       = ButtonMapDataの並びと一致するので必要なデータは  
 ButtonMapData構造体を拡張する
