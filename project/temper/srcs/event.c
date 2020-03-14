@@ -134,6 +134,7 @@ void update_events(void)
 {
   event_input_struct event_input;
   u32 config_button_action;
+  u32 io_button;
 
   init_update_input();
 
@@ -145,11 +146,25 @@ void update_events(void)
       config_button_action = getactiondata(&event_input);
       if (config_button_action == CONFIG_BUTTON_NONE)
         break;
-      // joypad 入力判定
-      if (config_button_action < CONFIG_BIT_BUTTON_MAX)
+
+      // joypad(上下左右のみ)入力判定
+      if (config_button_action <= CONFIG_BIT_BUTTON_MIN)
       {
+        io_button = config_to_io_map[config_button_action];
+        if (event_input.action_type == INPUT_ACTION_TYPE_RELEASE)
+        {
+          button_status |= io_button;
+        }
+        else
+        {
+          button_status &= ~io_button;
+        }
+      }
+      else if (config_button_action < CONFIG_BIT_BUTTON_MAX)
+      {
+        // joypad(buttonのみ)入力判定
         // 今のこの処理だとconfig.pad内の番号がpceのキー番号になっている
-        u32 io_button = config_to_io_map[config_button_action];
+        io_button = config_to_io_map[config_button_action];
         u32 index = config_button_action  - CONFIG_BUTTON_RUN; // 上下左右を削ったのでその分を補正している
         //index = ButtonMapData[index].mIndex & k_INDEX_MASK;
         m_RapidStatus[index].m_Status = event_input.action_type;
