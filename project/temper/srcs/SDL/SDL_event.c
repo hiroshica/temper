@@ -35,45 +35,30 @@ void create_analog_key(u32 hat_buttons_press){
 
 void calc_analog_event(event_input_struct *event_input)
 {
-	#define kLOWLIMITF   (0.1)
-	#define kLIMITF      (0.6)
+	#define kLIMITF   (0.6f)
+	#define DEGtoRAD(x)  (x*(M_PI/180))
+	#define RADtoDEG(x)  (x*(M_PI/180))
+
 	float x = (float)lr_value / 32767;
 	float y = (float)ud_value / 32767;
 
-	if (y < -kLIMITF)
-	{
-		create_analog_key(IO_BUTTON_UP);
+	float calc_r = RADtoDEG(atan2f(y,x));
+	int index = (int)((calc_r + 22.5f) / 45.0f);
+	float len = sqrtf((x*x) + (y*y));
+	if(len > kLIMITF){
+		status_message("x=%.3f y=%.3f calc R=%.3f index=%d", x,y, calc_r, index);
 	}
-	else if (y > kLIMITF)
-	{
-		create_analog_key(IO_BUTTON_DOWN);
+	else{
+		event_input->action_type = INPUT_ACTION_TYPE_PRESS;
+		event_input->config_button_action[0] = CONFIG_HAT_CENTER;
 	}
-	else
-	{
-		create_analog_key(analog_inputkey&(IO_BUTTON_LEFT|IO_BUTTON_RGHIT));
-	}
-
-	if (x < -kLIMITF)
-	{
-		create_analog_key(IO_BUTTON_LEFT);
-	}
-	else if (x > kLIMITF)
-	{
-		create_analog_key(IO_BUTTON_RIGHT);
-	}
-	else
-	{
-		create_analog_key(analog_inputkey&(IO_BUTTON_UP|IO_BUTTON_DOWN));
-	}
-
-	u16 calcindex = ((~analog_inputkey)&0x000f);
-	status_message("now analog %04x : %04x",analog_inputkey,calcindex);
-
+#if 0
 	u32 getkeydata = ConvertAnalogHAT[calcindex];
 	if(getkeydata != CONFIG_BUTTON_NONE){
 		event_input->action_type = INPUT_ACTION_TYPE_PRESS;
 		event_input->config_button_action[0] = getkeydata;
 	}
+	#endif
 	analog_on = 0;
 }
 s32 createButtonStatus(event_input_struct *event_input, u32 keys,s32 actionindex)
@@ -230,6 +215,7 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 		key_search(event_input, eMODE_BUTTON, event->jbutton.button);
 		break;
 	case SDL_JOYAXISMOTION:
+#if 0
 		// 0b00x0 bit :立っていないなら左スティック立っていたら右スティック
 		// 0b000x bit :立っていないならの左右入力立っていたら上下の入力
 		if (event->jaxis.axis == 1)
@@ -242,6 +228,7 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 			lr_value = event->jaxis.value;
 			analog_on = 1;
 		}
+#endif
 		break;
 	case SDL_JOYHATMOTION:
 		if (event->jhat.value != SDL_HAT_CENTERED)
