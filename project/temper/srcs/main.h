@@ -23,6 +23,7 @@ typedef struct
 {
   // This should be stored in the config file.
   u32 pad[PAD_STOCK_MAX];   // hard keyに button_stringsの番号をマッピングする
+  u32 rapid_active[PAD_STOCK_MAX];
   u32 rapid_frame[PAD_STOCK_MAX];
 
   u32 show_fps;

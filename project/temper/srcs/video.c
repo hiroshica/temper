@@ -1,4 +1,5 @@
 #include "common.h"
+#include "setup.h"
 #include "palette.h"
 extern u32 m_RapidSelect;
 
@@ -3110,6 +3111,9 @@ void update_status_message(void)
 void update_frame(u32 skip)
 {
   static u32 input_message_last;
+  s32 iI;
+  s32 drawcount;
+  char mesg_buf[64];
 
   if (config.sgx_mode)
     update_frame_execute_sgx(skip);
@@ -3158,6 +3162,14 @@ void update_frame(u32 skip)
   }
   if(m_RapidSelect != 0){
     print_string("Rapid Entry now", 0xFFFF, 0x000, (6*5), 0, vce.screen_width);
+    drawcount = 0;
+    for(iI = 0; iI < button_strings_count; ++iI){
+      if(config.rapid_active[iI]){
+       sprintf(mesg_buf, "%s", PCE_control_names[iI]);
+        print_string(mesg_buf, 0xFFFF, 0x000, (6*6), (drawcount+1)*6, vce.screen_width);
+        drawcount++;
+      }
+    }
   }
 
   update_status_message();

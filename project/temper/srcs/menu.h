@@ -175,5 +175,10 @@ void select_save_config_global(menu_state_struct *menu_state,
 
 void menu(u32 start_file_dialog);
 
+extern char *button_strings[PAD_STOCK_MAX];
+extern int button_strings_count;
+extern void create_button_strings(void);
+extern char *PCE_control_names[];
+
 #endif
 

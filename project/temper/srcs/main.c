@@ -814,7 +814,8 @@ invalid:
 
 #define config_file_action(type, version_gate)                                \
   file_##type##_array(config_file, config.pad);                               \
-  file_##type##_array(config_file, config.rapid_frame);                     \
+  file_##type##_array(config_file, config.rapid_active);                      \
+  file_##type##_array(config_file, config.rapid_frame);                       \
   file_##type##_variable(config_file, config.show_fps);                       \
   file_##type##_variable(config_file, config.enable_sound);                   \
   file_##type##_variable(config_file, config.fast_forward);                   \

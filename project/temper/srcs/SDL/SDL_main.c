@@ -28,7 +28,7 @@ void delay_us(u32 delay)
 
 config_struct config =
     {
-        // u32 pad[32];
+        // u32 pad[PAD_STOCK_MAX];
         {
           CONFIG_BUTTON_UP, CONFIG_BUTTON_DOWN, CONFIG_BUTTON_LEFT, CONFIG_BUTTON_RIGHT,
           CONFIG_BUTTON_RUN, CONFIG_BUTTON_SELECT,
@@ -45,6 +45,14 @@ config_struct config =
           -1,-1,-1,-1,
           -1,-1,-1,-1,
         },
+        // u32 rapid_active[PAD_STOCK_MAX];
+        {
+          0,0,0,0,0,0,0,0,
+          0,0,0,0,0,0,0,0,
+          0,0,0,0,0,0,0,0,
+          0,0,0,0,0,0,0,0,
+        },
+        // u32 rapid_frame[PAD_STOCK_MAX];
         {
           1,1,1,1,1,1,1,1,
           1,1,1,1,1,1,1,1,

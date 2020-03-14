@@ -1,4 +1,5 @@
 #include "common.h"
+#include "setup.h"
 
 //#define LOG_CONTROLS
 
@@ -64,7 +65,7 @@ u32 config_to_io_map[] =
 typedef struct tRapidStatus
 {
   u32 m_Status;
-  u32 m_Active;
+  //u32 m_Active;
   s32 m_frameCount;
   u32 m_bottunStatus; // IO_BUTTON_?? work.
 
@@ -89,7 +90,7 @@ void init_events(void)
   for (iI = 0; iI < PAD_STOCK_MAX; ++iI)
   {
     m_RapidStatus[iI].m_Status = INPUT_ACTION_TYPE_RELEASE;
-    m_RapidStatus[iI].m_Active = 0;
+    //m_RapidStatus[iI].m_Active = 0;
     m_RapidStatus[iI].m_frameCount = 0;
   }
   m_RapidSelect = 0;
@@ -149,12 +150,14 @@ void update_events(void)
       {
         // 今のこの処理だとconfig.pad内の番号がpceのキー番号になっている
         u32 io_button = config_to_io_map[config_button_action];
-        u32 index = config_button_action;
+        u32 index = config_button_action  - CONFIG_BUTTON_RUN; // 上下左右を削ったのでその分を補正している
+        //index = ButtonMapData[index].mIndex & k_INDEX_MASK;
         m_RapidStatus[index].m_Status = event_input.action_type;
         if (!m_RapidSelect)
         {
           // 連写モード切り替えが押されていないので連写モードではない普通のキーon/offを作成する
-          if (!m_RapidStatus[index].m_Active)
+          //if (!m_RapidStatus[index].m_Active)
+          if(!config.rapid_active[index])
           {
             if (event_input.action_type == INPUT_ACTION_TYPE_RELEASE)
             {
@@ -171,7 +174,8 @@ void update_events(void)
           // 連写モード切り替えが押されているので連射バッファを初期化して登録解除する
           if (event_input.action_type == INPUT_ACTION_TYPE_PRESS)
           {
-            m_RapidStatus[index].m_Active ^= 1;
+            //m_RapidStatus[index].m_Active ^= 1;
+            config.rapid_active[index] ^=1;
             m_RapidStatus[index].m_bottunStatus = io_button;
             m_RapidStatus[index].m_frameCount = 0;
             if (config.rapid_frame[index] == 0)
@@ -271,7 +275,8 @@ void update_events(void)
   u32 iI;
   for (iI = 0; iI < CONFIG_BIT_BUTTON_MAX; ++iI)
   {
-    if (m_RapidStatus[iI].m_Active && m_RapidStatus[iI].m_Status == INPUT_ACTION_TYPE_PRESS)
+    //if (m_RapidStatus[iI].m_Active && m_RapidStatus[iI].m_Status == INPUT_ACTION_TYPE_PRESS)
+    if (config.rapid_active[iI] && m_RapidStatus[iI].m_Status == INPUT_ACTION_TYPE_PRESS)
     {
       if (m_RapidStatus[iI].m_frameCount == config.rapid_frame[iI])
       {

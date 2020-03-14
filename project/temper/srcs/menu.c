@@ -25,6 +25,7 @@ void gui_wait_for_input(gui_input_struct *gui_input)
 
 menu_struct *create_menu_pad(menu_state_struct *menu_state, menu_struct *parent_menu);
 menu_struct *create_menu_padrapid(menu_state_struct *menu_state, menu_struct *parent_menu);
+menu_struct *create_menu_padrapid_onoff(menu_state_struct *menu_state, menu_struct *parent_menu);
 
 char *PCE_control_names[] =
 {
@@ -1683,10 +1684,11 @@ menu_struct *create_menu_options(menu_state_struct *menu_state,
 
 menu_struct *create_menu_main(menu_state_struct *menu_state)
 {
-  menu_struct *menu = create_menu(11, NULL, draw_menu_main, NULL);
+  menu_struct *menu = create_menu(12, NULL, draw_menu_main, NULL);
   menu_struct *options_menu = create_menu_options(menu_state, menu);
   menu_struct *pad_menu = create_menu_pad(menu_state, menu);
-  menu_struct *pad2_menu = create_menu_padrapid(menu_state, menu);
+  menu_struct *pad2_menu = create_menu_padrapid_onoff(menu_state, menu);
+  menu_struct *pad3_menu = create_menu_padrapid(menu_state, menu);
 
   void **menu_options = (void **)menu->options;
   u32 current_menu_option = 0;
@@ -1694,7 +1696,8 @@ menu_struct *create_menu_main(menu_state_struct *menu_state)
 
   add_menu_option(create_select_menu(NULL, "Change options", current_line_number, options_menu));
   add_menu_option(create_select_menu(NULL, "Configure pad ", current_line_number, pad_menu));
-  add_menu_option(create_select_menu(NULL, "Speed Adjustment by key", current_line_number, pad2_menu));
+  add_menu_option(create_select_menu(NULL, "Rapid OnOff Change ", current_line_number, pad2_menu));
+  add_menu_option(create_select_menu(NULL, "Speed Adjustment by key", current_line_number, pad3_menu));
 
   current_line_number++;
 
@@ -1725,6 +1728,8 @@ void menu(u32 start_file_dialog)
 {
   menu_struct *main_menu;
   s32 menu_option_change = 0;
+
+  create_button_strings();
 
   gui_input_struct gui_input;
   gui_action_type current_action;
@@ -1905,8 +1910,6 @@ menu_struct *create_menu_pad(menu_state_struct *menu_state, menu_struct *parent_
   u32 current_line_number = 6;
   u32 i;
 
-  create_button_strings();
-
   for (i = 0; i < PCE_control_count; i++)
   {
     add_menu_option(create_numeric_labeled_pad(NULL, PCE_control_names[i], current_line_number, &(config.pad[i]), 0, button_strings_count, button_strings));
@@ -1922,7 +1925,6 @@ menu_struct *create_menu_pad(menu_state_struct *menu_state, menu_struct *parent_
 
 menu_struct *create_menu_padrapid(menu_state_struct *menu_state, menu_struct *parent_menu)
 {
-  create_button_strings();
 
   menu_struct *menu = create_menu(PCE_control_count + 3, parent_menu, draw_menu_pad, focus_menu_pad);
   void **menu_options = (void **)menu->options;
@@ -1933,6 +1935,27 @@ menu_struct *create_menu_padrapid(menu_state_struct *menu_state, menu_struct *pa
   for (i = 0; i < PCE_control_count; i++)
   {
     add_menu_option(create_numeric(NULL, PCE_control_names[i], current_line_number, &(config.rapid_frame[i]), 1, 15));
+  }
+  current_line_number++;
+
+  add_save_config_options();
+
+  menu->column_start = control_config_start_column;
+  return menu;
+}
+
+menu_struct *create_menu_padrapid_onoff(menu_state_struct *menu_state, menu_struct *parent_menu)
+{
+
+  menu_struct *menu = create_menu(PCE_control_count + 3, parent_menu, draw_menu_pad, focus_menu_pad);
+  void **menu_options = (void **)menu->options;
+  u32 current_menu_option = 0;
+  u32 current_line_number = 6;
+  u32 i;
+
+  for (i = 0; i < PCE_control_count; i++)
+  {
+    add_menu_option(create_numeric(NULL, PCE_control_names[i], current_line_number, &(config.rapid_active[i]), 0, 1));
   }
   current_line_number++;
 
