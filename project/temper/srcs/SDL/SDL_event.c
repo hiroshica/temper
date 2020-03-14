@@ -4,12 +4,12 @@
 
 extern u32 nowDebugKey;
 extern tSDLtoConfigMap SDLtoConfigMap[];
-s32 analog_inputkey = 0;
-s32 analog_activeindex = 0;
+s32 analog_on = 0;
+u16 analog_inputkey = 0x000f;
 s32 ud_value = 0;
 s32 lr_value = 0;
 u32 ConvertAnalogHAT[] = {
-	CONFIG_HAT_CENTER,	 //0x0000
+	CONFIG_BUTTON_NONE,	 //0x0000
 	CONFIG_HAT_UP,		   //0x0001
 	CONFIG_HAT_RIGHT,	  //0x0002
 	CONFIG_HAT_UP_RIGHT,   //0x0003
@@ -26,6 +26,13 @@ u32 ConvertAnalogHAT[] = {
 	CONFIG_BUTTON_NONE,	 //0x000E
 	CONFIG_BUTTON_NONE,	 //0x000F
 };
+void create_analog_key(u32 hat_buttons_press){
+  analog_inputkey |=
+            (IO_BUTTON_UP | IO_BUTTON_DOWN | IO_BUTTON_LEFT | IO_BUTTON_RIGHT) &
+            ~hat_buttons_press;
+	analog_inputkey &= ~hat_buttons_press;
+}
+
 void calc_analog_event(event_input_struct *event_input)
 {
 	#define kLOWLIMITF   (0.1)
@@ -33,39 +40,41 @@ void calc_analog_event(event_input_struct *event_input)
 	float x = (float)lr_value / 32767;
 	float y = (float)ud_value / 32767;
 
-	analog_inputkey = 0;
 	if (y < -kLIMITF)
 	{
-		analog_inputkey |= IO_BUTTON_UP;
+		create_analog_key(IO_BUTTON_UP);
 	}
 	else if (y > kLIMITF)
 	{
-		analog_inputkey |= IO_BUTTON_DOWN;
+		create_analog_key(IO_BUTTON_DOWN);
 	}
-	else if ((-kLOWLIMITF < y) && (y < kLOWLIMITF))
+	else
 	{
-		analog_inputkey |= IO_BUTTON_UP;
-		analog_inputkey |= IO_BUTTON_DOWN;
+		create_analog_key(analog_inputkey&(IO_BUTTON_LEFT|IO_BUTTON_RGHIT));
 	}
 
 	if (x < -kLIMITF)
 	{
-		analog_inputkey |= IO_BUTTON_LEFT;
+		create_analog_key(IO_BUTTON_LEFT);
 	}
 	else if (x > kLIMITF)
 	{
-		analog_inputkey |= IO_BUTTON_RIGHT;
+		create_analog_key(IO_BUTTON_RIGHT);
 	}
-	else if ((-kLOWLIMITF < x) &&  (x < kLOWLIMITF))
+	else
 	{
-		analog_inputkey |= IO_BUTTON_LEFT;
-		analog_inputkey |= IO_BUTTON_RIGHT;
+		create_analog_key(analog_inputkey&(IO_BUTTON_UP|IO_BUTTON_DOWN));
 	}
 
-	event_input->action_type = INPUT_ACTION_TYPE_PRESS;
-	u32 getkeydata = ConvertAnalogHAT[analog_inputkey];
-	event_input->config_button_action[analog_activeindex++] = getkeydata;
+	u16 calcindex = ((~analog_inputkey)&0x000f);
+	status_message("now analog %04x : %04x",analog_inputkey,calcindex);
 
+	u32 getkeydata = ConvertAnalogHAT[calcindex];
+	if(getkeydata != CONFIG_BUTTON_NONE){
+		event_input->action_type = INPUT_ACTION_TYPE_PRESS;
+		event_input->config_button_action[0] = getkeydata;
+	}
+	analog_on = 0;
 }
 s32 createButtonStatus(event_input_struct *event_input, u32 keys,s32 actionindex)
 {
@@ -226,12 +235,13 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 		if (event->jaxis.axis == 1)
 		{
 			ud_value = event->jaxis.value;
+			analog_on = 1;
 		}
 		else if (event->jaxis.axis == 0)
 		{
 			lr_value = event->jaxis.value;
+			analog_on = 1;
 		}
-		calc_analog_event(event_input); // 入力イベントがなくてもアナログの入力は作り続ける
 		break;
 	case SDL_JOYHATMOTION:
 		if (event->jhat.value != SDL_HAT_CENTERED)
@@ -261,8 +271,6 @@ void init_event_input(event_input_struct *event_input)
 }
 void init_update_input()
 {
-	analog_inputkey = 0;
-	analog_activeindex = 0;
 }
 u32 update_input(event_input_struct *event_input)
 {
@@ -285,8 +293,9 @@ u32 update_input(event_input_struct *event_input)
 	}
 	else
 	{
-		calc_analog_event(event_input); // 入力イベントがなくてもアナログの入力は作り続ける
-		//ud_value = lr_value = 0;
+		if(analog_on){
+			calc_analog_event(event_input); // 入力イベントがなくてもアナログの入力は作り続ける
+		}
 		return 0;
 	}
 	for (iI = 0; event_input->config_button_action[iI] != CONFIG_BUTTON_NONE; ++iI)
