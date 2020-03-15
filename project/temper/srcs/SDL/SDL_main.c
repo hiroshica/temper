@@ -30,17 +30,15 @@ config_struct config =
     {
         // u32 pad[PAD_STOCK_MAX];
         {
-          CONFIG_BUTTON_UP, CONFIG_BUTTON_DOWN, CONFIG_BUTTON_LEFT, CONFIG_BUTTON_RIGHT,
-          CONFIG_BUTTON_RUN, CONFIG_BUTTON_SELECT,
-          CONFIG_BUTTON_I, CONFIG_BUTTON_II,
-          CONFIG_BUTTON_III, CONFIG_BUTTON_IV,
-          CONFIG_BUTTON_LOAD_STATE, CONFIG_BUTTON_SAVE_STATE,     // LR1
-          CONFIG_BUTTON_V, CONFIG_BUTTON_VI,                      // LR2
-          CONFIG_BUTTON_FAST_FORWARD, CONFIG_BUTTON_RAPID_ONOFF,  // LR3
-          CONFIG_BUTTON_MENU,                                     // PS
-          CONFIG_BUTTON_MENU,                                     // TouchPad
+           0, 1,
+           2, 3, 4, 5,
+           6, 7, 8,
+           9,10,11,
+          12,13,
+
           -1,-1,
 
+          -1,-1,-1,-1,
           -1,-1,-1,-1,
           -1,-1,-1,-1,
           -1,-1,-1,-1,

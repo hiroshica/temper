@@ -135,35 +135,27 @@ void key_search(event_input_struct *event_input, eKeyMode inmode, u32 keys)
 #endif
 				break;
 			case eCASE_BUTTON:
-				actionindex = createButtonStatus(event_input, keys,actionindex);
-#if 0
+				//actionindex = createButtonStatus(event_input, keys,actionindex);
+#if 1
 				{
 					s32 iI;
 					s32 mapindex;
 					s32 nowindex;
 					u32 createkey;
-					// ButtonMapDataからconfig.padに記録された番号の取得
-					for(mapindex = 0; ;mapindex++){
-						if(ButtonMapData[mapindex].mIndex == k_INDEX_NONE){
-							mapindex = -1;
-							break;
-						}
-						createkey = ButtonMapData[mapindex].mIndex&k_INDEX_MASK;
-						if(createkey == keys){
-							break;
-						}
-					}
-					// ButtonMapDataからconfig.padに記録された番号の取得(ここまで)
-
-					if(mapindex != -1){
-						nowindex = config.pad[mapindex];
-						// 上記で得た番号がマップされてるPCEのキー番号を取り出す
-						for(iI = 0; iI < PAD_STOCK_MAX; ++iI){
-							if(config.pad[iI] == nowindex){
-								event_input->config_button_action[actionindex++] = iI + CONFIG_BUTTON_RUN;	// 上下左右を削ったのでその分を補正している
+					u32 oldkey = CONFIG_BUTTON_NONE;
+					u32 newkey = CONFIG_BUTTON_NONE;
+					// pad[]の中身が示しているButtonMapData内のハードキー番号がkeysと一致したらそのpad配列のindex番号が押したボタンになる
+					for(iI = 0; iI < button_strings_count; ++iI){
+						nowindex = config.pad[iI];
+						createkey = ButtonMapData[nowindex].mIndex&k_INDEX_MASK;
+						if(createkey == keys)
+						{
+							newkey = iI + CONFIG_BUTTON_RUN;	// 上下左右を削ったのでその分を補正している
+							if(oldkey != newkey){
+								oldkey = newkey;
+								event_input->config_button_action[actionindex++] = newkey;
 							}
 						}
-						// 上記で得た番号がマップされてるPCEのキー番号を取り出す(ここまで)
 					}
 				}
 #endif
@@ -258,6 +250,7 @@ void init_event_input(event_input_struct *event_input)
 }
 void init_update_input()
 {
+	create_button_strings();
 }
 u32 update_input(event_input_struct *event_input)
 {
@@ -427,7 +420,7 @@ void get_gui_input(gui_input_struct *gui_input)
 		case SDL_JOYBUTTONUP:
 			gui_actions[joy_map_gui_action(event.jbutton.button)] = 0;
 			break;
-
+#if 0
 		case SDL_JOYAXISMOTION:
 			//status_message("id=%d data=%d", event.jaxis.axis, event.jaxis.value);
 			if (event.jaxis.axis <= 3)
@@ -445,7 +438,7 @@ void get_gui_input(gui_input_struct *gui_input)
 				}
 			}
 			break;
-
+#endif
 		case SDL_JOYHATMOTION:
 			gui_action = joy_hat_map_gui_action(event.jhat.value);
 			if (gui_action != CURSOR_NONE)
