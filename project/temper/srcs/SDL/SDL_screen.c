@@ -13,7 +13,7 @@ void init_screen(bool textureinit)
   set_screen_resolution();
   if (textureinit = true)
   {
-    sScreenTexture = SDL_CreateTexture(sRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, SCREEN_W, SCREEN_H);
+    sScreenTexture = SDL_CreateTexture(sRenderer, SDL_PIXELFORMAT_RGB565, SDL_TEXTUREACCESS_STREAMING, SCREEN_W, SCREEN_H);
     if (sScreenTexture == NULL)
     {
       printf("texture::not create texture!(SDL_GetErr::%s)\n", SDL_GetError());
@@ -94,18 +94,25 @@ void set_screen_resolution()
 //
 void *sGetPixels;
 int32_t sGetPitch;
+bool sLock = false;
 // この関数で全てのエリアをlockする
 void *get_screen_ptr()
 {
   SDL_LockTexture(sScreenTexture, NULL, &sGetPixels, &sGetPitch);
+  sLock = true;
   return sGetPixels;
 }
 void release_screen_ptr(){
   SDL_UnlockTexture(sScreenTexture);
+  sLock = false;
 }
 
 u32 get_screen_pitch()
 {
+  if(sLock == false){
+    SDL_LockTexture(sScreenTexture, NULL, &sGetPixels, &sGetPitch);
+    SDL_UnlockTexture(sScreenTexture);
+  }
   return (sGetPitch / 2);
 }
 
