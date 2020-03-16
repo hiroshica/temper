@@ -1,7 +1,7 @@
 #ifndef SDL_SCREEN_H
 #define SDL_SCREEN_H
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 typedef enum
 {

@@ -33,7 +33,7 @@ endif()
 
 MESSAGE("pkgpath = $ENV{PKG_CONFIG_PATH}")
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(SDL sdl REQUIRED)
+pkg_check_modules(SDL sdl2 REQUIRED)
 
 if(COMPILE_TYPE STREQUAL "linux")
   # linux
@@ -46,12 +46,16 @@ elseif(COMPILE_TYPE STREQUAL "rg350")
 elseif(COMPILE_TYPE STREQUAL "mingw")
   # mingw
   set(SDL_INC "${SDL_INCLUDE_DIRS}")
-  set(SDL_LIBS "${SDL_LDFLAGS};-mwindows")
+  add_definitions(-DSDL_cpuinfo_h_)           # SDL2でerrorになるのでこのヘッダを読み込ませない
+  #set(SDL_LIBS "${SDL_LDFLAGS};-mwindows")   # SDL1の時は-mwindowsがないとだめ
+  set(SDL_LIBS "${SDL_LDFLAGS}")
 elseif(COMPILE_TYPE STREQUAL "mingw32")
   # mingw
   set(SDL_INC "${SDL_INCLUDE_DIRS}")
   set(SDL_LIBS "${SDL_LDFLAGS};-mwindows")
 endif()
+#MESSAGE("get SDL_INCLUDE_DIRS = ${SDL_INCLUDE_DIRS}")
+#MESSAGE("get SDL_LDFLAGS = ${SDL_LDFLAGS}")
 MESSAGE("SDL_INC = ${SDL_INC}")
 MESSAGE("SDL_LIBS = ${SDL_LIBS}")
 

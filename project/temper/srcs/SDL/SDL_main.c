@@ -157,5 +157,5 @@ void set_gamma(u32 gamma)
   int error;
   float gam = gamma;
   gam = gam / 100;
-  error = SDL_SetGamma(gam, gam, gam);
+  //error = SDL_SetGamma(gam, gam, gam);
 }

@@ -181,29 +181,26 @@ void key_search(event_input_struct *event_input, eKeyMode inmode, u32 keys)
 
 void key_map(SDL_Event *event, event_input_struct *event_input)
 {
+	event_input->key_letter = event->key.keysym.sym;
 	switch (event->type)
 	{
 	case SDL_KEYDOWN:
 		event_input->action_type = INPUT_ACTION_TYPE_PRESS;
-		event_input->key_letter = event->key.keysym.unicode;
 		key_search(event_input, eMODE_KEYSYM, event->key.keysym.sym);
 		break;
 
 	case SDL_KEYUP:
 		event_input->action_type = INPUT_ACTION_TYPE_RELEASE;
-		event_input->key_letter = event->key.keysym.unicode;
 		key_search(event_input, eMODE_KEYSYM, event->key.keysym.sym);
 		break;
 
 	case SDL_JOYBUTTONDOWN:
 		event_input->action_type = INPUT_ACTION_TYPE_PRESS;
-		event_input->key_letter = event->key.keysym.unicode;
 		key_search(event_input, eMODE_BUTTON, event->jbutton.button);
 		break;
 
 	case SDL_JOYBUTTONUP:
 		event_input->action_type = INPUT_ACTION_TYPE_RELEASE;
-		event_input->key_letter = event->key.keysym.unicode;
 		key_search(event_input, eMODE_BUTTON, event->jbutton.button);
 		break;
 	case SDL_JOYAXISMOTION:
@@ -226,7 +223,6 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 		if (event->jhat.value != SDL_HAT_CENTERED)
 		{
 			event_input->action_type = INPUT_ACTION_TYPE_PRESS;
-			event_input->key_letter = event->key.keysym.unicode;
 			key_search(event_input, eMODE_HAT, event->jhat.value);
 		}
 		else
@@ -391,6 +387,7 @@ void get_gui_input(gui_input_struct *gui_input)
 
 	while (SDL_PollEvent(&event))
 	{
+		gui_input->key_letter = event.key.keysym.sym;
 		switch (event.type)
 		{
 		case SDL_QUIT:
@@ -403,7 +400,6 @@ void get_gui_input(gui_input_struct *gui_input)
 			if (gui_action == CURSOR_NONE)
 			{
 				gui_action = CURSOR_LETTER;
-				gui_input->key_letter = event.key.keysym.unicode;
 			}
 			break;
 

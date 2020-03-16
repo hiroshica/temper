@@ -1,40 +1,10 @@
 #include "../common.h"
 #include "SDL_screen.h"
 
-#ifdef SDL_OPENGL_BLIT
-#include "SDL_opengl.h"
-#endif
-
 SDL_Surface *screen = NULL;
 SDL_Surface *real_screen = NULL;
 u32 last_scale_factor;
 u8 *real_screen_pixels;
-
-#ifdef SDL_OPENGL_BLIT
-
-GLuint pixel_buffer_objects[2];
-GLuint texture_handle;
-GLubyte pbo_buffer[320 * 240 * 2];
-GLubyte *pbo_pixels;
-u32 pbo_index = 0;
-u32 pbo_next_index = 1;
-
-void bind_texture(void)
-{
-  glBindTexture(GL_TEXTURE_2D, texture_handle);
-  glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, pixel_buffer_objects[pbo_index]);
-  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 320, 240, GL_RGBA,
-                  GL_UNSIGNED_SHORT_1_5_5_5_REV, 0);
-
-  glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB,
-                  pixel_buffer_objects[pbo_next_index]);
-  glBufferDataARB(GL_PIXEL_UNPACK_BUFFER_ARB, 320 * 240 * 2, 0,
-                  GL_STREAM_DRAW_ARB);
-  pbo_pixels =
-      (GLubyte *)glMapBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, GL_WRITE_ONLY_ARB);
-}
-
-#endif
 
 void update_screen()
 {
@@ -51,37 +21,6 @@ void update_screen()
 #endif
     set_screen_resolution(width, height);
   }
-
-#ifdef SDL_OPENGL_BLIT
-  if (config.use_opengl)
-  {
-    glUnmapBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB);
-    glBindBufferARB(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
-
-    glBindTexture(GL_TEXTURE_2D, texture_handle);
-
-    glBegin(GL_QUADS);
-    glTexCoord2f(0, 0);
-    glVertex3f(0, 0, 0);
-    glTexCoord2f(1, 0);
-    glVertex3f(1, 0, 0);
-    glTexCoord2f(1, 1);
-    glVertex3f(1, 1, 0);
-    glTexCoord2f(0, 1);
-    glVertex3f(0, 1, 0);
-    glEnd();
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    SDL_GL_SwapBuffers();
-
-    pbo_index = (pbo_index + 1) % 2;
-    pbo_next_index = (pbo_next_index + 1) % 2;
-
-    bind_texture();
-  }
-  else
-#endif
   {
     SDL_Flip(screen);
   }
@@ -89,46 +28,6 @@ void update_screen()
 
 void set_screen_resolution(u32 width, u32 height)
 {
-#ifdef SDL_OPENGL_BLIT
-  if (config.use_opengl)
-  {
-    screen = SDL_SetVideoMode(width, height, 16, SDL_OPENGL);
-
-    glShadeModel(GL_FLAT);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_LIGHTING);
-    glEnable(GL_TEXTURE_2D);
-    glDisable(GL_CULL_FACE);
-
-    glDisable(GL_COLOR_MATERIAL);
-
-    glClearColor(0, 0, 0, 0);
-
-    glGenTextures(1, &texture_handle);
-    glBindTexture(GL_TEXTURE_2D, texture_handle);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 320, 240, 0,
-                 GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, (GLvoid *)pbo_buffer);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    glGenBuffers(2, pixel_buffer_objects);
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, pixel_buffer_objects[0]);
-    glBufferData(GL_PIXEL_UNPACK_BUFFER_ARB, 320 * 240 * 2, 0, GL_STREAM_DRAW);
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, pixel_buffer_objects[1]);
-    glBufferData(GL_PIXEL_UNPACK_BUFFER_ARB, 320 * 240 * 2, 0, GL_STREAM_DRAW);
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
-
-    glOrtho(0, 1, 0, 1, -1, 1);
-    bind_texture();
-  }
-  else
-#endif
   {
     u16 *old_pixels = NULL;
 
@@ -185,11 +84,6 @@ void set_screen_resolution(u32 width, u32 height)
 
 void *get_screen_ptr()
 {
-#ifdef SDL_OPENGL_BLIT
-  if (config.use_opengl)
-    return pbo_pixels;
-#endif
-
   return screen->pixels;
 }
 
