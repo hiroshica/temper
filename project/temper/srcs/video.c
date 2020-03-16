@@ -902,19 +902,8 @@ void initialize_video()
   initialize_vdc(&vdc_b);
   initialize_vce();
   initialize_vpc();
+  init_screen(true);
 
-  u32 width = RESOLUTION_WIDTH;
-  u32 height = RESOLUTION_HEIGHT;
-#ifdef WIN32_BUILD
-  if (0 != config.scale_factor)
-  {
-    //width *= config.scale_factor;
-    //height *= config.scale_factor;
-  }
-#endif
-  set_screen_resolution(width, height);
-
-  //set_screen_resolution(RESOLUTION_WIDTH, RESOLUTION_HEIGHT);
   clear_screen();
 }
 
@@ -2209,6 +2198,7 @@ void render_line(void)
                                   bg_mask_buffer, obj_low_mask_buffer + 1, obj_high_mask_buffer + 1);
     }
   }
+  release_screen_ptr();
 }
 
 void render_line_sgx(void)
@@ -2298,6 +2288,7 @@ void render_line_sgx(void)
                                       obj_high_mask_buffer_b + 1);
     }
   }
+  release_screen_ptr();
 }
 
 #define update_satb_add_entry_limit(line, offset, _x, _attributes)         \

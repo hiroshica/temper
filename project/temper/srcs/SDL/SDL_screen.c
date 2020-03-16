@@ -1,105 +1,113 @@
 #include "../common.h"
 #include "SDL_screen.h"
 
-SDL_Surface *screen = NULL;
-SDL_Surface *real_screen = NULL;
+static SDL_Window *sWindow;
+static SDL_Renderer *sRenderer;
+static SDL_Texture *sScreenTexture;
+
 u32 last_scale_factor;
-u8 *real_screen_pixels;
+//u8 *real_screen_pixels;
+
+void init_screen(bool textureinit)
+{
+  set_screen_resolution();
+  if (textureinit = true)
+  {
+    sScreenTexture = SDL_CreateTexture(sRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, SCREEN_W, SCREEN_H);
+    if (sScreenTexture == NULL)
+    {
+      printf("texture::not create texture!(SDL_GetErr::%s)\n", SDL_GetError());
+    }
+  }
+}
+
+void destroy_screen()
+{
+  if (sWindow != NULL || sRenderer != NULL)
+  {
+    SDL_DestroyRenderer(sRenderer);
+    SDL_DestroyWindow(sWindow);
+  }
+  SDL_Delay(500); /* 0.5秒停止 */
+}
+void exit_screen()
+{
+    SDL_DestroyTexture(sScreenTexture);
+    destroy_screen();
+}
 
 void update_screen()
 {
   if (last_scale_factor != config.scale_factor)
   {
-    u32 width = 320;
-    u32 height = 240;
-#if WIN32_BUILD|LINUX_X86_BUILD
+    destroy_screen();
+    init_screen(false);
+  }
+  {
+    SDL_RenderCopy(sRenderer, sScreenTexture, NULL,NULL);
+    SDL_RenderPresent(sRenderer);
+  }
+}
+
+void set_screen_resolution()
+{
+  u32 windowflag = 0;
+  u32 width = SCREEN_W;
+  u32 height = SCREEN_H;
+
+  if (config.scale_factor == SCALE_FULLSCREEN)
+  {
+    windowflag = SDL_WINDOW_FULLSCREEN;
+  }
+  else
+  {
+#if WIN32_BUILD | LINUX_X86_BUILD
     if (SCALE_FULLSCREEN != config.scale_factor)
     {
       //width *= config.scale_factor;
       //height *= config.scale_factor;
     }
 #endif
-    set_screen_resolution(width, height);
   }
+
+  int32_t retcode = SDL_CreateWindowAndRenderer(
+      (int32_t)width, (int32_t)height,
+      SDL_RENDERER_PRESENTVSYNC,
+      &sWindow,
+      &sRenderer);
+
+  if (retcode == -1 || sWindow == NULL || sRenderer == NULL)
   {
-    SDL_Flip(screen);
+    printf("!!!! not create SDL Window abort.\n error message:%s\n", SDL_GetError());
   }
+  else
+  {
+    SDL_Delay(500); /* 0.5秒停止 */
+    SDL_SetWindowTitle(sWindow,"Temper PC-Engine Emulator");
+    // ここでtextureを使って一度windowのアップデートをするべき
+  }
+  last_scale_factor = config.scale_factor;
 }
 
-void set_screen_resolution(u32 width, u32 height)
-{
-  {
-    u16 *old_pixels = NULL;
-
-    if (screen != NULL)
-    {
-      old_pixels = malloc(320 * 240 * 2);
-      copy_screen(old_pixels);
-      SDL_FreeSurface(screen);
-    }
-
-    switch (config.scale_factor)
-    {
-    case SCALE_FULLSCREEN:
-    #ifndef WIN32_BUILD
-      screen = SDL_SetVideoMode(width, height, 16, SDL_FULLSCREEN
-#ifdef SDL_TRIPLEBUF
-                                                       | SDL_HWSURFACE | SDL_TRIPLEBUF
-#endif
-      );
-      real_screen_pixels = screen->pixels;
-
-      if (old_pixels != NULL)
-        blit_screen(old_pixels);
-
-      break;
-      #endif
-
-    default:
-      screen = SDL_SetVideoMode(width, height, 16,
-#ifdef SDL_TRIPLEBUF
-                                SDL_HWSURFACE | SDL_TRIPLEBUF
-#else
-                                0
-#endif
-      );
-
-      {
-        if (old_pixels != NULL)
-        {
-          blit_screen(old_pixels);
-        }
-      }
-      break;
-    }
-
-    if (old_pixels != NULL)
-      free(old_pixels);
-
-    last_scale_factor = config.scale_factor;
-  }
-
-  SDL_WM_SetCaption("Temper PC-Engine Emulator", "Temper");
-}
-
+//
+// draw functions
+//
+void *sGetPixels;
+int32_t sGetPitch;
+// この関数で全てのエリアをlockする
 void *get_screen_ptr()
 {
-  return screen->pixels;
+  SDL_LockTexture(sScreenTexture, NULL, &sGetPixels, &sGetPitch);
+  return sGetPixels;
+}
+void release_screen_ptr(){
+  SDL_UnlockTexture(sScreenTexture);
 }
 
 u32 get_screen_pitch()
 {
-  if (config.use_opengl)
-    return 320;
-
-  return (screen->pitch / 2);
+  return (sGetPitch / 2);
 }
-u32 get_screen_height(){
-  if (config.use_opengl)
-    return 240;
-  return screen->h;
-}
-
 
 void clear_screen()
 {
@@ -112,6 +120,7 @@ void clear_screen()
     memset(pixels, 0, 320 * 2);
     pixels += pitch;
   }
+  release_screen_ptr();
 }
 
 void clear_line_edges(u32 line_number, u32 color, u32 edge, u32 middle)
@@ -138,6 +147,7 @@ void clear_line_edges(u32 line_number, u32 color, u32 edge, u32 middle)
     *dest = color;
     dest++;
   }
+  release_screen_ptr();
 }
 
 void set_single_buffer_mode()

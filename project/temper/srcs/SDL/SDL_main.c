@@ -149,6 +149,7 @@ void platform_quit()
       SDL_JoystickClose(joy);
     }
 #endif
+  exit_screen();
   SDL_Quit();
 }
 

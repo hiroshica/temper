@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/out/exe/mingw/RG-tempD.exe",
-            "args": [],
+            "args": ["C:\\temp\\pcengine\\Fantasy Zone (J).pce"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

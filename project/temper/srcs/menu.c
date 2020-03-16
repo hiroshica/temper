@@ -1859,14 +1859,6 @@ void menu(u32 start_file_dialog)
   free(menu_state.screen_bg_quarter);
   free(menu_state.screen_bg);
 
-#ifdef SDL_TRIPLEBUF
-  unsigned char i;
-  for (i = 0; i < 3; i++)
-  {
-    clear_screen();
-    update_screen();
-  }
-#endif
 }
 
 
