@@ -3,6 +3,9 @@
 SDL_mutex *audio_mutex;
 SDL_cond *audio_cv;
 
+/*
+ * thread A
+*/
 void audio_callback(void *userdata, Uint8 *stream, int length)
 {
   u32 sample_length = length / 2;
@@ -56,6 +59,9 @@ void audio_callback(void *userdata, Uint8 *stream, int length)
 
   SDL_UnlockMutex(audio_mutex);
 }
+/*
+ * thread A 
+*/
 
 void initialize_audio()
 {
@@ -121,6 +127,7 @@ void audio_exit()
 
 void audio_signal_callback()
 {
+
   SDL_CondSignal(audio_cv);
 }
 

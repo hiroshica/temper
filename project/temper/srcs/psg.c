@@ -293,7 +293,7 @@ void initialize_volume_data()
 
 void initialize_psg()
 {
-  initialize_audio();
+  //initialize_audio();
 
   psg.clock_step = (MASTER_CLOCK_RATE << step_fractional_bits_clock) /
    audio.output_frequency;

@@ -1,6 +1,5 @@
 #include "common.h"
 
-
 void setup_main_dirs()
 {
   struct stat sb;
@@ -291,7 +290,7 @@ void run_pce(u32 benchmark_frames)
   if (config.load_state_0)
   {
     char state_name[COPY_MAXPATH];
-    snprintf(state_name,COPY_MAXPATH, "%s_0.svs", config.rom_filename);
+    snprintf(state_name, COPY_MAXPATH, "%s_0.svs", config.rom_filename);
 
     load_state(state_name, NULL, 0);
   }
@@ -299,7 +298,7 @@ void run_pce(u32 benchmark_frames)
   if (config.benchmark_mode)
   {
     char state_name[COPY_MAXPATH];
-    snprintf(state_name,COPY_MAXPATH, "%s_0.svs", config.rom_filename);
+    snprintf(state_name, COPY_MAXPATH, "%s_0.svs", config.rom_filename);
 
     load_state(state_name, NULL, 0);
 
@@ -308,12 +307,10 @@ void run_pce(u32 benchmark_frames)
     config.fast_forward = 1;
   }
 
-
   printf("Running game.\n");
   init_events();
 
   audio_unpause();
-
   while (1)
   {
     /*synchronize();*/
@@ -341,7 +338,7 @@ void run_pce(u32 benchmark_frames)
     update_cdda();
     audio_sync_end();
 
-    update_events();   // input SDL
+    update_events(); // input SDL
 
     if (config.benchmark_mode)
     {
@@ -386,7 +383,6 @@ void reset_pce()
   reset_arcade_card();
 
   reset_debug();
-
 }
 
 // For now this will save a full sized snapshot.
@@ -396,8 +392,8 @@ void reset_pce()
 void save_state(char *file_name, u16 *snapshot)
 {
   char path[COPY_MAXPATH];
-  snprintf(path,COPY_MAXPATH, "%s%csave_states%c%s", config.main_path, DIR_SEPARATOR_CHAR,
-          DIR_SEPARATOR_CHAR, file_name);
+  snprintf(path, COPY_MAXPATH, "%s%csave_states%c%s", config.main_path, DIR_SEPARATOR_CHAR,
+           DIR_SEPARATOR_CHAR, file_name);
   u8 *savestate_buffer = malloc(SAVESTATE_MAX_SIZE);
   u32 snapshot_length = 0;
 
@@ -536,8 +532,8 @@ savestate_extension_enum load_state(char *file_name, u8 *in_memory_state,
                                     u32 in_memory_state_size)
 {
   char path[COPY_MAXPATH];
-  snprintf(path,COPY_MAXPATH, "%s%csave_states%c%s", config.main_path, DIR_SEPARATOR_CHAR,
-          DIR_SEPARATOR_CHAR, file_name);
+  snprintf(path, COPY_MAXPATH, "%s%csave_states%c%s", config.main_path, DIR_SEPARATOR_CHAR,
+           DIR_SEPARATOR_CHAR, file_name);
   savestate_header_struct savestate_header;
   u8 *savestate_buffer = malloc(SAVESTATE_MAX_SIZE);
 
@@ -698,8 +694,8 @@ invalid:
 u8 *preload_state(char *file_name, u32 *_file_length, u32 trim_snapshot)
 {
   char path[COPY_MAXPATH2];
-  snprintf(path,COPY_MAXPATH2, "%s%csave_states%c%s", config.main_path, DIR_SEPARATOR_CHAR,
-          DIR_SEPARATOR_CHAR, file_name);
+  snprintf(path, COPY_MAXPATH2, "%s%csave_states%c%s", config.main_path, DIR_SEPARATOR_CHAR,
+           DIR_SEPARATOR_CHAR, file_name);
   FILE *savestate_file = fopen(path, "rb");
   u8 *savestate_buffer;
   u32 savestate_length;
@@ -754,8 +750,8 @@ savestate_extension_enum load_state_snapshot(char *file_name, u16 *buffer,
                                              char *state_date)
 {
   char path[COPY_MAXPATH2];
-  snprintf(path,COPY_MAXPATH2, "%s%csave_states%c%s", config.main_path, DIR_SEPARATOR_CHAR,
-          DIR_SEPARATOR_CHAR, file_name);
+  snprintf(path, COPY_MAXPATH2, "%s%csave_states%c%s", config.main_path, DIR_SEPARATOR_CHAR,
+           DIR_SEPARATOR_CHAR, file_name);
   savestate_header_struct savestate_header;
   u8 *savestate_buffer = malloc(SAVESTATE_HEADER_LENGTH + (320 * 240 * 2));
 
@@ -812,43 +808,42 @@ invalid:
   return SS_EXT_INVALID;
 }
 
-#define config_file_action(type, version_gate)                                \
-  file_##type##_array(config_file, config.pad);                               \
-  file_##type##_array(config_file, config.rapid_active);                      \
-  file_##type##_array(config_file, config.rapid_frame);                       \
-  file_##type##_variable(config_file, config.show_fps);                       \
-  file_##type##_variable(config_file, config.enable_sound);                   \
-  file_##type##_variable(config_file, config.fast_forward);                   \
-  file_##type##_variable(config_file, config.audio_output_frequency);         \
-  file_##type##_variable(config_file, config.patch_idle_loops);               \
-  file_##type##_variable(config_file, config.snapshot_format);                \
-  file_##type##_variable(config_file, config.force_usa);                      \
-  file_##type##_variable(config_file, config.clock_speed);                    \
-  file_##type##_variable(config_file, config.ram_timings);                    \
-  file_##type##_variable(config_file, config.gamma_percent);                  \
-  if (version_gate >= 2)                                                      \
-  {                                                                           \
-    file_##type##_variable(config_file, config.six_button_pad);               \
-    file_##type##_variable(config_file, config.cd_system_type);               \
-    file_##type##_variable(config_file, config.bz2_savestates);               \
-    file_##type##_variable(config_file, config.per_game_bram);                \
-  }                                                                           \
-                                                                              \
-  if (version_gate >= 3)                                                      \
-  {                                                                           \
-    file_##type##_variable(config_file, config.sound_double);                 \
-    file_##type##_variable(config_file, config.scale_factor);                 \
-    file_##type##_variable(config_file, config.scale_width);                  \
-    file_##type##_variable(config_file, config.unlimit_sprites);              \
-    file_##type##_variable(config_file, config.compatibility_mode);           \
+#define config_file_action(type, version_gate)                        \
+  file_##type##_array(config_file, config.pad);                       \
+  file_##type##_array(config_file, config.rapid_active);              \
+  file_##type##_array(config_file, config.rapid_frame);               \
+  file_##type##_variable(config_file, config.show_fps);               \
+  file_##type##_variable(config_file, config.enable_sound);           \
+  file_##type##_variable(config_file, config.fast_forward);           \
+  file_##type##_variable(config_file, config.audio_output_frequency); \
+  file_##type##_variable(config_file, config.patch_idle_loops);       \
+  file_##type##_variable(config_file, config.snapshot_format);        \
+  file_##type##_variable(config_file, config.force_usa);              \
+  file_##type##_variable(config_file, config.clock_speed);            \
+  file_##type##_variable(config_file, config.ram_timings);            \
+  file_##type##_variable(config_file, config.gamma_percent);          \
+  if (version_gate >= 2)                                              \
+  {                                                                   \
+    file_##type##_variable(config_file, config.six_button_pad);       \
+    file_##type##_variable(config_file, config.cd_system_type);       \
+    file_##type##_variable(config_file, config.bz2_savestates);       \
+    file_##type##_variable(config_file, config.per_game_bram);        \
+  }                                                                   \
+                                                                      \
+  if (version_gate >= 3)                                              \
+  {                                                                   \
+    file_##type##_variable(config_file, config.sound_double);         \
+    file_##type##_variable(config_file, config.scale_factor);         \
+    file_##type##_variable(config_file, config.scale_width);          \
+    file_##type##_variable(config_file, config.unlimit_sprites);      \
+    file_##type##_variable(config_file, config.compatibility_mode);   \
   }
-
 
 void save_config_file(char *file_name)
 {
   char path[COPY_MAXPATH2];
-  snprintf(path,COPY_MAXPATH2, "%s%cconfig%c%s", config.main_path, DIR_SEPARATOR_CHAR,
-          DIR_SEPARATOR_CHAR, file_name);
+  snprintf(path, COPY_MAXPATH2, "%s%cconfig%c%s", config.main_path, DIR_SEPARATOR_CHAR,
+           DIR_SEPARATOR_CHAR, file_name);
   u8 *config_file_buffer = malloc(16384);
 
   printf("saving config to file named %s\n", path);
@@ -878,8 +873,8 @@ void save_config_file(char *file_name)
 void save_directory_config_file(char *file_name)
 {
   char path[COPY_MAXPATH2];
-  snprintf(path,COPY_MAXPATH2, "%s%cconfig%c%s", config.main_path, DIR_SEPARATOR_CHAR,
-          DIR_SEPARATOR_CHAR, file_name);
+  snprintf(path, COPY_MAXPATH2, "%s%cconfig%c%s", config.main_path, DIR_SEPARATOR_CHAR,
+           DIR_SEPARATOR_CHAR, file_name);
   u8 *config_file_buffer = malloc(16384);
 
   printf("saving directory config to file named %s\n", path);
@@ -909,8 +904,8 @@ void save_directory_config_file(char *file_name)
 s32 load_config_file(char *file_name)
 {
   char path[COPY_MAXPATH];
-  snprintf(path,COPY_MAXPATH, "%s%cconfig%c%s", config.main_path, DIR_SEPARATOR_CHAR,
-          DIR_SEPARATOR_CHAR, file_name);
+  snprintf(path, COPY_MAXPATH, "%s%cconfig%c%s", config.main_path, DIR_SEPARATOR_CHAR,
+           DIR_SEPARATOR_CHAR, file_name);
 
 #ifdef CONFIG_OPTIONS_RAM_TIMINGS
   u32 old_ram_timings = config.ram_timings;
@@ -925,7 +920,6 @@ s32 load_config_file(char *file_name)
 #endif
 
   u32 i;
-
 
   printf("loading config file %s\n", path);
 
@@ -986,8 +980,8 @@ invalid:
 s32 load_directory_config_file(char *file_name)
 {
   char path[COPY_MAXPATH2];
-  snprintf(path,COPY_MAXPATH2, "%s%cconfig%c%s", config.main_path, DIR_SEPARATOR_CHAR,
-          DIR_SEPARATOR_CHAR, file_name);
+  snprintf(path, COPY_MAXPATH2, "%s%cconfig%c%s", config.main_path, DIR_SEPARATOR_CHAR,
+           DIR_SEPARATOR_CHAR, file_name);
 
   printf("loading directory config file %s\n", path);
 
