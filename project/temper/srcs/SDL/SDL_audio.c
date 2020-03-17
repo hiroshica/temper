@@ -125,6 +125,8 @@ void initialize_audio()
       printf("!!!! not create SDL Audio abort.\n error message:%s\n", SDL_GetError());
     }
     else{
+      SDL_Log("Open device no = %d",AudioDeviceId);
+
       SDL_PauseAudioDevice(AudioDeviceId,1);
 
       audio.output_frequency = audio_settings.freq;
