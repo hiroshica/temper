@@ -1,6 +1,7 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
+/*
 #define _sound_copy(source_offset, length, render_type, shift)                \
 {                                                                             \
   _length = (length) / 2;                                                     \
@@ -27,6 +28,7 @@
     _sound_copy(source_offset, length, render_type, 5);                       \
   }                                                                           \
 
+*/
 #define AUDIO_BUFFER_SIZE (1024 * 64)
 
 // This is how to use it: write to buffer using buffer_index with the primary

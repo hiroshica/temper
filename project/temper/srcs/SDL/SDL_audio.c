@@ -7,6 +7,39 @@ static int AudioDeviceId;
 /*
  * thread A
 */
+
+void _sound_copy(u32 source_offset, u32 length, u32 shift,s16 *stream_base)
+{
+  u32 i;
+  u32 _length = (length) / 2;
+  s32 *source = audio.buffer + source_offset;
+  s32 current_sample;
+  for(i = 0; i < _length; i++)
+  {
+    current_sample = source[i] >> shift;
+    if(current_sample > 32767){
+      current_sample = 32767;
+    }
+    else if(current_sample < -32768){
+      current_sample = -32768;
+    }
+    stream_base[i] = current_sample;
+    source[i] = 0;
+  }
+}
+
+void sound_copy(u32 source_offset, u32 length, s16 *stream_base)
+{
+  if(config.sound_double)
+  {
+    _sound_copy(source_offset, length, 4, stream_base);
+  }
+  else
+  {
+    _sound_copy(source_offset, length, 5, stream_base);
+  }
+}
+
 void audio_callback(void *userdata, Uint8 *stream, int length)
 {
   u32 sample_length = length / 2;
@@ -31,13 +64,13 @@ void audio_callback(void *userdata, Uint8 *stream, int length)
     if ((audio.buffer_base + sample_length) >= AUDIO_BUFFER_SIZE)
     {
       u32 partial_length = (AUDIO_BUFFER_SIZE - audio.buffer_base) * 2;
-      sound_copy(audio.buffer_base, partial_length, normal);
-      sound_copy(0, length - partial_length, normal);
+      sound_copy(audio.buffer_base, partial_length, stream_base);
+      sound_copy(0, length - partial_length, stream_base);
       audio.buffer_base = (length - partial_length) / 2;
     }
     else
     {
-      sound_copy(audio.buffer_base, length, normal);
+      sound_copy(audio.buffer_base, length, stream_base);
       audio.buffer_base += sample_length;
     }
   }
@@ -102,6 +135,9 @@ void initialize_audio()
   SDL_AudioSpec desired_spec; // = { config.audio_output_frequency, AUDIO_S16SYS, 2, 0, audio.playback_buffer_size / 4, 0, 0, audio_callback, NULL};
   SDL_AudioSpec audio_settings;
 
+  audio_mutex = SDL_CreateMutex();
+  audio_cv = SDL_CreateCond();
+
   for (i = 0; i < count; ++i)
   {
     SDL_Log("オーディオデバイス %d: %s", i, SDL_GetAudioDeviceName(i, 0));
@@ -126,12 +162,11 @@ void initialize_audio()
     }
     else{
       SDL_Log("Open device no = %d",AudioDeviceId);
-
+      SDL_Delay(100); /* 0.1秒停止 */
       SDL_PauseAudioDevice(AudioDeviceId,1);
+      SDL_Delay(100); /* 0.1秒停止 */
 
       audio.output_frequency = audio_settings.freq;
-      audio_mutex = SDL_CreateMutex();
-      audio_cv = SDL_CreateCond();
     }
   }
 }
@@ -152,7 +187,6 @@ void audio_exit()
 
 // Do not do either of these two without first locking/unlocking audio
 // (see functions below)
-
 void audio_signal_callback()
 {
 
