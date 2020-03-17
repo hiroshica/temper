@@ -114,9 +114,9 @@ void initialize_audio()
     desired_spec.channels = 2;
     desired_spec.samples = audio.playback_buffer_size / 4;
     desired_spec.callback = audio_callback; /* この関数はどこか別の場所に書く. 詳細はSDL_AudioSpecを参照すること */
-    getname = SDL_GetAudioDeviceName(0, 0);
+    //getname = SDL_GetAudioDeviceName(0, 0);
     AudioDeviceId = SDL_OpenAudioDevice(
-        getname,
+        NULL, //getname,
         0,
         &desired_spec, &audio_settings,
         SDL_AUDIO_ALLOW_ANY_CHANGE);
