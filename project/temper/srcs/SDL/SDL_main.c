@@ -109,8 +109,8 @@ void platform_initialize()
 {
   SDL_Init(SDL_INIT);
   SDL_ShowCursor(0);
-  
-  initialize_audio();
+
+  //initialize_audio();
 
 #if 0
   // ジョイスティックが存在するかチェックする
