@@ -64,8 +64,8 @@ void set_screen_resolution()
 #if WIN32_BUILD | LINUX_X86_BUILD
     if (SCALE_FULLSCREEN != config.scale_factor)
     {
-      //width *= config.scale_factor;
-      //height *= config.scale_factor;
+      width *= config.scale_factor;
+      height *= config.scale_factor;
     }
 #endif
   }
@@ -85,6 +85,8 @@ void set_screen_resolution()
     SDL_Delay(500); /* 0.5秒停止 */
     SDL_SetWindowTitle(sWindow,"Temper PC-Engine Emulator");
     // ここでtextureを使って一度windowのアップデートをするべき
+    SDL_RenderCopy(sRenderer, sScreenTexture, NULL,NULL);
+    SDL_RenderPresent(sRenderer);
   }
   last_scale_factor = config.scale_factor;
 }
