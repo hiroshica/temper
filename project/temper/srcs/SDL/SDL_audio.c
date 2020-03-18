@@ -159,6 +159,7 @@ void audio_exit()
 {
   audio.buffer_index = AUDIO_BUFFER_SIZE - 1;
   audio.buffer_base = 0;
+  SDL_UnlockAudioDevice(AudioDeviceId);
   SDL_CloseAudioDevice(AudioDeviceId);
 }
 
@@ -170,6 +171,7 @@ void audio_signal_callback()
 
 void audio_wait_callback()
 {
+#if false
   if ((((audio.buffer_index - audio.buffer_base) %
         AUDIO_BUFFER_SIZE) > (audio.playback_buffer_size * 3 / 2)) &&
       (config.fast_forward == 0))
@@ -179,6 +181,7 @@ void audio_wait_callback()
     {
     }
   }
+#endif
 }
 
 void audio_lock()
@@ -202,7 +205,7 @@ u32 audio_pause()
       break;
     case SDL_AUDIO_PLAYING:
       printf("再生中\n");
-      SDL_PauseAudioDevice(AudioDeviceId,1);
+      //SDL_PauseAudioDevice(AudioDeviceId,1);
       audio.pause_state = 1;
       break;
     case SDL_AUDIO_PAUSED:
@@ -221,6 +224,6 @@ void audio_unpause()
   if (audio.pause_state)
   {
     audio.pause_state = 0;
-    SDL_PauseAudioDevice(AudioDeviceId,0);
+    //SDL_PauseAudioDevice(AudioDeviceId,0);
   }
 }
