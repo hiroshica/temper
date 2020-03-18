@@ -4,6 +4,8 @@
 static SDL_Window *sWindow;
 static SDL_Renderer *sRenderer;
 static SDL_Texture *sScreenTexture;
+static SDL_DisplayMode sDisplayMode;
+bool sFullScreenFlag = false;
 
 u32 last_scale_factor;
 //u8 *real_screen_pixels;
@@ -28,7 +30,7 @@ void destroy_screen()
     SDL_DestroyRenderer(sRenderer);
     SDL_DestroyWindow(sWindow);
   }
-  SDL_Delay(500); /* 0.5秒停止 */
+  //SDL_Delay(500); /* 0.5秒停止 */
 }
 void exit_screen()
 {
@@ -40,8 +42,9 @@ void update_screen()
 {
   if (last_scale_factor != config.scale_factor)
   {
-    destroy_screen();
-    init_screen(false);
+    //destroy_screen();
+    //init_screen(false);
+    set_screen_resolution();
   }
   {
     SDL_RenderCopy(sRenderer, sScreenTexture, NULL,NULL);
@@ -49,15 +52,17 @@ void update_screen()
   }
 }
 
+
 void set_screen_resolution()
 {
-  u32 windowflag = 0;
+  int32_t retcode = 0;
+  u32 windowflag = SDL_RENDERER_PRESENTVSYNC;
   u32 width = SCREEN_W;
   u32 height = SCREEN_H;
 
   if (config.scale_factor == SCALE_FULLSCREEN)
   {
-    windowflag = SDL_WINDOW_FULLSCREEN;
+    windowflag |= SDL_WINDOW_FULLSCREEN;
   }
   else
   {
@@ -69,12 +74,19 @@ void set_screen_resolution()
     }
 #endif
   }
-
-  int32_t retcode = SDL_CreateWindowAndRenderer(
-      (int32_t)width, (int32_t)height,
-      SDL_RENDERER_PRESENTVSYNC,
-      &sWindow,
-      &sRenderer);
+  if(sWindow != NULL){
+    SDL_SetWindowFullscreen(sWindow, (windowflag&SDL_WINDOW_FULLSCREEN));
+    if(!(windowflag&SDL_WINDOW_FULLSCREEN)){
+      SDL_SetWindowSize(sWindow, (int32_t)width, (int32_t)height);
+    }
+  }
+  else{
+    retcode = SDL_CreateWindowAndRenderer(
+        (int32_t)width, (int32_t)height,
+        windowflag,
+        &sWindow,
+        &sRenderer);
+  }
 
   if (retcode == -1 || sWindow == NULL || sRenderer == NULL)
   {
@@ -82,7 +94,13 @@ void set_screen_resolution()
   }
   else
   {
-    SDL_Delay(500); /* 0.5秒停止 */
+    if(windowflag&SDL_WINDOW_FULLSCREEN){
+      sFullScreenFlag = true;
+    }
+    else{
+      sFullScreenFlag = false;
+    }
+    //SDL_Delay(500); /* 0.5秒停止 */
     SDL_SetWindowTitle(sWindow,"Temper PC-Engine Emulator");
     // ここでtextureを使って一度windowのアップデートをするべき
     SDL_RenderCopy(sRenderer, sScreenTexture, NULL,NULL);
