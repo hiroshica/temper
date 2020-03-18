@@ -1,7 +1,5 @@
 #include "../common.h"
 
-static SDL_mutex *audio_mutex;
-static SDL_cond *audio_cv;
 static int AudioDeviceId;
 
 /*
@@ -50,13 +48,10 @@ void audio_callback(void *userdata, Uint8 *stream, int length)
 
   u32 i;
 
-  SDL_LockMutex(audio_mutex);
-
   while (((audio.buffer_index - audio.buffer_base) %
           AUDIO_BUFFER_SIZE) < length)
   {
     // Pump remaining cycles if you can.
-    SDL_CondWait(audio_cv, audio_mutex);
   }
 
   if (config.enable_sound)
@@ -87,11 +82,6 @@ void audio_callback(void *userdata, Uint8 *stream, int length)
     }
     memset(stream, 0, length);
   }
-
-  if (config.fast_forward == 0)
-    SDL_CondSignal(audio_cv);
-
-  SDL_UnlockMutex(audio_mutex);
 }
 /*
  * thread A 
@@ -135,9 +125,6 @@ void initialize_audio()
   SDL_AudioSpec desired_spec; // = { config.audio_output_frequency, AUDIO_S16SYS, 2, 0, audio.playback_buffer_size / 4, 0, 0, audio_callback, NULL};
   SDL_AudioSpec audio_settings;
 
-  audio_mutex = SDL_CreateMutex();
-  audio_cv = SDL_CreateCond();
-
   for (i = 0; i < count; ++i)
   {
     SDL_Log("オーディオデバイス %d: %s", i, SDL_GetAudioDeviceName(i, 0));
@@ -148,7 +135,7 @@ void initialize_audio()
     desired_spec.freq = config.audio_output_frequency;
     desired_spec.format = AUDIO_S16SYS;
     desired_spec.channels = 2;
-    desired_spec.samples = audio.playback_buffer_size / 4;
+    desired_spec.samples = audio.playback_buffer_size / 4;  // /4なのは　サイズ / sizeof(s16) / stereoということかな？
     desired_spec.callback = audio_callback; /* この関数はどこか別の場所に書く. 詳細はSDL_AudioSpecを参照すること */
     //getname = SDL_GetAudioDeviceName(0, 0);
     AudioDeviceId = SDL_OpenAudioDevice(
@@ -162,10 +149,7 @@ void initialize_audio()
     }
     else{
       SDL_Log("Open device no = %d",AudioDeviceId);
-      SDL_Delay(100); /* 0.1秒停止 */
-      SDL_PauseAudioDevice(AudioDeviceId,1);
-      SDL_Delay(100); /* 0.1秒停止 */
-
+      SDL_LockAudioDevice(AudioDeviceId);
       audio.output_frequency = audio_settings.freq;
     }
   }
@@ -175,22 +159,13 @@ void audio_exit()
 {
   audio.buffer_index = AUDIO_BUFFER_SIZE - 1;
   audio.buffer_base = 0;
-  SDL_CondSignal(audio_cv);
-  SDL_LockMutex(audio_mutex);
-  SDL_UnlockMutex(audio_mutex);
-
   SDL_CloseAudioDevice(AudioDeviceId);
-
-  SDL_DestroyCond(audio_cv);
-  SDL_DestroyMutex(audio_mutex);
 }
 
 // Do not do either of these two without first locking/unlocking audio
 // (see functions below)
 void audio_signal_callback()
 {
-
-  SDL_CondSignal(audio_cv);
 }
 
 void audio_wait_callback()
@@ -202,19 +177,16 @@ void audio_wait_callback()
     while (((audio.buffer_index - audio.buffer_base) %
             AUDIO_BUFFER_SIZE) > (audio.playback_buffer_size * 3 / 2))
     {
-      SDL_CondWait(audio_cv, audio_mutex);
     }
   }
 }
 
 void audio_lock()
 {
-  SDL_LockMutex(audio_mutex);
 }
 
 void audio_unlock()
 {
-  SDL_UnlockMutex(audio_mutex);
 }
 
 u32 audio_pause()
