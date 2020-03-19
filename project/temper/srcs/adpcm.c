@@ -1,6 +1,7 @@
 #include "common.h"
 
 adpcm_struct adpcm;
+extern volatile audio_struct audio;
 
 u16 adpcm_step_values[49] =
 {

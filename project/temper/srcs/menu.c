@@ -3,6 +3,8 @@
 #include "common.h"
 #include "setup.h"
 
+extern volatile audio_struct audio;
+
 #define menu_line(line) \
   (line * 8)
 
@@ -1751,7 +1753,7 @@ void menu(u32 start_file_dialog)
   menu_state.restore_screen = 1;
   menu_state.bg_info_string[0] = 0;
 
-  audio_pause_state = audio_pause();
+  audio_pause_state = audio_pause(&audio);
 
   copy_screen(menu_state.screen_bg);
   copy_screen_quarter_intensity(menu_state.screen_bg_quarter);
@@ -1833,7 +1835,7 @@ void menu(u32 start_file_dialog)
     }
   }
 
-  audio_revert_pause_state(audio_pause_state);
+  audio_revert_pause_state(&audio, audio_pause_state);
 
   // Wait for buttons to be released.
   while (1)

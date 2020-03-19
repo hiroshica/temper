@@ -48,24 +48,18 @@ typedef struct
   u32 pause_state;
 } audio_struct;
 
-extern audio_struct audio;
+void initialize_audio(audio_struct *callback_audio);
+void audio_exit(audio_struct *callback_audio);
 
-void initialize_audio();
-void audio_sync_start();
-void audio_sync_end();
-void audio_exit();
+void audio_unstall_callback(audio_struct *callback_audio);
+void audio_reset_buffer(audio_struct *callback_audio);
 
-void audio_signal_callback();
-void audio_unstall_callback();
-void audio_wait_callback();
-void audio_reset_buffer();
+u32 audio_pause(audio_struct *callback_audio);
+void audio_unpause(audio_struct *callback_audio);
+void audio_revert_pause_state(audio_struct *callback_audio, u32 pause_state);
 
 void audio_lock();
 void audio_unlock();
-
-u32 audio_pause();
-void audio_unpause();
-void audio_revert_pause_state();
 
 #endif
 

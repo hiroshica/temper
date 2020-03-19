@@ -1,5 +1,7 @@
 #include "common.h"
 
+extern volatile audio_struct audio;
+
 #ifdef ARM_ARCH
 memory_struct memory __attribute__ ((aligned(8192)));
 #else
@@ -1524,7 +1526,7 @@ s32 load_rom(char *path)
   }
 
   // This prevents messes from happening with audio deadlock, hopefully
-  audio_unstall_callback();
+  audio_unstall_callback(&audio);
 
   return 0;
 }

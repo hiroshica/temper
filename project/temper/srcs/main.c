@@ -1,5 +1,7 @@
 #include "common.h"
 
+extern volatile audio_struct audio;
+
 void setup_main_dirs()
 {
   struct stat sb;
@@ -310,7 +312,7 @@ void run_pce(u32 benchmark_frames)
   printf("Running game.\n");
   init_events();
 
-  audio_unpause();
+  audio_unpause(&audio);
   while (1)
   {
     /*synchronize();*/
@@ -333,10 +335,8 @@ void run_pce(u32 benchmark_frames)
     update_frame(0);
 #endif
 
-    audio_sync_start();
     update_psg();
     update_cdda();
-    audio_sync_end();
 
     update_events(); // input SDL
 
@@ -537,7 +537,7 @@ savestate_extension_enum load_state(char *file_name, u8 *in_memory_state,
   savestate_header_struct savestate_header;
   u8 *savestate_buffer = malloc(SAVESTATE_MAX_SIZE);
 
-  u32 audio_pause_state = audio_pause();
+  u32 audio_pause_state = audio_pause(&audio);
 
   file_read_mem_open(savestate_file, path, savestate_buffer, in_memory_state,
                      in_memory_state_size);
@@ -679,7 +679,7 @@ savestate_extension_enum load_state(char *file_name, u8 *in_memory_state,
 
   // And return the extensions we loaded.
   free(savestate_buffer);
-  audio_revert_pause_state(audio_pause_state);
+  audio_revert_pause_state(&audio,audio_pause_state);
   return savestate_header.extensions;
 
 invalid:
@@ -687,7 +687,7 @@ invalid:
 
   printf("An error occured while trying to load the savestate file.\n");
   free(savestate_buffer);
-  audio_revert_pause_state(audio_pause_state);
+  audio_revert_pause_state(&audio,audio_pause_state);
   return SS_EXT_INVALID;
 }
 
@@ -1130,7 +1130,7 @@ void quit()
 
   save_directory_config_file("temper.cf2");
 
-  audio_exit();
+  audio_exit(&audio);
   platform_quit();
 
   exit(0);

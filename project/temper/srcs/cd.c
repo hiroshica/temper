@@ -7,6 +7,7 @@ cd_struct cd __attribute__ ((aligned(8192)));
 #else
 
 cd_struct cd;
+extern volatile audio_struct audio;
 
 #endif
 

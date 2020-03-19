@@ -13,6 +13,8 @@ const u32 step_fractional_bits_noise = 14;
 
 psg_struct psg;
 
+extern volatile audio_struct audio;
+
 
 #define update_volume(channel_ptr)                                            \
 {                                                                             \
@@ -293,7 +295,7 @@ void initialize_volume_data()
 
 void initialize_psg()
 {
-  initialize_audio();
+  initialize_audio(&audio);
 
   psg.clock_step = (MASTER_CLOCK_RATE << step_fractional_bits_clock) /
    audio.output_frequency;
@@ -309,7 +311,7 @@ void reset_psg()
   psg.current_channel = psg.psg_channels;
 
   audio_lock();
-  audio_reset_buffer();
+  audio_reset_buffer(&audio);
 
   for(i = 0; i < 6; i++)
   {
@@ -569,8 +571,17 @@ void update_psg()
   audio.buffer_index = audio_buffer_index;
 }
 
+void buffer_clear(){
+//memset((void *)audio.buffer, 0, sizeof(audio.buffer));
+  int iI;
+  int max = sizeof(audio.buffer);
+  for(iI =0; iI < max; ++iI){
+    audio.buffer[iI] = 0;
+  }
+}
+
 #define psg_savestate_extra_load()                                            \
-  memset(audio.buffer, 0, sizeof(audio.buffer));                              \
+  buffer_clear();                      \
   psg.current_channel = psg.psg_channels + psg.current_channel_value          \
 
 #define psg_savestate_extra_store()                                           \
