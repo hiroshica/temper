@@ -335,8 +335,10 @@ void run_pce(u32 benchmark_frames)
     update_frame(0);
 #endif
 
+    audio_sync_start();
     update_psg();
     update_cdda();
+    audio_sync_end();
 
     update_events(); // input SDL
 

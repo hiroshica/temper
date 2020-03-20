@@ -160,6 +160,27 @@ void initialize_audio(audio_struct *callback_audio)
   }
 }
 
+void audio_signal_callback()
+{
+  SDL_LockAudioDevice(AudioDeviceId);
+}
+
+void audio_wait_callback()
+{
+  if((((audio.buffer_index - audio.buffer_base) %
+   AUDIO_BUFFER_SIZE) > (audio.playback_buffer_size * 3 / 2)) &&
+   (config.fast_forward == 0))
+  {
+    while(((audio.buffer_index - audio.buffer_base) %
+     AUDIO_BUFFER_SIZE) > (audio.playback_buffer_size * 3 / 2))
+    {
+      SDL_UnlockAudioDevice(AudioDeviceId);
+    }
+  }
+}
+
+
+
 void audio_lock(){
   SDL_LockAudioDevice(AudioDeviceId);
 }
