@@ -311,7 +311,7 @@ void reset_psg()
   psg.current_channel = psg.psg_channels;
 
   audio_lock();
-  audio_reset_buffer(&audio);
+  //audio_reset_buffer(&audio);
 
   for(i = 0; i < 6; i++)
   {

@@ -1,5 +1,7 @@
 #include "../common.h"
 
+extern volatile audio_struct audio;
+
 static int AudioDeviceId;
 
 /*
@@ -40,7 +42,7 @@ void sound_copy(audio_struct *callback_audio, u32 source_offset, u32 length, s16
 
 void audio_callback(void *userdata, Uint8 *stream, int length)
 {
-  audio_struct *callback_audio = (audio_struct *)userdata;
+  audio_struct *callback_audio = &audio; // (audio_struct *)userdata;
   u32 sample_length = length / 2;
   u32 _length;
   s16 *stream_base = (s16 *)stream;
@@ -51,10 +53,10 @@ void audio_callback(void *userdata, Uint8 *stream, int length)
      if(check_buffersize >= length){
       if ((callback_audio->buffer_base + sample_length) >= AUDIO_BUFFER_SIZE)
       {
-        // 今コピーすべきサイズ分サウンドができていない
+        // ラップしたときの処理
         u32 partial_length = (AUDIO_BUFFER_SIZE - callback_audio->buffer_base) * 2;
-        sound_copy(callback_audio, callback_audio->buffer_base, partial_length, stream_base);  // 出来てる分コピー
-        sound_copy(callback_audio, 0, length - partial_length, stream_base);         // 出来てない分０クリア
+        sound_copy(callback_audio, callback_audio->buffer_base, partial_length, stream_base);  // ラップ前
+        sound_copy(callback_audio, 0, length - partial_length, stream_base);         // ラップ後
         callback_audio->buffer_base = (length - partial_length) / 2;
       }
       else
@@ -63,6 +65,9 @@ void audio_callback(void *userdata, Uint8 *stream, int length)
         sound_copy(callback_audio, callback_audio->buffer_base, length, stream_base);
         callback_audio->buffer_base += sample_length;
       }
+    }
+    else{
+      memset(stream, 0, length);
     }
   }
   else
@@ -79,6 +84,7 @@ void audio_callback(void *userdata, Uint8 *stream, int length)
     }
     memset(stream, 0, length);
   }
+  //callback_audio->buffer_base = (callback_audio->buffer_base) %AUDIO_BUFFER_SIZE;
 }
 /*
  * thread A 
@@ -147,7 +153,8 @@ void initialize_audio(audio_struct *callback_audio)
       printf("!!!! not create SDL Audio abort.\n error message:%s\n", SDL_GetError());
     }
     else{
-      SDL_Log("Open device no = %d",AudioDeviceId);
+      //SDL_Log("Open device no = %d",AudioDeviceId);
+      SDL_Log("オーディオデバイス %d: %s", AudioDeviceId, SDL_GetAudioDeviceName(AudioDeviceId, 0));
       callback_audio->output_frequency = audio_settings.freq;
     }
   }
