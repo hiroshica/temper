@@ -1,7 +1,9 @@
-***
 # Temper for RG350/linux/mingw(win32)
+
 ***
+
 ## update:
+
 - 2019-12-29  
 　win32版をそこそこ動くように修正
 - 2019-12-30  
@@ -20,11 +22,27 @@
 input周りとハード毎のソース統合完了  
 - 2020-03-14  
 諸問題を修正アナログキー→デジタルキー変換は問題が解決しないので止め
+
 ***
 ## 解析機能ドキュメント
-***
-## ToDo:
+
 [入力関連](./doc/input.md)
+
+
+## ビルド方法
+project directoryに移動して  
+./createproject.sh [mingw/linux/rg350]  
+と実行する  
+mingw = mingw版を作成（mingw64　bashで行う)  
+linux = ubuntu環境のみテストしてある  
+rg350 = rg350よう実行ファイルを作成する（標準的なrg350 toolchainを使用する）  
+全てsdlがあることが前提  
+成功するとbuild directpryが出来て各ターゲットのディレクトリの下にdebug　directoryが出来て  
+そこに移動してmakeとするとout/exe/各ターゲット　ディレクトリが出来てそこに実行ファイルが出来上がる
+
+***
+
+## ToDo:
 
 - Screenのリサイズに対応できるようにする
 
