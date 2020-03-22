@@ -9,92 +9,98 @@ u16 analog_inputkey = 0x000f;
 s32 ud_value = 0;
 s32 lr_value = 0;
 u32 ConvertAnalogHAT[] = {
-	CONFIG_BUTTON_NONE,	 //0x0000
+	CONFIG_BUTTON_NONE,	//0x0000
 	CONFIG_HAT_UP,		   //0x0001
 	CONFIG_HAT_RIGHT,	  //0x0002
 	CONFIG_HAT_UP_RIGHT,   //0x0003
 	CONFIG_BUTTON_DOWN,	//0x0004
-	CONFIG_BUTTON_NONE,	 //0x0005
+	CONFIG_BUTTON_NONE,	//0x0005
 	CONFIG_HAT_DOWN_RIGHT, //0x0006
-	CONFIG_BUTTON_NONE,	 //0x0007
+	CONFIG_BUTTON_NONE,	//0x0007
 	CONFIG_HAT_LEFT,	   //0x0008
 	CONFIG_HAT_UP_LEFT,	//0x0009
-	CONFIG_BUTTON_NONE,	 //0x000A
-	CONFIG_BUTTON_NONE,	 //0x000B
+	CONFIG_BUTTON_NONE,	//0x000A
+	CONFIG_BUTTON_NONE,	//0x000B
 	CONFIG_HAT_DOWN_LEFT,  //0x000C
-	CONFIG_BUTTON_NONE,	 //0x000D
-	CONFIG_BUTTON_NONE,	 //0x000E
-	CONFIG_BUTTON_NONE,	 //0x000F
+	CONFIG_BUTTON_NONE,	//0x000D
+	CONFIG_BUTTON_NONE,	//0x000E
+	CONFIG_BUTTON_NONE,	//0x000F
 };
-void create_analog_key(u32 hat_buttons_press){
-  analog_inputkey |=
-            (IO_BUTTON_UP | IO_BUTTON_DOWN | IO_BUTTON_LEFT | IO_BUTTON_RIGHT) &
-            ~hat_buttons_press;
+void create_analog_key(u32 hat_buttons_press)
+{
+	analog_inputkey |=
+		(IO_BUTTON_UP | IO_BUTTON_DOWN | IO_BUTTON_LEFT | IO_BUTTON_RIGHT) &
+		~hat_buttons_press;
 	analog_inputkey &= ~hat_buttons_press;
 }
 
 void calc_analog_event(event_input_struct *event_input)
 {
-	#define kLIMITF   (0.6f)
-	#define DEGtoRAD(x)  (x*(M_PI/180))
-	#define RADtoDEG(x)  (x*(M_PI/180))
-
+#define kLOWLIMITF (0.1)
+#define kLIMITF (0.6)
 	float x = (float)lr_value / 32767;
 	float y = (float)ud_value / 32767;
 
-	float calc_r = RADtoDEG(atan2f(y,x));
-	int index = (int)((calc_r + 22.5f) / 45.0f);
-	float len = sqrtf((x*x) + (y*y));
-	if(len > kLIMITF){
-		status_message("x=%.3f y=%.3f calc R=%.3f index=%d", x,y, calc_r, index);
+	if (y < -kLIMITF)
+	{
+		create_analog_key(IO_BUTTON_UP);
 	}
-	else{
-		event_input->action_type = INPUT_ACTION_TYPE_PRESS;
-		event_input->config_button_action[0] = CONFIG_HAT_CENTER;
+	else if (y > kLIMITF)
+	{
+		create_analog_key(IO_BUTTON_DOWN);
 	}
-#if 0
+	else
+	{
+		create_analog_key(analog_inputkey & (IO_BUTTON_LEFT | IO_BUTTON_RIGHT));
+	}
+
+	if (x < -kLIMITF)
+	{
+		create_analog_key(IO_BUTTON_LEFT);
+	}
+	else if (x > kLIMITF)
+	{
+		create_analog_key(IO_BUTTON_RIGHT);
+	}
+	else
+	{
+		create_analog_key(analog_inputkey & (IO_BUTTON_UP | IO_BUTTON_DOWN));
+	}
+
+	u16 calcindex = ((~analog_inputkey) & 0x000f);
+	//status_message("now analog %04x : %04x", analog_inputkey, calcindex);
+
 	u32 getkeydata = ConvertAnalogHAT[calcindex];
-	if(getkeydata != CONFIG_BUTTON_NONE){
+	if (getkeydata != CONFIG_BUTTON_NONE)
+	{
 		event_input->action_type = INPUT_ACTION_TYPE_PRESS;
 		event_input->config_button_action[0] = getkeydata;
 	}
-	#endif
 	analog_on = 0;
 }
-s32 createButtonStatus(event_input_struct *event_input, u32 keys,s32 actionindex)
+
+s32 createButtonStatus(event_input_struct *event_input, u32 keys, s32 actionindex)
 {
 	s32 iI;
 	s32 mapindex;
 	s32 nowindex;
 	u32 createkey;
-	// ButtonMapDataからconfig.padに記録された番号の取得
-	for (mapindex = 0;; mapindex++)
+	u32 oldkey = CONFIG_BUTTON_NONE;
+	u32 newkey = CONFIG_BUTTON_NONE;
+	// pad[]の中身が示しているButtonMapData内のハードキー番号がkeysと一致したらそのpad配列のindex番号が押したボタンになる
+	for (iI = 0; iI < button_strings_count; ++iI)
 	{
-		if (ButtonMapData[mapindex].mIndex == k_INDEX_NONE)
-		{
-			mapindex = -1;
-			break;
-		}
-		createkey = ButtonMapData[mapindex].mIndex & k_INDEX_MASK;
+		nowindex = config.pad[iI];
+		createkey = ButtonMapData[nowindex].mIndex & k_INDEX_MASK;
 		if (createkey == keys)
 		{
-			break;
-		}
-	}
-	// ButtonMapDataからconfig.padに記録された番号の取得(ここまで)
-
-	if (mapindex != -1)
-	{
-		nowindex = config.pad[mapindex];
-		// 上記で得た番号がマップされてるPCEのキー番号を取り出す
-		for (iI = 0; iI < PAD_STOCK_MAX; ++iI)
-		{
-			if (config.pad[iI] == nowindex)
+			newkey = iI + CONFIG_BUTTON_RUN; // 上下左右を削ったのでその分を補正している
+			if (oldkey != newkey)
 			{
-				event_input->config_button_action[actionindex++] = iI + CONFIG_BUTTON_RUN; // 上下左右を削ったのでその分を補正している
+				oldkey = newkey;
+				event_input->config_button_action[actionindex++] = newkey;
 			}
 		}
-		// 上記で得た番号がマップされてるPCEのキー番号を取り出す(ここまで)
 	}
 	return actionindex;
 }
@@ -122,21 +128,21 @@ void key_search(event_input_struct *event_input, eKeyMode inmode, u32 keys)
 			{
 			case eCASE_KEYSYM:
 				// keyboard 入力はwin32/linuxの場合はそのままconfig_dataを返す
-				if(sdl_to_config_map[iI].mPadMode == ePADMODE_NONE)
+				if (sdl_to_config_map[iI].mPadMode == ePADMODE_NONE)
 				{
 					event_input->config_button_action[0] = sdl_to_config_map[iI].mIndex;
 				}
-				else if(sdl_to_config_map[iI].mPadMode == ePADMODE_ON)
+				else if (sdl_to_config_map[iI].mPadMode == ePADMODE_ON)
 				{
-					actionindex = createButtonStatus(event_input, sdl_to_config_map[iI].mIndex,actionindex);
+					actionindex = createButtonStatus(event_input, sdl_to_config_map[iI].mIndex, actionindex);
 				}
 #if !defined(RG350_BUILD)
 #else
 #endif
 				break;
 			case eCASE_BUTTON:
-				//actionindex = createButtonStatus(event_input, keys,actionindex);
-#if 1
+				actionindex = createButtonStatus(event_input, keys, actionindex);
+#if 0
 				{
 					s32 iI;
 					s32 mapindex;
@@ -204,7 +210,6 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 		key_search(event_input, eMODE_BUTTON, event->jbutton.button);
 		break;
 	case SDL_JOYAXISMOTION:
-#if 0
 		// 0b00x0 bit :立っていないなら左スティック立っていたら右スティック
 		// 0b000x bit :立っていないならの左右入力立っていたら上下の入力
 		if (event->jaxis.axis == 1)
@@ -217,7 +222,6 @@ void key_map(SDL_Event *event, event_input_struct *event_input)
 			lr_value = event->jaxis.value;
 			analog_on = 1;
 		}
-#endif
 		break;
 	case SDL_JOYHATMOTION:
 		if (event->jhat.value != SDL_HAT_CENTERED)
@@ -269,7 +273,8 @@ u32 update_input(event_input_struct *event_input)
 	}
 	else
 	{
-		if(analog_on){
+		if (analog_on)
+		{
 			calc_analog_event(event_input); // 入力イベントがなくてもアナログの入力は作り続ける
 		}
 		return 0;

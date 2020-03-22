@@ -168,6 +168,7 @@ void update_events(void)
         u32 index = config_button_action  - CONFIG_BUTTON_RUN; // 上下左右を削ったのでその分を補正している
         //index = ButtonMapData[index].mIndex & k_INDEX_MASK;
         m_RapidStatus[index].m_Status = event_input.action_type;
+        m_RapidStatus[index].m_bottunStatus = io_button;
         if (!m_RapidSelect)
         {
           // 連写モード切り替えが押されていないので連写モードではない普通のキーon/offを作成する
@@ -191,7 +192,6 @@ void update_events(void)
           {
             //m_RapidStatus[index].m_Active ^= 1;
             config.rapid_active[index] ^=1;
-            m_RapidStatus[index].m_bottunStatus = io_button;
             m_RapidStatus[index].m_frameCount = 0;
             if (config.rapid_frame[index] == 0)
             {
