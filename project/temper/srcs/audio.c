@@ -22,16 +22,9 @@ void audio_unstall_callback()
   audio_signal_callback();
 }
 
-bool firstflag = true;
 void audio_reset_buffer()
 {
-  if(firstflag){
-    audio.buffer_index = AUDIO_BUFFER_SIZE - 1;
-    firstflag = false;
-  }
-  else{
-    audio.buffer_index = 0;
-  }
+  audio.buffer_index = 0;
   audio.buffer_base = 0;
   audio_signal_callback();
 }

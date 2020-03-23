@@ -36,7 +36,7 @@
 
 typedef struct
 {
-  s32 buffer[AUDIO_BUFFER_SIZE];
+  s32 buffer[AUDIO_BUFFER_SIZE*2];
   u32 buffer_base;
   u32 buffer_index;
 

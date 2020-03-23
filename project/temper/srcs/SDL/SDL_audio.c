@@ -2,7 +2,8 @@
 
 SDL_mutex *audio_mutex;
 SDL_cond *audio_cv;
-SDL_cond *main_cv;
+//SDL_cond *main_cv;
+
 
 void audio_callback(void *userdata, Uint8 *stream, int length)
 {
@@ -29,9 +30,10 @@ void audio_callback(void *userdata, Uint8 *stream, int length)
       if ((audio.buffer_base + sample_length) >= AUDIO_BUFFER_SIZE)
       {
         u32 partial_length = (AUDIO_BUFFER_SIZE - audio.buffer_base) * 2;
+        u32 top_length = length - partial_length;
         sound_copy(audio.buffer_base, partial_length, normal);
-        sound_copy(0, length - partial_length, normal);
-        audio.buffer_base = (length - partial_length) / 2;
+        sound_copy(0, top_length, normal);
+        audio.buffer_base = top_length / 2;
       }
       else
       {
@@ -104,6 +106,7 @@ void initialize_audio()
   audio.output_frequency = audio_settings.freq;
   audio_mutex = SDL_CreateMutex();
   audio_cv = SDL_CreateCond();
+  //main_cv = SDL_CreateCond();
 }
 
 void audio_exit()
@@ -111,9 +114,11 @@ void audio_exit()
   audio.buffer_index = AUDIO_BUFFER_SIZE - 1;
   audio.buffer_base = 0;
   SDL_CondSignal(audio_cv);
+  //SDL_CondSignal(main_cv);
   SDL_LockMutex(audio_mutex);
   SDL_UnlockMutex(audio_mutex);
   SDL_DestroyCond(audio_cv);
+  //SDL_DestroyCond(main_cv);
   SDL_DestroyMutex(audio_mutex);
   SDL_CloseAudio();
 }
