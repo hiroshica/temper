@@ -33,7 +33,7 @@ endif()
 
 MESSAGE("pkgpath = $ENV{PKG_CONFIG_PATH}")
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(SDL sdl REQUIRED)
+pkg_check_modules(SDL sdl2 REQUIRED)
 
 if(COMPILE_TYPE STREQUAL "linux")
   # linux

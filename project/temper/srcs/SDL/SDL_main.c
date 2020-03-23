@@ -109,6 +109,9 @@ void platform_initialize()
 {
   SDL_Init(SDL_INIT);
   SDL_ShowCursor(0);
+
+  //initialize_audio();
+
 #if 0
   // ジョイスティックが存在するかチェックする
   if (SDL_NumJoysticks() > 0)
@@ -149,6 +152,7 @@ void platform_quit()
       SDL_JoystickClose(joy);
     }
 #endif
+  exit_screen();
   SDL_Quit();
 }
 
