@@ -2,6 +2,7 @@
 
 SDL_mutex *audio_mutex;
 SDL_cond *audio_cv;
+SDL_cond *main_cv;
 
 void audio_callback(void *userdata, Uint8 *stream, int length)
 {
@@ -14,73 +15,75 @@ void audio_callback(void *userdata, Uint8 *stream, int length)
   u32 i;
 
   SDL_LockMutex(audio_mutex);
-
-  while(((audio.buffer_index - audio.buffer_base) %
-   AUDIO_BUFFER_SIZE) < length)
   {
-    // Pump remaining cycles if you can.
-    SDL_CondWait(audio_cv, audio_mutex);
-  }
-
-  if(config.enable_sound)
-  {
-    if((audio.buffer_base + sample_length) >= AUDIO_BUFFER_SIZE)
+    while (((audio.buffer_index - audio.buffer_base) %
+            AUDIO_BUFFER_SIZE) < length)
     {
-      u32 partial_length = (AUDIO_BUFFER_SIZE - audio.buffer_base) * 2;
-      sound_copy(audio.buffer_base, partial_length, normal);
-      sound_copy(0, length - partial_length, normal);
-      audio.buffer_base = (length - partial_length) / 2;
+      // Pump remaining cycles if you can.
+      // copyするバッファがまだなかったらここで待機する
+      SDL_CondWait(audio_cv, audio_mutex);
+    }
+
+    if (config.enable_sound)
+    {
+      if ((audio.buffer_base + sample_length) >= AUDIO_BUFFER_SIZE)
+      {
+        u32 partial_length = (AUDIO_BUFFER_SIZE - audio.buffer_base) * 2;
+        sound_copy(audio.buffer_base, partial_length, normal);
+        sound_copy(0, length - partial_length, normal);
+        audio.buffer_base = (length - partial_length) / 2;
+      }
+      else
+      {
+        sound_copy(audio.buffer_base, length, normal);
+        audio.buffer_base += sample_length;
+      }
     }
     else
     {
-      sound_copy(audio.buffer_base, length, normal);
-      audio.buffer_base += sample_length;
+      if ((audio.buffer_base + sample_length) >= AUDIO_BUFFER_SIZE)
+      {
+        u32 partial_length = (AUDIO_BUFFER_SIZE - audio.buffer_base) * 2;
+        audio.buffer_base = (length - partial_length) / 2;
+      }
+      else
+      {
+        audio.buffer_base += sample_length;
+      }
+      memset(stream, 0, length);
     }
-  }
-  else
-  {
-    if((audio.buffer_base + sample_length) >= AUDIO_BUFFER_SIZE)
-    {
-      u32 partial_length = (AUDIO_BUFFER_SIZE - audio.buffer_base) * 2;
-      audio.buffer_base = (length - partial_length) / 2;
-    }
-    else
-    {
-      audio.buffer_base += sample_length;
-    }
-    memset(stream, 0, length);
-  }
 
-  if(config.fast_forward == 0)
-    SDL_CondSignal(audio_cv);
+    if (config.fast_forward == 0)
+      SDL_CondSignal(audio_cv);
 
-  SDL_UnlockMutex(audio_mutex);
+    SDL_UnlockMutex(audio_mutex);
+  }
 }
 
 void initialize_audio()
 {
   printf("initializing audio with frequency %d\n",
-   config.audio_output_frequency);
+         config.audio_output_frequency);
 
-  switch(config.audio_output_frequency)
+  switch (config.audio_output_frequency)
   {
-    case 8000:
-    case 11025:
-      audio.playback_buffer_size = 512;
-      break;
+  case 8000:
+  case 11025:
+    audio.playback_buffer_size = 512;
+    break;
 
-    case 16000:
-    case 22050:
-      audio.playback_buffer_size = 1024;
-      break;
+  case 16000:
+  case 22050:
+    audio.playback_buffer_size = 1024;
+    break;
 
-    case 44100:
-      audio.playback_buffer_size = 2048;
-      break;
+  case 44100:
+    audio.playback_buffer_size = 2048;
+    break;
 
-    default:
-      audio.playback_buffer_size = 4096;
-      break;
+  default:
+    audio.playback_buffer_size = 4096;
+    break;
   }
 
   audio.pause_state = 1;
@@ -90,10 +93,9 @@ void initialize_audio()
   //audio.playback_buffer_size = 16384;
 
   SDL_AudioSpec desired_spec =
-  {
-    config.audio_output_frequency, AUDIO_S16SYS, 2, 0,
-    audio.playback_buffer_size / 4, 0, 0, audio_callback, NULL
-  };
+      {
+          config.audio_output_frequency, AUDIO_S16SYS, 2, 0,
+          audio.playback_buffer_size / 4, 0, 0, audio_callback, NULL};
 
   SDL_AudioSpec audio_settings;
   SDL_OpenAudio(&desired_spec, &audio_settings);
@@ -126,12 +128,12 @@ void audio_signal_callback()
 
 void audio_wait_callback()
 {
-  if((((audio.buffer_index - audio.buffer_base) %
-   AUDIO_BUFFER_SIZE) > (audio.playback_buffer_size * 3 / 2)) &&
-   (config.fast_forward == 0))
+  if ((((audio.buffer_index - audio.buffer_base) %
+        AUDIO_BUFFER_SIZE) > (audio.playback_buffer_size * 3 / 2)) &&
+      (config.fast_forward == 0))
   {
-    while(((audio.buffer_index - audio.buffer_base) %
-     AUDIO_BUFFER_SIZE) > (audio.playback_buffer_size * 3 / 2))
+    while (((audio.buffer_index - audio.buffer_base) %
+            AUDIO_BUFFER_SIZE) > (audio.playback_buffer_size * 3 / 2))
     {
       SDL_CondWait(audio_cv, audio_mutex);
     }
@@ -145,14 +147,14 @@ void audio_lock()
 
 void audio_unlock()
 {
-  SDL_UnlockMutex(audio_mutex);
+    SDL_UnlockMutex(audio_mutex);
 }
 
 u32 audio_pause()
 {
   u32 current_audio_pause = audio.pause_state;
 
-  if(current_audio_pause == 0)
+  if (current_audio_pause == 0)
     SDL_PauseAudio(1);
 
   audio.pause_state = 1;
@@ -161,10 +163,9 @@ u32 audio_pause()
 
 void audio_unpause()
 {
-  if(audio.pause_state)
+  if (audio.pause_state)
   {
     audio.pause_state = 0;
     SDL_PauseAudio(0);
   }
 }
-
