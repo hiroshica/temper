@@ -22,8 +22,10 @@ void audio_callback(void *userdata, Uint8 *stream, int length)
     {
       // Pump remaining cycles if you can.
       // copyするバッファがまだなかったらここで待機する
+      audio.thread_sig_stop = 1;
       SDL_CondWait(audio_cv, audio_mutex);
     }
+    audio.thread_sig_stop = 0;
 
     if (config.enable_sound)
     {
@@ -160,9 +162,27 @@ u32 audio_pause()
   u32 current_audio_pause = audio.pause_state;
 
   if (current_audio_pause == 0)
-    SDL_PauseAudio(1);
-
-  audio.pause_state = 1;
+  {
+    switch (SDL_GetAudioStatus())
+    {
+    case SDL_AUDIO_STOPPED:
+      printf("停止中\n");
+      break;
+    case SDL_AUDIO_PLAYING:
+      printf("再生中\n");
+      if(audio.thread_sig_stop == 0){
+        SDL_PauseAudio(1);
+      }
+      audio.pause_state = 1;
+      break;
+    case SDL_AUDIO_PAUSED:
+      printf("一時停止中\n");
+      break;
+    default:
+      printf("???");
+      break;
+    }
+  }
   return current_audio_pause;
 }
 
@@ -171,6 +191,23 @@ void audio_unpause()
   if (audio.pause_state)
   {
     audio.pause_state = 0;
-    SDL_PauseAudio(0);
+    switch (SDL_GetAudioStatus())
+    {
+    case SDL_AUDIO_STOPPED:
+      printf("停止中\n");
+      break;
+    case SDL_AUDIO_PLAYING:
+      printf("再生中\n");
+      break;
+    case SDL_AUDIO_PAUSED:
+      printf("一時停止中\n");
+      if(audio.thread_sig_stop == 0){
+        SDL_PauseAudio(0);
+      }
+      break;
+    default:
+      printf("???");
+      break;
+    }
   }
 }

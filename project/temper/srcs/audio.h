@@ -44,9 +44,11 @@ typedef struct
   u32 playback_buffer_size;
 
   u32 pause_state;
+
+  u32 thread_sig_stop;
 } audio_struct;
 
-extern volatile audio_struct audio;
+extern audio_struct audio;
 
 void initialize_audio();
 void audio_sync_start();

@@ -1,6 +1,6 @@
 #include "common.h"
 
-volatile audio_struct audio;
+audio_struct audio;
 
 void audio_sync_start()
 {
